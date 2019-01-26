@@ -1,0 +1,13 @@
+[Unit]
+Description=Configurator
+After=network-online.target
+
+[Service]
+Type=simple
+User=hhaim
+WorkingDirectory=/home/hhaim/.homeassistant/
+ExecStart=/usr/bin/python3  configurator.py
+
+[Install]
+WantedBy=multi-user.target
+

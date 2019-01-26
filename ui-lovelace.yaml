@@ -1,0 +1,202 @@
+title: My Awesome Home
+# Include external resources
+#resources:
+#  - url: /local/my-custom-card.js
+#    type: js
+#  - url: /local/my-webfont.css
+#    type: css
+
+# Optional background for all views. Check https://developer.mozilla.org/en-US/docs/Web/CSS/background for more examples.
+background: center / cover no-repeat url("/background.png") fixed
+# Exclude entities from "Unused entities" view
+#excluded_entities:
+#  - weblink.router
+views:
+    # View tab title.
+  - title: Home
+    # Optional unique id for direct access /lovelace/${id}
+    id: main
+    # Optional background (overwrites the global background).
+    background: radial-gradient(crimson, skyblue)
+    # Each view can have a different theme applied. Theme should be defined in the frontend.
+    theme: dark-mode
+    # The cards to show on this view.
+    cards:
+        # The filter card will filter entities for their state
+      - type: entity-filter
+        entities:
+           - device_tracker.daniel_phone
+           - device_tracker.hhaim_phone
+           - device_tracker.nitay_phone
+           - device_tracker.nitay_pc
+           - device_tracker.rivi_phone
+           - device_tracker.sony_ps
+           - device_tracker.tv
+
+        state_filter:
+          - 'home'
+        card:
+          type: glance
+          title: At Home
+      
+      - type: glance
+        title: Temperator
+        entities:
+          - entity: switch.b0
+            name: Boiler-On
+            icon: mdi:shower
+          - entity: sensor.btemp0
+            name: Boiler
+            icon: mdi:oil-temperature
+          - entity: sensor.boiler_total_hours
+            name: Boiler-hours
+            icon: mdi:shower
+          - entity: sensor.heat_index0
+            name: Down
+            icon: mdi:oil-temperature
+          - entity: sensor.heat_index1
+            name: Up
+            icon: mdi:oil-temperature
+          - entity: sensor.heat_index_outside0
+            name: Outside
+            icon: mdi:oil-temperature
+          - entity: sensor.uptime
+            name: uptime
+
+      - type: entities
+        title: A/C TV
+        show_header_toggle: true
+        entities:
+          - switch.tv
+          - switch.ac1
+          - switch.ac2
+
+      - type: entity-filter
+        entities:
+          - device_tracker.cam1
+          - device_tracker.cam2
+          - device_tracker.cam3
+          - device_tracker.cam4
+          - device_tracker.cam5
+          - device_tracker.alarm
+
+        state_filter:
+          - 'not_home'
+        card:
+          type: glance
+          title: Camera issues
+
+
+  - title: A/C
+    id: ac
+    theme: dark-mode
+    background: radial-gradient(lightgreen, skyblue)
+    cards:
+      - type: entities
+        title: A/C
+        show_header_toggle: true
+        entities:
+          - sensor.heat_index0
+          - sensor.heat_index1
+          - sensor.heat_index_outside0
+          - switch.ac1
+          - switch.ac2
+      - type: entities
+        title: Automation
+        entities:
+          - input_boolean.heat_app_enable
+          - input_boolean.heat_timer_0
+          - input_number.heat_timer_time
+      - type: history-graph
+        title: graph 
+        hours_to_show : 24
+        entities:
+          - sensor.heat_index0
+          - sensor.heat_index1
+          - sensor.heat_index_outside0
+          - switch.ac1
+          - switch.ac2
+
+  - title: Debug
+    id: debug
+    background: radial-gradient(crimson, skyblue)
+    theme: dark-mode
+    cards:
+      - type: entities
+        title: Machine
+        show_header_toggle: true
+        entities:
+          - sensor.disk_free_
+          - sensor.energy_total
+          - sensor.energy_yesterday
+          - sensor.fastcom_download
+          - sensor.memory_free
+          - sensor.processor_use
+          - switch.power0
+          - input_boolean.simple_switch0
+
+  - title: Camera
+    id: cam
+    background: radial-gradient(crimson, skyblue)
+    theme: dark-mode
+    cards:
+      - type: entities
+        title: cam
+        show_header_toggle: true
+        entities:
+          - camera.cam5
+          - camera.cam1
+          - camera.cam2
+          - camera.cam3
+          - camera.cam4
+          
+
+  - title: Alarm
+    id: alarm
+    background: radial-gradient(crimson, skyblue)
+    theme: dark-mode
+    cards:
+      - type: entity-filter
+        entities:
+          - binary_sensor.alarm0
+          - binary_sensor.alarm1
+          - binary_sensor.alarm2
+          - binary_sensor.alarm3
+          - binary_sensor.alarm4
+          - binary_sensor.alarm5
+          - binary_sensor.alarm6
+          - binary_sensor.alarm7
+          - binary_sensor.alarm8
+          - binary_sensor.alarm14
+          - binary_sensor.alarm15
+        state_filter:
+          - 'off'
+        card:
+          type: glance
+          title: sensors
+
+      - type: history-graph
+        title: graph 
+        hours_to_show : 1
+        entities:
+          - binary_sensor.alarm0
+          - binary_sensor.alarm1
+          - binary_sensor.alarm2
+          - binary_sensor.alarm3
+          - binary_sensor.alarm4
+          - binary_sensor.alarm5
+          - binary_sensor.alarm6
+          - binary_sensor.alarm7
+          - binary_sensor.alarm11
+          - binary_sensor.alarm12
+          - binary_sensor.alarm13
+          - binary_sensor.alarm14
+          - binary_sensor.alarm15
+      
+      - type: entities
+        title: Alarm control 
+        show_header_toggle: true
+        entities:
+          - switch.alarms0
+          - switch.alarms1
+

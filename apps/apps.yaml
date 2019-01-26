@@ -1,0 +1,218 @@
+
+
+
+#simple_sw_power:
+#  module: heat_app
+#  class: SimpleSwitch
+#  schedule:
+#       - { mode: a, start: { t: "18:05:00", d: 6}, end: { t: "18:06:00", d: 6} }
+#  switch:
+#     switch: switch.power0
+#     enable: input_boolean.simple_switch0
+
+heater_ac1:
+  module: heat_app
+  class: HeatApp
+  schedule:
+       - { mode: a, start: { t: "17:10:00", d: 6}, end: { t: "17:11:00", d: 6} }
+       - { mode: a, start: { t: "17:15:20", d: 6}, end: { t: "23:30:40", d: 6} }
+       - { mode: a, start: { t: "08:00:00", d: 7}, end: { t: "13:30:00", d: 7} }
+       - { mode: a, start: { t: "15:30:00", d: 7}, end: { t: "19:30:00", d: 7} }
+
+       #- { mode: a, start: { t: "19:30:20", d: 1}, end: { t: "23:30:40", d: 1} }
+       #- { mode: a, start: { t: "10:30:00", d: 2}, end: { t: "13:30:00", d: 2} }
+       #- { mode: a, start: { t: "16:30:00", d: 2}, end: { t: "23:30:00", d: 2} }
+
+       #- { mode: a, start: { t: "10:30:00", d: 3}, end: { t: "13:30:00", d: 3} }
+       #- { mode: a, start: { t: "16:30:00", d: 3}, end: { t: "23:30:00", d: 3} }
+       
+  heater:
+     mode: heat # cool 
+     switch: switch.ac1
+     sensor_inside :  sensor.heat_index0
+     sensor_outside : sensor.heat_index_outside0
+     enable : input_boolean.heat_app_enable
+     modes :
+        a : 
+          cool: { min_o: 27.9, min_i: 27.3, max_i: 29.5}
+          heat: { min_o: 18.0, min_i: 19.7, max_i: 21.5} 
+
+
+ # the up floor  
+heater_ac_up:
+  module: heat_app
+  class: HeatApp
+  schedule:
+       - { mode: a, start: { t: "17:15:00", d: 6}, end: { t: "17:15:00", d: 6} }
+       - { mode: a, start: { t: "23:30:00", d: 6}, end: { t: "08:00:00", d: 7} }
+       - { mode: b, start: { t: "13:00:00", d: 7}, end: { t: "17:00:00", d: 7} }
+
+       #- { mode: a, start: { t: "23:30:00", d: 1}, end: { t: "08:00:00", d: 2} }
+       #- { mode: b, start: { t: "13:00:00", d: 2}, end: { t: "17:00:00", d: 2} }
+       #- { mode: a, start: { t: "23:30:00", d: 2}, end: { t: "08:00:00", d: 3} }
+       #- { mode: b, start: { t: "13:00:00", d: 3}, end: { t: "17:00:00", d: 3} }
+       
+  heater:
+     mode: heat # cool 
+     switch: switch.ac2
+     sensor_inside :  sensor.heat_index1
+     sensor_outside : sensor.heat_index_outside0
+     enable : input_boolean.heat_app_enable
+     modes :
+        a : 
+          cool: { min_o: 27.3, min_i: 27.3, max_i: 31.1} 
+          heat: { min_o: 16.0, min_i: 14.9, max_i: 18.5} 
+        b : 
+          cool: { min_o: 27.9, min_i: 27.3, max_i: 29.5} 
+          heat: { min_o: 15.0, min_i: 17.0, max_i: 18.5} 
+
+
+calc_sensor_inside1:
+  module: heat_app
+  class: CalcHeatIndexApp
+  temp :  sensor.temperature
+  hum  :  sensor.humidity
+  out  :  sensor.heat_index0
+
+calc_sensor_inside2:
+  module: heat_app
+  class: CalcHeatIndexApp
+  temp :  sensor.temp1
+  hum  :  sensor.hum1
+  out  :  sensor.heat_index1
+
+
+calc_sensor_outside:
+  module: heat_app
+  class: CalcHeatIndexApp
+  temp :  sensor.dark_sky_temperature
+  hum  :  sensor.dark_sky_humidity
+  out  :  sensor.heat_index_outside0
+  
+
+test_days:
+  module: heat_app
+  class: CTestDays
+
+
+heat_timer_off:
+  module: heat_app
+  class: SimpleTimerOff
+  input_start: input_boolean.heat_timer_0
+  input_time:  input_number.heat_timer_time
+  switchs : [switch.ac2,switch.ac1]
+
+track_notification:
+   module: heat_app
+   class: TrackerNotification
+
+track_alarm:
+   module: heat_app
+   class: AlarmNotification
+
+high_priorty_track_alarm:
+   module: heat_app
+   class: AlarmNotificationHighPriorty
+
+sabbath_manager:
+  module: heat_app
+  class: SabbathEvent
+
+door_lamp:
+  module: heat_app
+  class: OutdoorLampWithPir
+  switch: switch.doorlamp0
+  sensor: binary_sensor.alarm16
+  delay: 15
+  sat_delay: 240
+
+alarm_off:
+  module: heat_app
+  class: SabbathHandler
+
+ringtone_enable:
+  module: heat_app
+  class: GatewayRingtone
+
+
+wakeup:
+  module: heat_app
+  class: GatewayWakeup
+
+avr_wakeuup:
+  module: heat_app
+  class: AutoTurnAVR130
+
+
+doorbell_button:
+  module: heat_app
+  class: HomeButtonClick
+
+
+# watchdog 
+boiler_timer_off:
+  module: heat_app
+  class: SimpleTimerOff
+  input_start: switch.b0
+  input_time:  input_number.boiler_timer_time
+  switchs : [switch.b0]
+
+boiler_automation:
+  module: heat_app
+  class: CBoilerAutomation
+  switch: switch.b0
+  temp: sensor.btemp0
+  input_automation: input_boolean.boiler_auto_enable
+  input_temp_min:   input_number.boiler_temp_min
+  input_temp_max:   input_number.boiler_temp_max
+  sensor_eff_power: sensor.boiler_eff_power0
+  sensor_eff_solar:  sensor.boiler_eff_solar0
+
+
+
+garden_lamp:
+  module: heat_app
+  class: OutdoorLampWithPir
+  switch: switch.gardenlamp0
+  sensor: binary_sensor.alarm15
+  delay: 15
+  sat_delay: 240
+
+# garden lamp projectors 
+garden_lamp2:
+  module: heat_app
+  class: OutdoorLampWithPir
+  switch: switch.gardenlamp1
+  sensor: binary_sensor.alarm15
+  delay: 15
+  sat_delay: 240
+
+water_monitor:
+  module: heat_app
+  class: CWaterMonitor
+  sensor_water_total: sensor.water_total
+  sensor_water_leak_detector: sensor.water_leak_detector
+  sensor_water_bursts: sensor.water_bursts
+  watchdog_duration_min: 50
+  watchdog_leakage_ticks: 3
+  max_day: 2000
+  max_burst: 400
+
+tv_lights:
+  module: heat_app
+  class: CFollowState
+  input: switch.tv
+  output: light.light1
+
+mii_cube:
+  module: heat_app
+  class: CCube
+
+mii_button:
+  module: heat_app
+  class: CMiiButton
+
+
+
+
+

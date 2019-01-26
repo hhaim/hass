@@ -1,0 +1,12 @@
+[Unit]
+Description=AppDaemon
+After=homeassistant.service
+Requires=homeassistant.service
+
+[Service]
+Type=simple
+User=hhaim
+ExecStart=/home/hhaim/ad/bin/appdaemon -c /home/hhaim/.homeassistant/ 
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,11 @@
+[Unit]
+Description=Home Assistant
+After=network-online.target mosquitto.service
+
+[Service]
+Type=simple
+User=hhaim
+ExecStart=/home/hhaim/homeassistant/bin/hass  -c /home/hhaim/.homeassistant/ 
+
+[Install]
+WantedBy=multi-user.target

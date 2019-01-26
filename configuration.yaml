@@ -1,0 +1,620 @@
+homeassistant:
+  # Name of the location where Home Assistant is running
+  name: Home
+  # Location required to calculate the time the sun rises and sets
+  latitude: 32.0806
+  longitude: 34.8142
+  # Impacts weather/sunrise data (altitude above sea level in meters)
+  elevation: 43
+  # metric for Metric, imperial for Imperial
+  unit_system: metric
+  # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  time_zone: Asia/Jerusalem
+  # Customization file
+  auth_providers:
+      - type: homeassistant
+      #- type: legacy_api_password
+  customize: !include customize.yaml
+
+# Show links to resources in log and frontend
+#introduction:
+
+# Enables the frontend
+frontend:
+
+# Enables configuration UI
+config:
+
+input_boolean:
+  heat_app_enable:
+    name: Enable AC/1 Heater
+  simple_switch0:
+    name: Enable Simple Switch 0
+  heat_timer_0:
+    name: Enable timer for heat
+  disable_ap_c7:
+    name: Disable admin 
+  boiler_auto_enable:
+    name: Enable auto
+  gateway_sound_enable:
+    name: Start sound
+
+
+input_number:
+  heat_timer_time:
+    name: A/C Timer
+    min: 60
+    max: 240
+    step: 30
+  boiler_timer_time:
+    name: Bolier Timer
+    min: 10
+    max: 120
+    step: 10
+  boiler_temp_min:
+    name: min-temp
+    min: 25.0
+    max: 40.0
+    step: 1.0
+  boiler_temp_max:
+    name: max-temp
+    min: 35.0
+    max: 60.0
+    step: 1.0
+  gateway_sound_id:
+    name: gateway ringtone
+    min: 0
+    max: 30
+    step: 1
+
+
+mqtt:
+  broker: localhost
+  port: 1883
+  client_id: home-assistant-1
+  keepalive: 60
+  username: hhaim
+  password: !secret mqtt_password
+  protocol: 3.1
+  birth_message:
+    topic: "tele/hass1/LWT"
+    payload: "Online"
+    qos: 1
+    retain: true
+  will_message:
+    topic: "tele/hass1/LWT"
+    payload: "Offline"
+    qos: 1
+    retain: true
+
+switch:
+  - platform: mqtt_tasmota
+    name: ac1
+    index: '1'
+    stopic: s0
+
+  - platform: mqtt_tasmota
+    name: ac2
+    index: '1'
+    stopic: s1
+
+  - platform: mqtt_tasmota
+    name: TV
+    stopic: p0
+
+  - platform: mqtt_tasmota
+    name: power0
+    stopic: pow0
+
+  - platform: mqtt_tasmota
+    name: b0
+    stopic: b0
+
+  - platform: mqtt_tasmota
+    name: alarm-s0
+    index: '1'
+    stopic: alarm
+
+  - platform: mqtt_tasmota
+    name: alarm-s1
+    index: '2'
+    stopic: alarm
+
+  - platform: mqtt_tasmota
+    name: door-lamp0
+    stopic: basic1
+
+  - platform: mqtt_tasmota
+    name: garden-lamp0
+    stopic: basic0
+
+  - platform: mqtt_tasmota
+    name: gardenlamp1
+    stopic: basic2
+
+
+http:
+  # Secrets are defined in the file secrets.yaml
+  api_password: !secret http_password
+  # Uncomment this if you are using SSL/TLS, running in Docker container, etc.
+  # base_url: example.duckdns.org:8123
+  trusted_networks:
+        - 127.0.0.1
+        - 10.0.0.0/24
+
+# Checks for available updates
+# Note: This component will send some information about your system to
+# the developers to assist with development of Home Assistant.
+# For more information, please see:
+# https://home-assistant.io/blog/2016/10/25/explaining-the-updater/
+updater:
+  # Optional, allows Home Assistant developers to focus on popular components.
+  # include_used_components: true
+
+# Discover some devices automatically
+discovery:
+
+# Allows you to issue voice commands from the frontend in enabled browsers
+conversation:
+
+# Enables support for tracking state changes over time
+history:
+
+# View all events in a logbook
+logbook:
+
+# Enables a map showing the location of tracked devices
+map:
+
+# Track the sun
+sun:
+
+
+binary_sensor: 
+
+  - platform: mqtt
+    name: "alarm16"
+    payload_on: "OFF"
+    payload_off: "ON"
+    availability_topic: "tele/basic1/LWT"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+    state_topic: "cmnd/basic1/POWER2"
+
+
+# Weather prediction
+sensor:
+  - platform: uptime
+  - platform: yr
+  - platform: mqtt
+    name: "Temperature"
+    state_topic: "tele/sonoff/SENSOR"
+    value_template: "{{ value_json['AM2301'].Temperature }}"
+    unit_of_measurement: "C"
+  - platform: mqtt
+    name: "Humidity"
+    state_topic: "tele/sonoff/SENSOR"
+    value_template: "{{ value_json['AM2301'].Humidity }}"
+    unit_of_measurement: "%"
+  - platform: mqtt
+    name: "temp1"
+    state_topic: "tele/temp0/SENSOR"
+    value_template: "{{ value_json['AM2301'].Temperature }}"
+    unit_of_measurement: "C"
+  - platform: mqtt
+    name: "hum1"
+    state_topic: "tele/temp0/SENSOR"
+    value_template: "{{ value_json['AM2301'].Humidity }}"
+    unit_of_measurement: "%"
+  - platform: mqtt
+    name: "Energy Yesterday"
+    state_topic: "tele/pow0/SENSOR"
+    value_template: "{{value_json['ENERGY'].Yesterday }}"
+    qos: 1
+    unit_of_measurement : "kWh" 
+  - platform: mqtt
+    name: "Energy Total"
+    state_topic: "tele/pow0/SENSOR"
+    value_template: "{{value_json['ENERGY'].Total }}"
+    qos: 1
+    unit_of_measurement : "kWh" 
+
+  - platform: mqtt
+    name: "btemp0"
+    state_topic: "tele/b0/SENSOR"
+    value_template: "{{value_json['DS18B20'].Temperature }}"
+    qos: 1
+    unit_of_measurement : "C" 
+  
+  - platform: statistics
+    entity_id: sensor.btemp0
+    max_age:
+      minutes: 600
+
+  - platform: darksky
+    api_key: !secret darksky_key
+    monitored_conditions:
+      - summary
+      - icon
+      - temperature
+      - apparent_temperature
+      - humidity
+      - wind_speed
+      - visibility
+      - precip_type
+      - precip_intensity
+      - precip_probability
+      - precip_accumulation
+      - uv_index
+  
+  - platform: systemmonitor
+    resources:
+      - type: disk_free
+        arg: /
+      - type: memory_free
+      - type: processor_use
+      - type: last_boot
+  - platform: fastdotcom
+
+  - platform: accumulator
+    name: boiler_total_hours2
+    entity_id: switch.b0
+    state_on: 'on'
+    state_off: 'off'
+
+  - platform: accumulator
+    name: ac1_hours
+    entity_id: switch.ac1
+    state_on: 'on'
+    state_off: 'off'
+
+  - platform: accumulator
+    name: ac2_hours
+    entity_id: switch.ac2
+    state_on: 'on'
+    state_off: 'off'
+
+  - platform: accumulator
+    name: tv_hours
+    entity_id: switch.tv
+    state_on: 'on'
+    state_off: 'off'
+
+  - platform: tasmota_counter
+    name: water_total
+    stopic: water_out
+    counter_id: 1
+    max_valid_diff: 2000
+    unit_of_measurement: 'l'
+    icon: mdi:water-pump
+    expire_after: 300
+    value_template: "{{ (4885 + (value))|int }}"
+
+  - platform: tasmota_counter
+    name: water_total_external
+    stopic: water_out
+    counter_id: 1
+    max_valid_diff: 2000
+    unit_of_measurement: 'l'
+    icon: mdi:water-pump
+    expire_after: 300
+    value_template: "{{ (80600 + 4885 + (value))|int }}"
+
+  
+  - platform: history_stats
+    name: boiler_total_hours
+    entity_id: switch.b0
+    state: 'on'
+    type: time
+    start: '{{ now().replace(hour=0).replace(minute=0).replace(second=0) }}'
+    duration:
+       days: 7
+  
+  - platform: template
+    sensors:
+      heat_index0:
+        friendly_name: 'Heat Index first floor'
+        unit_of_measurement: "C"
+        entity_id: sensor.heat_index
+        value_template: "{{ states('sensor.heat_index0') }}"
+      heat_index1:
+        friendly_name: 'Heat Index second floor'
+        unit_of_measurement: "C"
+        entity_id: sensor.heat_index
+        value_template: "{{ states('sensor.heat_index1') }}"
+      heat_index_outside0:
+        friendly_name: 'Heat Index outside'
+        unit_of_measurement: "C"
+        entity_id: sensor.heat_index_outside
+        value_template: "{{ states('sensor.heat_index_outside0') }}"
+      boiler_eff_power0:
+        friendly_name: 'Boiler power-ef C/hour'
+        unit_of_measurement: "C"
+        value_template: "{{ states('sensor.boiler_eff_power0') }}"
+      boiler_eff_solar0:
+        friendly_name: 'Boiler solar-ef C/hour'
+        unit_of_measurement: "C"
+        value_template: "{{ states('sensor.boiler_eff_solar0') }}"
+      
+      # shows only 1 liters 
+      water_leak_detector: 
+        friendly_name: 'water leaks detector'
+        unit_of_measurement: "l"
+        value_template: "{{ states('sensor.water_leak_detector') }}"
+      
+      # shows bulks of water in total        
+      water_bursts:
+        friendly_name: 'water usage in bulks'
+        unit_of_measurement: "l"
+        value_template: "{{ states('sensor.water_bursts') }}"
+
+
+
+# Text to speech
+tts:
+  - platform: google
+
+# Cloud
+cloud:
+
+#  platform: pushbullet
+#  api_key: !secret pushbullet
+
+telegram_bot:
+  - platform: polling
+    api_key: !secret telegram_api_key
+    allowed_chat_ids:
+      - !secret telegram_chat_id
+
+notify:
+  - name: notify
+    platform: telegram
+    api_key: !secret telegram_api_key
+    chat_id: !secret telegram_chat_id
+
+panel_iframe:
+  configurator:
+    title: Configurator
+    icon: mdi:wrench
+    url: http://hass.hhaim.home:3218
+
+device_tracker:
+   - platform: ping
+     interval_seconds: 60
+     consider_home: 400
+     hosts:
+       sony_ps      : sony-ps.hhaim.home
+       nitay_pc     : pc-nitay.hhaim.home
+       tv           : tv.hhaim.home
+   - platform: mqtt_dnsmasq
+     interval_seconds: 60
+     consider_home: 400
+     topic: 'network/dhcp' 
+   
+   - platform: tplink_v2
+     interval_seconds: 20
+     consider_home: 400
+     host: 10.0.0.139
+     username: !secret ap_user1 
+     password: !secret ap_password
+     firmware: base
+     zname: living
+   
+   - platform: tplink_v2
+     interval_seconds: 20
+     consider_home: 400
+     host: 10.0.0.138
+     username: !secret ap_user2
+     password: !secret ap_password
+     firmware: ac7
+     zname: main
+     disable_input: input_boolean.disable_ap_c7
+   
+   - platform: tplink_v2
+     interval_seconds: 20
+     consider_home: 400
+     host: 10.0.0.131
+     username: !secret ap_user2
+     password: !secret ap_password
+     firmware: wr900
+     zname: daniel
+   
+   - platform: tplink_v2
+     interval_seconds: 20
+     consider_home: 400
+     host: 10.0.0.134
+     username: !secret ap_user1 
+     password: !secret ap_password
+     firmware: wr900
+     zname: base
+
+   - platform: tplink_v2
+     interval_seconds: 20
+     consider_home: 400
+     host: 10.0.0.141
+     username: !secret ap_user2 
+     password: !secret ap_password
+     firmware: wr940
+     zname: kitchen
+     disable_input: input_boolean.disable_ap_c7
+
+
+
+camera:
+  - platform: foscam
+    ip: cam2-w.hhaim.home
+    username: !secret cam_user
+    password: !secret cam_pass
+    name: cam2
+
+  - platform: generic
+    username: !secret cam_user
+    password: !secret cam_pass
+    still_image_url: !secret cam3_url
+    name: cam3
+
+  - platform: generic
+    username: !secret cam_user
+    password: !secret cam_pass
+    still_image_url: !secret cam4_url
+    name: cam4
+
+  - platform: ffmpeg
+    name: cam5
+    input: !secret cam5_url
+
+  - platform: ffmpeg
+    name: cam1
+    input: !secret cam1_url
+
+
+media_player:
+  - platform: kodi
+    host: 10.0.0.50
+    username: !secret kodi_user
+    password: !secret kodi_pass
+
+  - platform: universal
+    name: main
+    commands:
+      turn_on:
+        service: mqtt.publish
+        data:
+           topic: cmnd/water/IRsend
+           payload: '{"Protocol":"NEC","Bits":32,"Data":0x10E03FC}'
+
+      turn_off:
+        service: mqtt.publish
+        data:
+           topic:  cmnd/water/IRsend
+           payload: '{"Protocol":"NEC","Bits":32,"Data":0x10EF906}'
+
+      volume_up:
+        service: mqtt.publish
+        data:
+           topic:  cmnd/water/IRsend
+           payload: '{"Protocol":"NEC","Bits":32,"Data":0x10EE31c}'
+
+      volume_down:
+        service: mqtt.publish
+        data:
+           topic:  cmnd/water/IRsend
+           payload: '{"Protocol":"NEC","Bits":32,"Data":0x10E13ec}'
+
+      volume_mute:
+        service: mqtt.publish
+        data:
+           topic:  cmnd/water/IRsend
+           payload: '{"Protocol":"NEC","Bits":32,"Data":0x10E837c}'
+      
+    attributes:
+        state: switch.tv
+
+
+history_graph:
+  gr1:
+    name: Temperature
+    hours_to_show: 24
+    entities:
+       - sensor.heat_index0
+       - sensor.heat_index1
+       - sensor.heat_index_outside0
+       - switch.ac1
+       - switch.ac2
+  gr2:
+    name: Boiler Graph
+    hours_to_show: 24
+    entities:
+       - sensor.btemp0
+       - switch.b0
+
+influxdb:
+  database: hass_db
+
+recorder:
+  purge_keep_days: 7
+  purge_interval: 1
+  db_url: !secret recorder_db_url
+
+
+light:
+  - platform: mqtt
+    name: "Light1"
+    command_topic: "cmnd/rgb1/POWER"
+    state_topic: "stat/rgb1/RESULT"
+    state_value_template: "{{value_json.POWER}}"
+    availability_topic: "tele/rgb1/LWT"
+    brightness_command_topic: "cmnd/rgb1/Dimmer"
+    brightness_state_topic: "stat/rgb1/RESULT"
+    brightness_scale: 100
+    on_command_type: "brightness"
+    brightness_value_template: "{{value_json.Dimmer}}"
+    rgb_command_topic: "cmnd/rgb1/Color2"
+    rgb_state_topic: "stat/rgb1/RESULT"
+    rgb_value_template: "{{value_json.Color.split(',')[0:3]|join(',')}}"
+    effect_command_topic: "cmnd/rgb1/Scheme"
+    effect_state_topic: "stat/rgb1/RESULT"
+    effect_value_template: "{{value_json.Scheme}}"
+    effect_list:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+    payload_on: "ON"
+    payload_off: "OFF"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+    qos: 1
+    retain: false
+
+tasmota_alarm:
+  devices:
+    - name: alarm
+      stopic: alarm
+      binary_sensors:
+         - name: door
+           polar: true
+         - name: vol
+           polar: true
+         - name: kitchen
+           polar: true
+         - name: backdoor
+           polar: true
+         - name: living_w
+           polar: true
+         - name: living_n
+           polar: true
+         - name: living_n2
+           polar: true
+         - name: base_0
+           polar: true
+         - name: base_1
+           polar: false
+         - name: unknown_9
+           polar: true
+         - name: unknown_10
+           polar: true
+         - name: unknown_11
+           polar: true
+         - name: parent
+           polar: true
+         - name: garden
+           polar: true
+         - name: up_bath
+           polar: true
+         - name: unknown_15
+           polar: true
+
+xiaomi_aqara:
+  discovery_retry: 5
+  gateways:
+      -  mac: 7C:49:EB:19:3B:55
+         key: 4236ABC769D14A9F
+
+hello_service:
+
+
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml

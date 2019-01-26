@@ -1,0 +1,9 @@
+hass_proj.*
+push_notify*
+data
+custom_components/media_player/
+apps/_test.__yaml
+apps/ada/__pycache__/
+apps/__pycache__/
+picture/
+

@@ -1,0 +1,180 @@
+
+  default_view:
+    view: yes
+    icon: mdi:home-assistant 
+    entities:
+       - device_tracker.daniel_phone
+       - device_tracker.hhaim_phone
+       - device_tracker.nitay_phone
+       - device_tracker.nitay_pc
+       - device_tracker.rivi_phone
+       - device_tracker.sony_ps
+       - device_tracker.tv
+       - group.air_conditioner
+
+  air_conditioner:
+    name: Air Conditioner
+    entities:
+       - sensor.heat_index0
+       - sensor.heat_index1
+       - sensor.heat_index_outside0
+       - switch.ac1
+       - switch.ac2
+       - switch.tv
+       - media_player.main
+       - media_player.kodi
+       - sensor.water_total
+
+
+  air_conditioner_automation:
+       name: Automation
+       entities:
+         - input_boolean.heat_app_enable
+         - input_boolean.heat_timer_0
+         - input_number.heat_timer_time
+
+
+  temperature:
+    name: Temperature Sensors
+    view: yes
+    icon: mdi:weather-cloudy
+    control: hidden
+    entities:
+       - sensor.ac1_hours
+       - sensor.ac2_hours
+       - group.air_conditioner
+       - group.air_conditioner_automation
+       - history_graph.temperature
+
+  bolier_group:
+    name: Boiler
+    entities:
+      - sensor.btemp0
+      - switch.b0
+      - input_boolean.boiler_auto_enable
+      - input_number.boiler_timer_time
+      - input_number.boiler_temp_min
+      - input_number.boiler_temp_max
+      - history_graph.boiler_graph
+      - sensor.boiler_total_hours
+      - sensor.boiler_total_hours2
+      - sensor.stats_mean
+
+  Boiler:
+    name: Boiler
+    view: yes
+    icon: mdi:shower
+    entities:
+      - sensor.btemp0
+      - group.bolier_group
+      - sensor.stats_mean
+   
+
+  Home Security:
+    name: Home Security
+    view: yes
+    icon: mdi:shield-half-full
+    entities:
+      - binary_sensor.alarm_test0
+      - binary_sensor.alarm0
+      - binary_sensor.alarm1
+      - binary_sensor.alarm2
+      - binary_sensor.alarm3
+      - binary_sensor.alarm4
+      - binary_sensor.alarm5
+      - binary_sensor.alarm6
+      - binary_sensor.alarm7
+      - binary_sensor.alarm8
+      - binary_sensor.alarm14
+      - binary_sensor.alarm15
+      - binary_sensor.alarm16
+      - binary_sensor.smoke_sensor_158d00024e008a
+      - binary_sensor.smoke_sensor_158d000287ae79
+      - binary_sensor.water_leak_sensor_158d000256cd9d
+      - binary_sensor.water_leak_sensor_158d00023385f2
+      - binary_sensor.water_leak_sensor_158d000256ce72
+      - binary_sensor.water_leak_sensor_158d000256ce93
+      - binary_sensor.water_leak_sensor_158d000256cede
+      - binary_sensor.water_leak_sensor_158d00027049bb
+      - binary_sensor.motion_sensor_158d0002b48209     
+      - binary_sensor.motion_sensor_158d0002b75328     
+      - binary_sensor.motion_sensor_158d0002b75423     
+      - binary_sensor.motion_sensor_158d0002b7d400     
+      - binary_sensor.motion_sensor_158d0002b7d548     
+      - binary_sensor.motion_sensor_158d0002b7f8b4     
+      - binary_sensor.motion_sensor_158d0002b85a33     
+      - binary_sensor.motion_sensor_158d0002c7165a     
+
+      - switch.alarms0
+      - switch.alarms1
+
+    
+  Cameras:
+    name: Cameras
+    view: yes
+    icon: mdi:cctv
+    entities:
+        - device_tracker.cam1
+        - device_tracker.cam2
+        - device_tracker.cam3
+        - device_tracker.cam4
+        - device_tracker.cam5
+        - camera.cam5
+        - camera.cam1
+        - camera.cam2
+        - camera.cam3
+        - camera.cam4
+
+  device_tracker:
+    name: Tracker
+    entities:
+       - device_tracker.daniel_phone
+       - device_tracker.hhaim_phone
+       - device_tracker.nitay_phone
+       - device_tracker.nitay_pc
+       - device_tracker.rivi_phone
+       - device_tracker.sony_ps
+       - device_tracker.tv
+  
+  cam_tracker:
+    name: Cam Tracker
+    entities:
+       - device_tracker.cam1
+       - device_tracker.cam2
+       - device_tracker.cam3
+       - device_tracker.cam4
+       - device_tracker.cam5
+
+
+  cpu:
+    name: Cpu
+    entities:
+       - sensor.disk_free_
+       - sensor.energy_total
+       - sensor.energy_yesterday
+       - sensor.fastcom_download
+       - sensor.memory_free
+       - sensor.processor_use
+
+  Debug:
+    name: Debug
+    view: yes
+    entities:
+       - group.cpu
+       - switch.power0
+       - input_boolean.simple_switch0
+       - input_boolean.disable_ap_c7
+       - input_boolean.gateway_sound_enable
+       - input_number.gateway_sound_id
+       - binary_sensor.cube_158d000276ed22
+       - sensor.my_accum1
+       - sensor.tv_hours
+       - sensor.water_total
+       - sensor.water_total_external
+       - light.gateway_light_7c49eb193b55
+       - light.light1
+
+
+
+
+

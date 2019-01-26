@@ -1,0 +1,23 @@
+
+appdaemon:
+  time_zone: Asia/Jerusalem
+  latitude: 32.0806
+  longitude: 34.8142
+  elevation: 43
+  threads: 1
+  plugins:
+    HASS:
+      type: hass
+      ha_key: !secret http_password 
+      ha_url: http://localhost:8123
+      namespace: default
+
+#log:
+#  accessfile: STDOUT
+#  errorfile: STDERR
+#  logfile: STDOUT
+#  log_generations: 3
+#  log_size: 1000000
+
+ 
+  
