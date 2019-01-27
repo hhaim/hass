@@ -773,6 +773,8 @@ class CWaterMonitor(HassBase):
     
     def initialize(self):
         self.log("start water monitor app ");
+        self.at_home = True
+        self.leak_ticks =0
         self.policer = CPolicer(100,60)
         self.run_in(self.water_timer, CWaterMonitor.TIME_INTERVAL)
         self.listen_state(self.do_water_change, self.args["sensor_water_total"])
@@ -786,8 +788,6 @@ class CWaterMonitor(HassBase):
         self.burst_was_reported =False
         self.run_at_sunset(self.notify_water_usage,  offset=-(0))
         self.listen_event(self.home_cb, "at_home")
-        self.at_home = True
-        self.leak_ticks =0
 
     def notify_water_usage(self,kwargs):
 
