@@ -93,7 +93,7 @@ class MqttTasmotaSwitch(MqttAvailability, SwitchDevice):
         self._icon = config.get(CONF_ICON)
         self._short_topic = config.get(CONF_SHORT_TOPIC)
         self._index = config.get(CONF_INDEX) # str
-        self._status_str = "POWER{}".format(CONF_INDEX)
+        self._status_str = "POWER{}".format(config.get(CONF_INDEX))
         self._command_topic = get_tasmota_command (config.get(CONF_SHORT_TOPIC),config.get(CONF_INDEX))
         self._result_topic = get_tasmota_result (config.get(CONF_SHORT_TOPIC))
         self._state_topic = get_tasmota_state (config.get(CONF_SHORT_TOPIC))
@@ -122,10 +122,12 @@ class MqttTasmotaSwitch(MqttAvailability, SwitchDevice):
 
     def update_mqtt_results (self,payload):
         try:
-            #_LOGGER.error('get payload  %s ',payload)
+            _LOGGER.error('payload {0}'.format(payload))
             message = json.loads(payload)
+            _LOGGER.error('message {0}'.format(message))
             if self._status_str in message:
                 val=message[self._status_str]
+                _LOGGER.error('val', val);
                 if val == self._payload_on:
                     self._state = True
                 elif val == self._payload_off:
