@@ -1,7 +1,6 @@
 """
 MQTT switches for Tasmota. no need for startup script 
 simplify the way you can work with Tasmota 
-
 """
 import logging
 from typing import Optional
@@ -62,14 +61,7 @@ async def _async_setup_entity(hass, config, async_add_entities,
     """Set up the MQTT switch."""
 
     newswitch = MqttTasmotaSwitch(
-        config.get(CONF_NAME),
-        config.get(CONF_ICON),
-        config.get(CONF_INDEX), # str '','1','2','3'
-        config.get(CONF_SHORT_TOPIC),
-        config.get(CONF_QOS),
-        config.get(CONF_RETAIN),
-        config.get(CONF_PAYLOAD_ON),
-        config.get(CONF_PAYLOAD_OFF)
+        config
     )
 
     async_add_entities([newswitch])
@@ -93,29 +85,22 @@ def get_tasmota_command (topic,_index):
 class MqttTasmotaSwitch(MqttAvailability, SwitchDevice):
     """Representation of a switch that can be toggled using MQTT."""
 
-    def __init__(self, name, icon,
-                 index,
-                 short_topic, 
-                 qos, retain, 
-                 payload_on, 
-                 payload_off
-                 ):
+    def __init__(self, config):
         """Initialize the MQTT switch."""
-        MqttAvailability.__init__(self, get_tasmota_avail_topic(short_topic), qos,
-                                  "Online", "Offline")
+        MqttAvailability.__init__(self, config)
         self._state = False
-        self._name = name
-        self._icon = icon
-        self._short_topic = short_topic
-        self._index = index # str
-        self._status_str = "POWER{}".format(index)
-        self._command_topic = get_tasmota_command (short_topic,index)
-        self._result_topic = get_tasmota_result (short_topic)
-        self._state_topic = get_tasmota_state (short_topic)
-        self._qos = qos
-        self._retain = retain
-        self._payload_on = payload_on
-        self._payload_off = payload_off
+        self._name = config.get(CONF_NAME)
+        self._icon = config.get(CONF_ICON)
+        self._short_topic = config.get(CONF_SHORT_TOPIC)
+        self._index = config.get(CONF_INDEX) # str
+        self._status_str = "POWER{}".format(CONF_INDEX)
+        self._command_topic = get_tasmota_command (config.get(CONF_SHORT_TOPIC),config.get(CONF_INDEX))
+        self._result_topic = get_tasmota_result (config.get(CONF_SHORT_TOPIC))
+        self._state_topic = get_tasmota_state (config.get(CONF_SHORT_TOPIC))
+        self._qos = config.get(CONF_QOS)
+        self._retain = config.get(CONF_RETAIN)
+        self._payload_on = config.get(CONF_PAYLOAD_ON)
+        self._payload_off = config.get(CONF_PAYLOAD_OFF)
         self._optimistic = False
 
 
@@ -188,4 +173,3 @@ class MqttTasmotaSwitch(MqttAvailability, SwitchDevice):
         mqtt.async_publish(
             self.hass, self._command_topic, self._payload_off, self._qos,
             self._retain)
-
