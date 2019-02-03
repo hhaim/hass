@@ -122,12 +122,9 @@ class MqttTasmotaSwitch(MqttAvailability, SwitchDevice):
 
     def update_mqtt_results (self,payload):
         try:
-            _LOGGER.error('payload {0}'.format(payload))
             message = json.loads(payload)
-            _LOGGER.error('message {0}'.format(message))
             if self._status_str in message:
                 val=message[self._status_str]
-                _LOGGER.error('val', val);
                 if val == self._payload_on:
                     self._state = True
                 elif val == self._payload_off:
