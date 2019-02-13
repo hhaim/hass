@@ -57,9 +57,13 @@ See discussion here link:https://github.com/arendst/Sonoff-Tasmota/issues/4681[4
     value_template: "{{ (45497 + (value))|int }}"
 -------------------
 
-*stopic*: the short topic. for example the full topic will be tele/*stopic*/SENSOR 
+
+*stopic*: the short topic. for example the full topic will be `tele/*stopic*/SENSOR` 
+
 *counter_id*: the id of the counter 1..4
+
 *max_valid_diff*:  maximum difference in 60 sec 
+
 
 ==== mqtt_tasmota
 
