@@ -1,0 +1,80 @@
+
+== Home Assistant, Tasmota, AppDaemon configuration 
+
+**Everything has a beginning  this is the beginning of
+the beginning of this page**
+
+=== Software Components
+
+1. Home Assistant v87.1 - controler 
+2. Tasmota - for IoT
+3. AppDaemon 3.0.2 - for scripts 
+4. InfluxDB/MySQL
+5. Grafana 
+6. BlueIris 
+7. TasmotaAdmin
+8. Yolo3 plugin for BlueIris -- object detection reduce false alarm to zero even in night 
+
+=== Hardware Components
+
+1. Intel z83
+2. Almost any Tasmota hardware 
+3. xiaomi mii- all of them 
+
+=== Main components 
+
+1. main home water consumption input /water leakage detector 
+2. Air Conditioner automation  (Electra /Israel) 
+3. Converting old PIMA Alarm + xiaomi mii sensros to be new smart alarm inspired by link:https://konnected.io/products/konnected-alarm-panel-wired-alarm-system-conversion-kit[konnected]
+3.1 Tasmota/Wemo d1/i2c 16 gpio  
+3.2 could scale with gpio/cheaper 
+3.3 and Hey it uses Tasmota .. 
+
+=== Home Assistant - custom components 
+
+Used for defining Tasmota sensors/switch/binary sensors 
+
+==== How to install 
+
+Copy this project `<config directory>/custom_components/` folder to your `<config directory>`
+make sure you are sync to the right version of hass (see below)
+
+==== tasmota_counter 
+
+Using this, you could define a sensor that saves Tasmota counter_id pulses info to none-volatile home assistance database. 
+See discussion here link:https://github.com/arendst/Sonoff-Tasmota/issues/4681[4681]
+
+[source,bash]
+-------------------
+  - platform: tasmota_counter
+    name: water_total
+    stopic: water_out    #<1>
+    counter_id: 1        #<2>  
+    max_valid_diff: 2000 #<3>
+    unit_of_measurement: 'l' 
+    icon: mdi:water-pump
+    expire_after: 300 
+    value_template: "{{ (45497 + (value))|int }}"
+-------------------
+<1> the short topic. for example the full topic will be tele/*stopic*/SENSOR 
+<2> the id of the counter 1..4
+<3> maximum difference in 60 sec 
+
+==== mqtt_tasmota
+
+**TBD**
+
+==== tasmota_alarm
+
+**TBD**
+
+==== accumulator
+
+**TBD**
+
+==== tp_link various versions routers trackers
+
+**TBD**
+
+ 
+
