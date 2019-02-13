@@ -26,9 +26,9 @@ the beginning of this page**
 1. main home water consumption input /water leakage detector 
 2. Air Conditioner automation  (Electra /Israel) 
 3. Converting old PIMA Alarm + xiaomi mii sensros to be new smart alarm inspired by link:https://konnected.io/products/konnected-alarm-panel-wired-alarm-system-conversion-kit[konnected]
-3.1 Tasmota/Wemo d1/i2c 16 gpio  
-3.2 could scale with gpio/cheaper 
-3.3 and Hey it uses Tasmota .. 
+** Tasmota/Wemo d1/i2c 16 gpio  
+** could scale with gpio/cheaper 
+** and Hey it uses Tasmota .. 
 
 === Home Assistant - custom components 
 
