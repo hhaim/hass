@@ -121,7 +121,7 @@ sabbath_manager:
 door_lamp:
   module: heat_app
   class: OutdoorLampWithPir
-  switch: switch.doorlamp0
+  switch: switch.door_lamp0
   sensor: binary_sensor.alarm16
   delay: 15
   sat_delay: 240
@@ -173,7 +173,7 @@ boiler_automation:
 garden_lamp:
   module: heat_app
   class: OutdoorLampWithPir
-  switch: switch.gardenlamp0
+  switch: switch.garden_lamp0
   sensor: binary_sensor.alarm15
   delay: 15
   sat_delay: 240

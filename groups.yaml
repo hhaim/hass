@@ -105,8 +105,8 @@
       - binary_sensor.motion_sensor_158d0002b85a33     
       - binary_sensor.motion_sensor_158d0002c7165a     
 
-      - switch.alarms0
-      - switch.alarms1
+      - switch.alarm_s0
+      - switch.alarm_s1
 
     
   Cameras:
