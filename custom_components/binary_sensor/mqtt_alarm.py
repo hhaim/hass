@@ -34,6 +34,9 @@ DEFAULT_QOS = 1
 CONF_ID ='aid'
 CONF_POLAR ='polar'
 CONF_SHORT_TOPIC ='stopic' # short_topic
+TASMOTA_ONLINE ="Online"
+TASMOTA_OFFLINE = "Offline"
+
 
 DEPENDENCIES = ['mqtt']
 
@@ -69,13 +72,17 @@ def get_tasmota_tele (topic):
 async def _async_setup_discover(hass, device, async_add_entities):
 
     s = []
-    name=device.get(CONF_NAME)
-    stopic=device.get(CONF_SHORT_TOPIC)
+    name = device.get(CONF_NAME)
+    stopic = device.get(CONF_SHORT_TOPIC)
     _id=0
     for conf in device[CONF_BINARY_SENSORS]:
         dname="{}{}".format(name,_id)
-        s.append(MqttTasmotaAlarmBinarySensor(dname,_id,conf.get(CONF_POLAR),stopic,None))
-        #conf.get(CONF_NAME)
+        cfg={}
+        cfg[CONF_NAME] = dname
+        cfg[CONF_ID] = _id
+        cfg[CONF_POLAR] = conf.get(CONF_POLAR)
+        cfg[CONF_SHORT_TOPIC] = stopic
+        s.append(MqttTasmotaAlarmBinarySensor(cfg,None))
         _id +=1
     async_add_entities(s)
 
@@ -87,10 +94,7 @@ async def _async_setup_entity(hass, config, async_add_entities,
     """Set up the MQTT binary sensor."""
 
     async_add_entities([MqttTasmotaAlarmBinarySensor(
-        config.get(CONF_NAME),
-        config.get(CONF_ID),
-        config.get(CONF_POLAR),
-        config.get(CONF_SHORT_TOPIC),
+        config,
         discovery_hash,
     )])
 
@@ -101,19 +105,28 @@ async def _async_setup_entity(hass, config, async_add_entities,
 #stat/alarm/RESULT = {"Event":"Done"}
 #####
 
-class MqttTasmotaAlarmBinarySensor(MqttAvailability,BinarySensorDevice):
+class MqttTasmotaAlarmBinarySensor(MqttAvailability, BinarySensorDevice):
     """Representation a binary sensor that is updated by MQTT."""
 
-    def __init__(self, name, aid,polar,topic,discovery_hash):
+    def __init__(self, config,discovery_hash):
         """Initialize the MQTT binary sensor."""
-        MqttAvailability.__init__(self, get_tasmota_avail_topic(topic), DEFAULT_QOS,
-                                  "Online", "Offline")
-        self._name = name
+
+        stopic = config.get(CONF_SHORT_TOPIC)
+
+        avail_cfg={ }
+        avail_cfg[CONF_PAYLOAD_AVAILABLE] = TASMOTA_ONLINE
+        avail_cfg[CONF_PAYLOAD_NOT_AVAILABLE] = TASMOTA_OFFLINE 
+        avail_cfg[CONF_AVAILABILITY_TOPIC] = get_tasmota_avail_topic(stopic)
+        avail_cfg[CONF_QOS] = DEFAULT_QOS
+
+        MqttAvailability.__init__(self, avail_cfg)
+        self._name = config.get(CONF_NAME)
         self._state = None
-        self._aid=aid
-        self._polar=polar
-        self._state_topic_result = get_tasmota_result(topic)
-        self._state_topic_tele = get_tasmota_tele(topic)
+        self._aid = config.get(CONF_ID)
+        polar = config.get(CONF_POLAR)
+        self._polar = polar
+        self._state_topic_result = get_tasmota_result(stopic)
+        self._state_topic_tele = get_tasmota_tele(stopic)
         self._device_class = None
         if polar:
           self._payload_on = "1"

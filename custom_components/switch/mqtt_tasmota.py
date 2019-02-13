@@ -10,7 +10,7 @@ import voluptuous as vol
 
 from homeassistant.core import callback
 from homeassistant.components.mqtt import (
-    CONF_PAYLOAD_NOT_AVAILABLE, CONF_QOS, CONF_RETAIN, MqttAvailability)
+    CONF_AVAILABILITY_TOPIC,CONF_PAYLOAD_AVAILABLE,CONF_PAYLOAD_NOT_AVAILABLE, CONF_QOS, CONF_RETAIN, MqttAvailability)
 from homeassistant.components.switch import SwitchDevice
 from homeassistant.const import (
     CONF_NAME, CONF_PAYLOAD_OFF,
@@ -18,6 +18,8 @@ from homeassistant.const import (
 from homeassistant.components import mqtt, switch
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.typing import HomeAssistantType, ConfigType
+from homeassistant.helpers.restore_state import RestoreEntity
+
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -33,6 +35,8 @@ DEFAULT_PAYLOAD_OFF = 'OFF'
 CONF_INDEX = 'index'
 CONF_SHORT_TOPIC ='stopic' # short_topic
 DEFAULT_QOS = 1
+TASMOTA_ONLINE ="Online"
+TASMOTA_OFFLINE = "Offline"
 
 
 PLATFORM_SCHEMA = cv.PLATFORM_SCHEMA.extend({
@@ -82,21 +86,30 @@ def get_tasmota_command (topic,_index):
     return ('cmnd/{}/POWER{}'.format(topic,_index))
 
 
-class MqttTasmotaSwitch(MqttAvailability, SwitchDevice):
+class MqttTasmotaSwitch(MqttAvailability, SwitchDevice, RestoreEntity):
     """Representation of a switch that can be toggled using MQTT."""
 
     def __init__(self, config):
         """Initialize the MQTT switch."""
-        MqttAvailability.__init__(self, config)
+
+        stopic = config.get(CONF_SHORT_TOPIC)
+        pindex  = config.get(CONF_INDEX)
+        avail_cfg={}
+        avail_cfg[CONF_PAYLOAD_AVAILABLE] = TASMOTA_ONLINE
+        avail_cfg[CONF_PAYLOAD_NOT_AVAILABLE] = TASMOTA_OFFLINE 
+        avail_cfg[CONF_AVAILABILITY_TOPIC] = get_tasmota_avail_topic(stopic)
+        avail_cfg[CONF_QOS] = DEFAULT_QOS
+
+        MqttAvailability.__init__(self, avail_cfg)
         self._state = False
         self._name = config.get(CONF_NAME)
         self._icon = config.get(CONF_ICON)
-        self._short_topic = config.get(CONF_SHORT_TOPIC)
+        self._short_topic = stopic
         self._index = config.get(CONF_INDEX) # str
-        self._status_str = "POWER{}".format(config.get(CONF_INDEX))
-        self._command_topic = get_tasmota_command (config.get(CONF_SHORT_TOPIC),config.get(CONF_INDEX))
-        self._result_topic = get_tasmota_result (config.get(CONF_SHORT_TOPIC))
-        self._state_topic = get_tasmota_state (config.get(CONF_SHORT_TOPIC))
+        self._status_str = "POWER{}".format(pindex)
+        self._command_topic = get_tasmota_command (stopic,pindex)
+        self._result_topic = get_tasmota_result (stopic)
+        self._state_topic = get_tasmota_state (stopic)
         self._qos = config.get(CONF_QOS)
         self._retain = config.get(CONF_RETAIN)
         self._payload_on = config.get(CONF_PAYLOAD_ON)

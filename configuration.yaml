@@ -288,7 +288,7 @@ sensor:
     unit_of_measurement: 'l'
     icon: mdi:water-pump
     expire_after: 300
-    value_template: "{{ (4885 + (value))|int }}"
+    value_template: "{{ (45497 + (value))|int }}"
 
   - platform: tasmota_counter
     name: water_total_external
@@ -298,7 +298,27 @@ sensor:
     unit_of_measurement: 'l'
     icon: mdi:water-pump
     expire_after: 300
-    value_template: "{{ (80600 + 4885 + (value))|int }}"
+    value_template: "{{ (80600 + 45497 + (value))|int }}"
+
+  - platform: tasmota_counter
+    name: water_total_norm
+    stopic: water_out
+    counter_id: 1
+    max_valid_diff: 2000
+    unit_of_measurement: 'l'
+    icon: mdi:water-pump
+    expire_after: 300
+    value_template: "{{ (37950 + (value/1.21))|int }}"
+
+  - platform: tasmota_counter
+    name: water_total_external_norm
+    stopic: water_out
+    counter_id: 1
+    max_valid_diff: 2000
+    unit_of_measurement: 'l'
+    icon: mdi:water-pump
+    expire_after: 300
+    value_template: "{{ (80600 + 37950 + (value/1.21))|int }}"
 
   
   - platform: history_stats
@@ -612,7 +632,8 @@ xiaomi_aqara:
       -  mac: 7C:49:EB:19:3B:55
          key: 4236ABC769D14A9F
 
-hello_service:
+
+system_health:
 
 
 group: !include groups.yaml

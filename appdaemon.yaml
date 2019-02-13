@@ -8,8 +8,8 @@ appdaemon:
   plugins:
     HASS:
       type: hass
-      ha_key: !secret http_password 
       ha_url: http://localhost:8123
+      token: !secret api_token
       namespace: default
 
 #log:

@@ -20,7 +20,7 @@ from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.event import (
     async_track_state_change, async_track_time_interval, async_track_utc_time_change)
 
-from homeassistant.helpers.restore_state import async_get_last_state
+from homeassistant.helpers.restore_state import RestoreEntity
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -72,7 +72,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     return True
 
 
-class AccumStatsSensor(Entity):
+class AccumStatsSensor(RestoreEntity):
     """Accumulator sensor"""
 
     def __init__(
@@ -187,7 +187,7 @@ class AccumStatsSensor(Entity):
         if self.value is not None:
              return
 
-        state = await async_get_last_state(self.hass, self.entity_id)
+        state = await self.async_get_last_state()
         if not state:
             _LOGGER.info("async_added_to_hass no state %s",str(state)) 
             _LOGGER.error("first init, should be once") 

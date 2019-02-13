@@ -17,7 +17,7 @@ import voluptuous as vol
 from homeassistant.core import callback
 from homeassistant.components import sensor
 from homeassistant.components.mqtt import (
-    CONF_AVAILABILITY_TOPIC, CONF_STATE_TOPIC,
+    CONF_PAYLOAD_NOT_AVAILABLE, CONF_PAYLOAD_AVAILABLE,CONF_AVAILABILITY_TOPIC, CONF_STATE_TOPIC,
     CONF_QOS,
     MqttAvailability)
 from homeassistant.components.sensor import DEVICE_CLASSES_SCHEMA
@@ -31,7 +31,7 @@ from homeassistant.helpers.typing import HomeAssistantType, ConfigType
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.event import (async_track_point_in_utc_time,async_track_time_interval)
 from homeassistant.util import dt as dt_util
-from homeassistant.helpers.restore_state import async_get_last_state
+from homeassistant.helpers.restore_state import RestoreEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -79,17 +79,7 @@ async def _async_setup_entity(hass: HomeAssistantType, config: ConfigType,
     """Set up MQTT sensor."""
 
     async_add_entities([MqttTasmotaCounter(
-        hass,
-        config.get(CONF_NAME),
-        config.get(CONF_SHORT_TOPIC),
-        config.get(CONF_UNIT_OF_MEASUREMENT),
-        config.get(CONF_COUNTER_ID),
-        config.get(CONF_EXPIRE_AFTER),
-        config.get(CONF_ICON),
-        config.get(CONF_VALUE_TEMPLATE),
-        config.get(CONF_MAX_DIFF)
-
-    )])
+        hass,config)])
 ######
 #
 #09:16:59 MQT: tele/water_out/STATE = {"Time":"2018-12-21T09:16:59","Uptime":"0T00:00:23","Vcc":2.723,"Wifi":{"AP":1,"SSId":"fbi-4","RSSI":36,"APMac":"F8:D1:11:A0:AA:68"}}
@@ -102,37 +92,42 @@ ATTR_VALUE = 'value'
 ATTR_OLD_VALUE = 'old_value'
 ATTR_UPTIME = 'uptime_sec'
 DEFAULT_QOS = 1
+TASMOTA_ONLINE ="Online"
+TASMOTA_OFFLINE = "Offline"
 
 
-class MqttTasmotaCounter(MqttAvailability,  Entity):
+
+class MqttTasmotaCounter(MqttAvailability,  RestoreEntity):
     """Representation of a Tasmota counter using MQTT."""
 
-    def __init__(self, hass, name, topic,  
-                 unit_of_measurement,
-                 counter_id,
-                 expire_after,
-                 icon, value_template,
-                 max_valid_diff):
+    def __init__(self, hass, config):
         """Initialize the sensor."""
-        MqttAvailability.__init__(self, get_tasmota_avail_topic(topic), DEFAULT_QOS,
-                                  "Online", "Offline")
+        stopic = config.get(CONF_SHORT_TOPIC)
+
+        avail_cfg={ }
+        avail_cfg[CONF_PAYLOAD_AVAILABLE] = TASMOTA_ONLINE
+        avail_cfg[CONF_PAYLOAD_NOT_AVAILABLE] = TASMOTA_OFFLINE 
+        avail_cfg[CONF_AVAILABILITY_TOPIC] = get_tasmota_avail_topic(stopic)
+        avail_cfg[CONF_QOS] = DEFAULT_QOS
+
+        MqttAvailability.__init__(self, avail_cfg)
         self.hass = hass
         self._state = STATE_UNKNOWN
         self._old_value = None
         self._value = None # counter value 
         self._uptime_sec = 100000000000 # uptime in seconds
         self._valid_ref = False
-        self._name = name
-        self._max_valid_diff = max_valid_diff
-        self._state_tele = get_tasmota_tele (topic)
-        self._state_state = get_tasmota_state (topic)
-        self._expire_after = expire_after
-        self._couner_id = counter_id
+        self._name = config.get(CONF_NAME)
+        self._max_valid_diff = config.get(CONF_MAX_DIFF)
+        self._state_tele = get_tasmota_tele(stopic)
+        self._state_state = get_tasmota_state(stopic)
+        self._expire_after = config.get(CONF_EXPIRE_AFTER)
+        self._couner_id = config.get(CONF_COUNTER_ID)
         self._qos = DEFAULT_QOS
-        self._unit_of_measurement = unit_of_measurement
-        self._template = value_template
+        self._unit_of_measurement = config.get(CONF_UNIT_OF_MEASUREMENT)
+        self._template = config.get(CONF_VALUE_TEMPLATE)
         self._mqtt_update = True
-        self._icon = icon
+        self._icon = config.get(CONF_ICON)
 
         # start keepalive 
         if self._expire_after is not None and self._expire_after > 0:
@@ -266,14 +261,14 @@ class MqttTasmotaCounter(MqttAvailability,  Entity):
         if self._value is not None:
            return
 
-        state = await async_get_last_state(self.hass, self.entity_id)
+        state = await self.async_get_last_state()
         if not state:
             _LOGGER.info(" async_added_to_hass can't find stats %s",str(state)) 
             # first time init
             self._value = 0
             self._old_value = 0
             self._valid_ref = False
-            self.update_state_value (self)
+            self.update_state_value ()
             self.async_schedule_update_ha_state()
             return
 

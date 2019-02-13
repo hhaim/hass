@@ -23,8 +23,8 @@
        - switch.tv
        - media_player.main
        - media_player.kodi
-       - sensor.water_total
-
+       - sensor.water_total_norm
+       - sensor.water_total_external_norm
 
   air_conditioner_automation:
        name: Automation
@@ -149,10 +149,10 @@
   cpu:
     name: Cpu
     entities:
-       - sensor.disk_free_
+       - sensor.disk_free
        - sensor.energy_total
        - sensor.energy_yesterday
-       - sensor.fastcom_download
+       - sensor.fast_com_download
        - sensor.memory_free
        - sensor.processor_use
 

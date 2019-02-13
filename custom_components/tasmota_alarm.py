@@ -91,7 +91,7 @@ class ConfiguredDevice:
 
         discovery.load_platform(
             self.hass, 'binary_sensor',
-            'mqtt_alarm', {'device_id': self.device_id})
+            'mqtt_alarm', {'device_id': self.device_id},self.config)
 
         #discovery.load_platform(
         #    self.hass, 'switch', DOMAIN,
