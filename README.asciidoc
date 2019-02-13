@@ -1,5 +1,5 @@
 
-== Home Assistant, Tasmota, AppDaemon configuration 
+== Home Assistant, Tasmota, AppDaemon my home configuration 
 
 **Everything has a beginning  this is the beginning of
 the beginning of this page**
