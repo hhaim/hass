@@ -437,10 +437,10 @@ class SabbathHandler(HassBase):
     def saturday_cb(self, event_name, data, kwargs):
         if data['enable']=='on':
             self.call_alarm(20)
-            self.turn_on('switch.alarms0')
+            self.turn_on('switch.alarm_s0')
         else:
             self.call_alarm(21)
-            self.turn_off('switch.alarms0')
+            self.turn_off('switch.alarm_s0')
 
 
 
@@ -508,7 +508,7 @@ class AutoTurnAVR130(hass.Hass):
 class HomeButtonClick(HassBase):
     """ Click Button home """
     def initialize(self):
-      self.listen_event(self.change_state, "click")
+      self.listen_event(self.change_state, "xiaomi_aqara.click")
 
     def change_state(self, event_name, data, kwargs):
         en = 'binary_sensor.switch_158d0001e7a286'
@@ -945,7 +945,7 @@ class CCube(hass.Hass):
     #output: 
     def initialize(self):
         self.log("setup cube app")
-        self.listen_event(self.change_state, "cube_action")
+        self.listen_event(self.change_state, "xiaomi_aqara.cube_action")
 
     def change_state(self, event_name, data, kwargs):
         msg=" cube {}   ".format(str(data))
@@ -985,7 +985,7 @@ class CMiiButton(hass.Hass):
     #input: 
     #output: 
     def initialize(self):
-        self.listen_event(self.change_state, "click")
+        self.listen_event(self.change_state, "xiaomi_aqara.click")
 
     def change_state(self, event_name, data, kwargs):
         msg=" click {}   ".format(str(data))
