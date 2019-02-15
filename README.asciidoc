@@ -200,7 +200,7 @@ Output: Enable/Disable the heater
 
 Monitor the water consumption, notify in case of irregularity like leakage, high bursts, not at home etc 
 
-Water meter: link:https://arad.co.il/assets/M-August-2017.pdf[pulse every 1 liter, ev output], price ~$70$
+Water meter: link:https://arad.co.il/assets/M-August-2017.pdf[pulse every 1 liter, ev output] 
 iot: wemo d1,tasmota, counter  
 
 [source,python]
