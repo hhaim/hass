@@ -1,45 +1,60 @@
 
-== Home Assistant, Tasmota, AppDaemon my home configuration 
+== Home Assistant, Tasmota, AppDaemon, Custom Components 
 
 **Everything has a beginning  this is the beginning of
 the beginning of this page**
 
+
 === Software Components
 
-1. Home Assistant v87.1 - controler 
-2. Tasmota - for IoT
-3. AppDaemon 3.0.2 - for scripts 
+1. Home Assistant  controler 
+2. Tasmota - ESP82xx
+3. AppDaemon 
 4. InfluxDB/MySQL
 5. Grafana 
 6. BlueIris 
-7. TasmotaAdmin
+7. TasmotaAdmin - for OTA multi devices 
 8. Yolo3 plugin for BlueIris -- object detection reduce false alarm to zero even in night 
+9. dnsmasq 
+10. dnscrypt-proxy
+11. tinyproxy  
+12. openvpn server/phone client for remote connectivity 
 
 === Hardware Components
 
 1. Intel z83
 2. Almost any Tasmota hardware 
-3. xiaomi mii- all of them 
+3. Xiaomi mii sesnors 
 
 === Main components 
 
-1. main home water consumption input /water leakage detector 
+1. Home water consumption/leakage detection
 2. Air Conditioner automation  (Electra /Israel) 
-3. Converting old PIMA Alarm + xiaomi mii sensros to be new smart alarm inspired by link:https://konnected.io/products/konnected-alarm-panel-wired-alarm-system-conversion-kit[konnected]
+3. Alarm: Converting old PIMA Alarm + xiaomi mii sensros to be new smart alarm inspired by link:https://konnected.io/products/konnected-alarm-panel-wired-alarm-system-conversion-kit[konnected]
 ** Tasmota/Wemo d1/i2c 16 gpio  
 ** Could scale with gpio/cheaper 
-** It uses Tasmota firmware.. 
+** It uses Tasmota firmware
+4. Media automation
+5. Israel Boiler -- Make sure water is already hot. Water temperator indication
+6. Light -- turn them automaticly 
+7. Cameras -- BlueIris as DVR + PIR using Object detection Yolo3
+
 
 === Home Assistant - custom components 
 
 Used for defining Tasmota sensors/switch/binary sensors 
 
-==== How to install 
+==== Sync to version 
 
-Copy this project `<config directory>/custom_components/` folder to your `<config directory>`
-make sure you are sync to the right version of hass (see below)
+1. Home Assistant: *87.1* 
+2. AppDaemon: *3.0.2* 
 
-==== tasmota_counter 
+==== How to install custom components into your setup 
+
+Copy this project `<config directory>/custom_components/` folder to your `<config directory>` directory 
+make sure you are in sync with the the right version of hass (see above)
+
+==== tasmota_counter (for Pulse counter/Water)
 
 Using this, you could define a sensor that saves Tasmota counter_id pulses info to none-volatile home assistance database. 
 See discussion here link:https://github.com/arendst/Sonoff-Tasmota/issues/4681[4681]
@@ -65,21 +80,152 @@ See discussion here link:https://github.com/arendst/Sonoff-Tasmota/issues/4681[4
 *max_valid_diff*:  maximum difference in 60 sec 
 
 
-==== mqtt_tasmota
+==== mqtt_tasmota (Switch)
 
-**TBD**
+Define a switch in a simpler way. It just works
 
-==== tasmota_alarm
+* Always in sync with hass
+* No need Option59,
+* No need startup script command
+* No need to define LWT/Qos
 
-**TBD**
+See discussion here link:https://github.com/home-assistant/home-assistant/issues/18703[18703]
+
+[source,python]
+-------------------
+  switch:
+    - platform: mqtt_tasmota
+      name: HASS_DEVICE
+      index: '1' 
+      stopic: SHORT_TOPIC
+-------------------
+
+==== tasmota_alarm MCP230xx
+
+Define 16/8 binary sensors based on MCP230xx chipset in a simple way. 
+This chip has two mqtt async responses(interrupt and status) and it is tedious to define all of them.
+
+
+[source,python]
+-------------------
+ tasmota_alarm:
+   devices:
+    - name: HASS_NAME
+      stopic: TOPIC
+      binary_sensors:
+         - name: door
+           polar: true
+         - name: vol
+           polar: true
+         - name: kitchen
+           polar: true
+         - name: backdoor
+           polar: true
+-------------------
 
 ==== accumulator
 
-**TBD**
+Aggregate /accumulate using events the time something is working (e.g. time TV is on)  per day/week/month. No need to query the database which is a *slow* operation 
+
+[source,python]
+-------------------
+ sensor:
+   - platform: accumulator
+     name: boiler_total_hours2
+     entity_id: switch.b0
+     state_on: 'on'
+     state_off: 'off'
+-------------------
+
 
 ==== tp_link various versions routers trackers
 
-**TBD**
+Support older firmware versions (my home versions) of devices and support more than 8 connected clients to each devices (bug in hass). 
+Have a way to disable the C7 as there is only one that can be connected 
 
+
+==== dnsmasq tracker 
+
+Using script to trigger tracker from link:https://jpmens.net/2013/10/21/tracking-dhcp-leases-with-dnsmasq/[tracking-dhcp] 
+use custom component to let hass known link:custom_components/device_tracker/mqtt_dnsmasq.py[mqtt_dnsmasq.py]
+to get the info from link:linux_services/dnsmasq.sh[dnsmasq.sh]
+
+
+=== Appdaemon apps 
+
+
+==== HeatApp app
+
+A/C Type: Electra with SonOff 4ch for enable/disable, connected to CLK input 
+(plan to reverse engineer modbus signal for better way controling this) 
+
+Keep the A/C at specific temperator, at specific days of the week 
+
+[source,python]
+-------------------
+ heater_ac1:
+   module: heat_app
+   class: HeatApp
+   schedule:
+       - { mode: a, start: { t: "17:10:00", d: 6}, end: { t: "17:11:00", d: 6} }
+       - { mode: a, start: { t: "17:15:20", d: 6}, end: { t: "23:30:40", d: 6} }
+       - { mode: a, start: { t: "08:00:00", d: 7}, end: { t: "13:30:00", d: 7} }
+       - { mode: a, start: { t: "15:30:00", d: 7}, end: { t: "19:30:00", d: 7} }
+
+-------------------
+
+
+==== CBoilerAutomation app
+
+[source,python]
+-------------------
+ boiler_automation:
+   module: heat_app
+   class: CBoilerAutomation
+   switch: switch.b0
+   temp: sensor.btemp0
+   input_automation: input_boolean.boiler_auto_enable
+   input_temp_min:   input_number.boiler_temp_min
+   input_temp_max:   input_number.boiler_temp_max
+   sensor_eff_power: sensor.boiler_eff_power0
+   sensor_eff_solar:  sensor.boiler_eff_solar0
+-------------------
+
+Keep the water in te bolier always hot. calculate some efficiency metric 
+
+Input: Temperator of the water inside the bolier 
+Output: Enable/Disable the heater 
+
+==== CWaterMonitor app
+
+Monitor the water consumption, notify in case of irregularity like leakage, high bursts, not at home etc 
+
+Water meter: link:https://arad.co.il/assets/M-August-2017.pdf[pulse every 1 liter, ev output], price ~$70$
+iot: wemo d1,tasmota, counter  
+
+[source,python]
+-------------------
+
+water_monitor:
+  module: heat_app
+  class: CWaterMonitor
+  sensor_water_total: sensor.water_total
+  sensor_water_leak_detector: sensor.water_leak_detector
+  sensor_water_bursts: sensor.water_bursts
+  watchdog_duration_min: 50 
+  watchdog_leakage_ticks: 3
+  max_day: 2000
+  max_burst: 400
+
+-------------------
+
+==== SimpleTimerOff
+
+Turn off a switch after timeout of x min
  
+==== OutdoorLampWithPir app
+
+Turn on light based by PIR sensor 
+
+
 
