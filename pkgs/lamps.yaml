@@ -1,0 +1,63 @@
+
+
+switch:
+
+  - platform: mqtt_tasmota
+    name: door-lamp0
+    stopic: basic1
+
+  - platform: mqtt_tasmota
+    name: garden-lamp0
+    stopic: basic0
+
+  - platform: mqtt_tasmota
+    name: gardenlamp1
+    stopic: basic2
+
+
+
+binary_sensor: 
+
+  - platform: mqtt
+    name: "alarm16"
+    payload_on: "OFF"
+    payload_off: "ON"
+    availability_topic: "tele/basic1/LWT"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+    state_topic: "cmnd/basic1/POWER2"
+
+
+
+light:
+  - platform: mqtt
+    name: "Light1"
+    command_topic: "cmnd/rgb1/POWER"
+    state_topic: "stat/rgb1/RESULT"
+    state_value_template: "{{value_json.POWER}}"
+    availability_topic: "tele/rgb1/LWT"
+    brightness_command_topic: "cmnd/rgb1/Dimmer"
+    brightness_state_topic: "stat/rgb1/RESULT"
+    brightness_scale: 100
+    on_command_type: "brightness"
+    brightness_value_template: "{{value_json.Dimmer}}"
+    rgb_command_topic: "cmnd/rgb1/Color2"
+    rgb_state_topic: "stat/rgb1/RESULT"
+    rgb_value_template: "{{value_json.Color.split(',')[0:3]|join(',')}}"
+    effect_command_topic: "cmnd/rgb1/Scheme"
+    effect_state_topic: "stat/rgb1/RESULT"
+    effect_value_template: "{{value_json.Scheme}}"
+    effect_list:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+    payload_on: "ON"
+    payload_off: "OFF"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+    qos: 1
+    retain: false
+
+

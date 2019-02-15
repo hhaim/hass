@@ -1,0 +1,81 @@
+
+input_boolean:
+  disable_ap_c7:
+    name: Disable admin 
+
+device_tracker:
+   - platform: ping
+     interval_seconds: 60
+     consider_home: 400
+     hosts:
+       sony_ps      : sony-ps.hhaim.home
+       nitay_pc     : pc-nitay.hhaim.home
+       tv           : tv.hhaim.home
+   - platform: mqtt_dnsmasq
+     interval_seconds: 60
+     consider_home: 400
+     topic: 'network/dhcp' 
+   
+   - platform: tplink_v2
+     interval_seconds: 20
+     consider_home: 400
+     host: 10.0.0.139
+     username: !secret ap_user1 
+     password: !secret ap_password
+     firmware: base
+     zname: living
+   
+   - platform: tplink_v2
+     interval_seconds: 20
+     consider_home: 400
+     host: 10.0.0.138
+     username: !secret ap_user2
+     password: !secret ap_password
+     firmware: ac7
+     zname: main
+     disable_input: input_boolean.disable_ap_c7
+   
+   - platform: tplink_v2
+     interval_seconds: 20
+     consider_home: 400
+     host: 10.0.0.131
+     username: !secret ap_user2
+     password: !secret ap_password
+     firmware: wr900
+     zname: daniel
+   
+   - platform: tplink_v2
+     interval_seconds: 20
+     consider_home: 400
+     host: 10.0.0.134
+     username: !secret ap_user1 
+     password: !secret ap_password
+     firmware: wr900
+     zname: base
+
+   - platform: tplink_v2
+     interval_seconds: 20
+     consider_home: 400
+     host: 10.0.0.141
+     username: !secret ap_user2 
+     password: !secret ap_password
+     firmware: wr940
+     zname: kitchen
+     disable_input: input_boolean.disable_ap_c7
+
+
+
+group: 
+
+  device_tracker:
+    name: Tracker
+    entities:
+       - device_tracker.daniel_phone
+       - device_tracker.hhaim_phone
+       - device_tracker.nitay_phone
+       - device_tracker.nitay_pc
+       - device_tracker.rivi_phone
+       - device_tracker.sony_ps
+       - device_tracker.tv
+
+

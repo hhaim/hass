@@ -1,0 +1,97 @@
+
+# Weather prediction
+sensor:
+
+  - platform: mqtt
+    name: "Temperature"
+    state_topic: "tele/sonoff/SENSOR"
+    value_template: "{{ value_json['AM2301'].Temperature }}"
+    unit_of_measurement: "C"
+
+  - platform: mqtt
+    name: "Humidity"
+    state_topic: "tele/sonoff/SENSOR"
+    value_template: "{{ value_json['AM2301'].Humidity }}"
+    unit_of_measurement: "%"
+
+  - platform: mqtt
+    name: "temp1"
+    state_topic: "tele/temp0/SENSOR"
+    value_template: "{{ value_json['AM2301'].Temperature }}"
+    unit_of_measurement: "C"
+
+  - platform: mqtt
+    name: "hum1"
+    state_topic: "tele/temp0/SENSOR"
+    value_template: "{{ value_json['AM2301'].Humidity }}"
+    unit_of_measurement: "%"
+
+  - platform: darksky
+    api_key: !secret darksky_key
+    monitored_conditions:
+      - summary
+      - icon
+      - temperature
+      - apparent_temperature
+      - humidity
+      - wind_speed
+      - visibility
+      - precip_type
+      - precip_intensity
+      - precip_probability
+      - precip_accumulation
+      - uv_index
+  
+  
+  - platform: template
+    sensors:
+      heat_index0:
+        friendly_name: 'Heat Index first floor'
+        unit_of_measurement: "C"
+        entity_id: sensor.heat_index
+        value_template: "{{ states('sensor.heat_index0') }}"
+
+      heat_index1:
+        friendly_name: 'Heat Index second floor'
+        unit_of_measurement: "C"
+        entity_id: sensor.heat_index
+        value_template: "{{ states('sensor.heat_index1') }}"
+
+      heat_index_outside0:
+        friendly_name: 'Heat Index outside'
+        unit_of_measurement: "C"
+        entity_id: sensor.heat_index_outside
+        value_template: "{{ states('sensor.heat_index_outside0') }}"
+
+
+history_graph:
+  gr1:
+    name: Temperature
+    hours_to_show: 24
+    entities:
+       - sensor.heat_index0
+       - sensor.heat_index1
+       - sensor.heat_index_outside0
+       - switch.ac1
+       - switch.ac2
+
+
+automation: 
+    - service: mqtt.publish
+      data:
+        topic: "cmnd/sonoff/TelePeriod"
+        payload: "60"
+    - service: mqtt.publish
+      data:
+        topic: "cmnd/sonoff/TelePeriod"
+        payload: "100"
+    - service: mqtt.publish
+      data:
+        topic: "cmnd/temp0/TelePeriod"
+        payload: "60"
+    - service: mqtt.publish
+      data:
+        topic: "cmnd/temp0/TelePeriod"
+        payload: "100"
+
+

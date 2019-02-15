@@ -1,0 +1,69 @@
+
+input_boolean:
+  heat_app_enable:
+    name: Enable AC/1 Heater
+  heat_timer_0:
+    name: Enable timer for heat
+
+
+input_number:
+  heat_timer_time:
+    name: A/C Timer
+    min: 60
+    max: 240
+    step: 30
+
+
+switch:
+  - platform: mqtt_tasmota
+    name: ac1
+    index: '1'
+    stopic: s0
+
+  - platform: mqtt_tasmota
+    name: ac2
+    index: '1'
+    stopic: s1
+
+sensor:
+
+  - platform: accumulator
+    name: ac1_hours
+    entity_id: switch.ac1
+    state_on: 'on'
+    state_off: 'off'
+
+  - platform: accumulator
+    name: ac2_hours
+    entity_id: switch.ac2
+    state_on: 'on'
+    state_off: 'off'
+
+
+group: 
+
+  air_conditioner:
+    name: Air Conditioner
+    entities:
+       - sensor.heat_index0
+       - sensor.heat_index1
+       - sensor.heat_index_outside0
+       - switch.ac1
+       - switch.ac2
+       - switch.tv
+       - media_player.main
+       - media_player.kodi
+       - sensor.water_total_norm
+       - sensor.water_total_external_norm
+
+  air_conditioner_automation:
+       name: Automation
+       entities:
+         - input_boolean.heat_app_enable
+         - input_boolean.heat_timer_0
+         - input_number.heat_timer_time
+
+
+
+
+

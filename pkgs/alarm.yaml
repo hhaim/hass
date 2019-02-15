@@ -1,0 +1,105 @@
+
+input_boolean:
+  gateway_sound_enable:
+    name: Start sound
+
+
+input_number:
+  gateway_sound_id:
+    name: gateway ringtone
+    min: 0
+    max: 30
+    step: 1
+
+
+switch:
+    # disable the alarm
+  - platform: mqtt_tasmota
+    name: alarm-s0
+    index: '1'
+    stopic: alarm
+    
+    # enable horm 
+  - platform: mqtt_tasmota
+    name: alarm-s1
+    index: '2'
+    stopic: alarm
+
+tasmota_alarm:
+  devices:
+    - name: alarm
+      stopic: alarm
+      binary_sensors:
+         - name: door
+           polar: true
+         - name: vol
+           polar: true
+         - name: kitchen
+           polar: true
+         - name: backdoor
+           polar: true
+         - name: living_w
+           polar: true
+         - name: living_n
+           polar: true
+         - name: living_n2
+           polar: true
+         - name: base_0
+           polar: true
+         - name: base_1
+           polar: false
+         - name: unknown_9
+           polar: true
+         - name: unknown_10
+           polar: true
+         - name: unknown_11
+           polar: true
+         - name: parent
+           polar: true
+         - name: garden
+           polar: true
+         - name: up_bath
+           polar: true
+         - name: unknown_15
+           polar: true
+
+group: 
+
+  Home Security:
+    name: Home Security
+    view: yes
+    icon: mdi:shield-half-full
+    entities:
+      - binary_sensor.alarm_test0
+      - binary_sensor.alarm0
+      - binary_sensor.alarm1
+      - binary_sensor.alarm2
+      - binary_sensor.alarm3
+      - binary_sensor.alarm4
+      - binary_sensor.alarm5
+      - binary_sensor.alarm6
+      - binary_sensor.alarm7
+      - binary_sensor.alarm8
+      - binary_sensor.alarm14
+      - binary_sensor.alarm15
+      - binary_sensor.alarm16
+      - binary_sensor.smoke_sensor_158d00024e008a
+      - binary_sensor.smoke_sensor_158d000287ae79
+      - binary_sensor.water_leak_sensor_158d000256cd9d
+      - binary_sensor.water_leak_sensor_158d00023385f2
+      - binary_sensor.water_leak_sensor_158d000256ce72
+      - binary_sensor.water_leak_sensor_158d000256ce93
+      - binary_sensor.water_leak_sensor_158d000256cede
+      - binary_sensor.water_leak_sensor_158d00027049bb
+      - binary_sensor.motion_sensor_158d0002b48209     
+      - binary_sensor.motion_sensor_158d0002b75328     
+      - binary_sensor.motion_sensor_158d0002b75423     
+      - binary_sensor.motion_sensor_158d0002b7d400     
+      - binary_sensor.motion_sensor_158d0002b7d548     
+      - binary_sensor.motion_sensor_158d0002b7f8b4     
+      - binary_sensor.motion_sensor_158d0002b85a33     
+      - binary_sensor.motion_sensor_158d0002c7165a     
+
+      - switch.alarm_s0
+      - switch.alarm_s1
+

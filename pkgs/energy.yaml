@@ -1,0 +1,36 @@
+
+
+
+input_boolean:
+  simple_switch0:
+    name: Enable Simple Switch 0
+
+
+
+switch:
+  - platform: mqtt_tasmota
+    name: power0
+    stopic: pow0
+
+
+
+# Weather prediction
+sensor:
+
+  - platform: mqtt
+    name: "Energy Yesterday"
+    state_topic: "tele/pow0/SENSOR"
+    value_template: "{{value_json['ENERGY'].Yesterday }}"
+    qos: 1
+    unit_of_measurement : "kWh" 
+
+  - platform: mqtt
+    name: "Energy Total"
+    state_topic: "tele/pow0/SENSOR"
+    value_template: "{{value_json['ENERGY'].Total }}"
+    qos: 1
+    unit_of_measurement : "kWh" 
+
+
+
+
