@@ -1,3 +1,38 @@
+homeassistant:
+  customize:
+    switch.b0:
+      friendly_name: Boiler
+      icon: mdi:shower
+    
+    sensor.btemp0:
+      friendly_name: Boiler Temperator 
+      icon: mdi:oil-temperature
+
+group: 
+
+  bolier_group:
+    name: Boiler
+    entities:
+      - sensor.btemp0
+      - switch.b0
+      - input_boolean.boiler_auto_enable
+      - input_number.boiler_timer_time
+      - input_number.boiler_temp_min
+      - input_number.boiler_temp_max
+      - history_graph.boiler_graph
+      - sensor.boiler_total_hours
+      - sensor.boiler_total_hours2
+      - sensor.stats_mean
+
+  Boiler:
+    name: Boiler
+    view: yes
+    icon: mdi:shower
+    entities:
+      - sensor.btemp0
+      - group.bolier_group
+      - sensor.stats_mean
+
 
 input_boolean:
   boiler_auto_enable:
@@ -78,28 +113,4 @@ history_graph:
        - sensor.btemp0
        - switch.b0
 
-group: 
-
-  bolier_group:
-    name: Boiler
-    entities:
-      - sensor.btemp0
-      - switch.b0
-      - input_boolean.boiler_auto_enable
-      - input_number.boiler_timer_time
-      - input_number.boiler_temp_min
-      - input_number.boiler_temp_max
-      - history_graph.boiler_graph
-      - sensor.boiler_total_hours
-      - sensor.boiler_total_hours2
-      - sensor.stats_mean
-
-  Boiler:
-    name: Boiler
-    view: yes
-    icon: mdi:shower
-    entities:
-      - sensor.btemp0
-      - group.bolier_group
-      - sensor.stats_mean
 

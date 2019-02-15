@@ -1,4 +1,44 @@
 
+## Customize
+homeassistant:
+  customize:
+    input_boolean.heat_app_enable:
+      friendly_name: Start Automation 
+      icon: mdi:air-conditioner
+
+    switch.ac1:
+      friendly_name: A/C-Down
+      icon: mdi:air-conditioner
+
+    switch.ac2:
+      friendly_name: A/C-Up
+      icon: mdi:air-conditioner
+
+group: 
+
+  air_conditioner:
+    name: Air Conditioner
+    entities:
+       - sensor.heat_index0
+       - sensor.heat_index1
+       - sensor.heat_index_outside0
+       - switch.ac1
+       - switch.ac2
+       - switch.tv
+       - media_player.main
+       - media_player.kodi
+       - sensor.water_total_norm
+       - sensor.water_total_external_norm
+
+  air_conditioner_automation:
+       name: Automation
+       entities:
+         - input_boolean.heat_app_enable
+         - input_boolean.heat_timer_0
+         - input_number.heat_timer_time
+
+
+
 input_boolean:
   heat_app_enable:
     name: Enable AC/1 Heater
@@ -39,29 +79,6 @@ sensor:
     state_on: 'on'
     state_off: 'off'
 
-
-group: 
-
-  air_conditioner:
-    name: Air Conditioner
-    entities:
-       - sensor.heat_index0
-       - sensor.heat_index1
-       - sensor.heat_index_outside0
-       - switch.ac1
-       - switch.ac2
-       - switch.tv
-       - media_player.main
-       - media_player.kodi
-       - sensor.water_total_norm
-       - sensor.water_total_external_norm
-
-  air_conditioner_automation:
-       name: Automation
-       entities:
-         - input_boolean.heat_app_enable
-         - input_boolean.heat_timer_0
-         - input_number.heat_timer_time
 
 
 

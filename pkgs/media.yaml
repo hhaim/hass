@@ -1,3 +1,9 @@
+homeassistant:
+  customize:
+    switch.tv: 
+      friendly_name: TV
+      icon: mdi:television-classic
+
 
 
 switch:

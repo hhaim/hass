@@ -76,22 +76,4 @@ history_graph:
        - switch.ac2
 
 
-automation: 
-    - service: mqtt.publish
-      data:
-        topic: "cmnd/sonoff/TelePeriod"
-        payload: "60"
-    - service: mqtt.publish
-      data:
-        topic: "cmnd/sonoff/TelePeriod"
-        payload: "100"
-    - service: mqtt.publish
-      data:
-        topic: "cmnd/temp0/TelePeriod"
-        payload: "60"
-    - service: mqtt.publish
-      data:
-        topic: "cmnd/temp0/TelePeriod"
-        payload: "100"
-
 

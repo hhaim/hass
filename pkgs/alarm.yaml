@@ -1,3 +1,159 @@
+homeassistant:
+  customize:
+    binary_sensor.alarm0:
+      friendly_name: door
+
+    binary_sensor.alarm1:
+      friendly_name: vol
+  
+    binary_sensor.alarm2:
+      friendly_name: kitchen
+
+    binary_sensor.alarm3:
+      friendly_name: backdoor
+
+    binary_sensor.alarm4:
+      friendly_name: living_w
+
+    binary_sensor.alarm5:
+      friendly_name: living_n
+
+    binary_sensor.alarm6:
+      friendly_name: living_n
+
+    binary_sensor.alarm7:
+      friendly_name: base_0
+
+    binary_sensor.alarm8:
+      friendly_name: base_1
+
+    binary_sensor.alarm9:
+      friendly_name: unknown_9
+
+    binary_sensor.alarm10:
+      friendly_name: unknown_10
+
+    binary_sensor.alarm11:
+      friendly_name: unknown_11
+
+    binary_sensor.alarm12:
+      friendly_name: unknown_12 
+
+    binary_sensor.alarm13:
+      friendly_name: unknown_13 
+
+    binary_sensor.alarm14:
+      friendly_name: parent
+
+    binary_sensor.alarm15:
+      friendly_name: garden
+
+    binary_sensor.alarm16:
+      friendly_name: door_lamp
+
+    binary_sensor.smoke_sensor_158d00024e008a:
+       friendly_name: smoke_kitchen
+    
+    binary_sensor.smoke_sensor_158d000287ae79:
+       friendly_name: smoke_f2
+
+    binary_sensor.water_leak_sensor_158d000256cd9d:
+       friendly_name: water_1
+       device_class: None
+
+    binary_sensor.water_leak_sensor_158d00023385f2:
+       friendly_name: water_2
+       device_class: None
+    
+    binary_sensor.water_leak_sensor_158d000256ce72:
+       friendly_name: water_3
+       device_class: None
+    
+    binary_sensor.water_leak_sensor_158d000256ce93:
+       friendly_name: water_4
+       device_class: None
+    
+    binary_sensor.water_leak_sensor_158d000256cede:
+       friendly_name: water_5
+       device_class: None
+    
+    binary_sensor.water_leak_sensor_158d00027049bb:
+       friendly_name: water_6
+       device_class: None
+
+    binary_sensor.motion_sensor_158d0002b48209:
+       friendly_name: living_room
+       device_class: None
+
+    binary_sensor.motion_sensor_158d0002b75328:
+       friendly_name: tv
+       device_class: None
+    
+    binary_sensor.motion_sensor_158d0002b75423:     
+       friendly_name: m_stair
+       device_class: None
+    
+    binary_sensor.motion_sensor_158d0002b7d400:     
+       friendly_name: up_parent
+       device_class: None
+    
+    binary_sensor.motion_sensor_158d0002b7d548:     
+       friendly_name: down_stair
+       device_class: None
+    
+    binary_sensor.motion_sensor_158d0002b7f8b4:     
+       friendly_name: base
+       device_class: None
+
+    binary_sensor.motion_sensor_158d0002b85a33:     
+       friendly_name: back_door
+       device_class: None
+    
+    binary_sensor.motion_sensor_158d0002c7165a:     
+       friendly_name: up_stair
+       device_class: None
+
+group: 
+
+  Home Security:
+    name: Home Security
+    view: yes
+    icon: mdi:shield-half-full
+    entities:
+      - binary_sensor.alarm_test0
+      - binary_sensor.alarm0
+      - binary_sensor.alarm1
+      - binary_sensor.alarm2
+      - binary_sensor.alarm3
+      - binary_sensor.alarm4
+      - binary_sensor.alarm5
+      - binary_sensor.alarm6
+      - binary_sensor.alarm7
+      - binary_sensor.alarm8
+      - binary_sensor.alarm14
+      - binary_sensor.alarm15
+      - binary_sensor.alarm16
+      - binary_sensor.smoke_sensor_158d00024e008a
+      - binary_sensor.smoke_sensor_158d000287ae79
+      - binary_sensor.water_leak_sensor_158d000256cd9d
+      - binary_sensor.water_leak_sensor_158d00023385f2
+      - binary_sensor.water_leak_sensor_158d000256ce72
+      - binary_sensor.water_leak_sensor_158d000256ce93
+      - binary_sensor.water_leak_sensor_158d000256cede
+      - binary_sensor.water_leak_sensor_158d00027049bb
+      - binary_sensor.motion_sensor_158d0002b48209     
+      - binary_sensor.motion_sensor_158d0002b75328     
+      - binary_sensor.motion_sensor_158d0002b75423     
+      - binary_sensor.motion_sensor_158d0002b7d400     
+      - binary_sensor.motion_sensor_158d0002b7d548     
+      - binary_sensor.motion_sensor_158d0002b7f8b4     
+      - binary_sensor.motion_sensor_158d0002b85a33     
+      - binary_sensor.motion_sensor_158d0002c7165a     
+
+      - switch.alarm_s0
+      - switch.alarm_s1
+
+
 
 input_boolean:
   gateway_sound_enable:
@@ -63,43 +219,4 @@ tasmota_alarm:
          - name: unknown_15
            polar: true
 
-group: 
-
-  Home Security:
-    name: Home Security
-    view: yes
-    icon: mdi:shield-half-full
-    entities:
-      - binary_sensor.alarm_test0
-      - binary_sensor.alarm0
-      - binary_sensor.alarm1
-      - binary_sensor.alarm2
-      - binary_sensor.alarm3
-      - binary_sensor.alarm4
-      - binary_sensor.alarm5
-      - binary_sensor.alarm6
-      - binary_sensor.alarm7
-      - binary_sensor.alarm8
-      - binary_sensor.alarm14
-      - binary_sensor.alarm15
-      - binary_sensor.alarm16
-      - binary_sensor.smoke_sensor_158d00024e008a
-      - binary_sensor.smoke_sensor_158d000287ae79
-      - binary_sensor.water_leak_sensor_158d000256cd9d
-      - binary_sensor.water_leak_sensor_158d00023385f2
-      - binary_sensor.water_leak_sensor_158d000256ce72
-      - binary_sensor.water_leak_sensor_158d000256ce93
-      - binary_sensor.water_leak_sensor_158d000256cede
-      - binary_sensor.water_leak_sensor_158d00027049bb
-      - binary_sensor.motion_sensor_158d0002b48209     
-      - binary_sensor.motion_sensor_158d0002b75328     
-      - binary_sensor.motion_sensor_158d0002b75423     
-      - binary_sensor.motion_sensor_158d0002b7d400     
-      - binary_sensor.motion_sensor_158d0002b7d548     
-      - binary_sensor.motion_sensor_158d0002b7f8b4     
-      - binary_sensor.motion_sensor_158d0002b85a33     
-      - binary_sensor.motion_sensor_158d0002c7165a     
-
-      - switch.alarm_s0
-      - switch.alarm_s1
 

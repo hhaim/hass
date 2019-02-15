@@ -1,4 +1,32 @@
 
+group: 
+
+  Cameras:
+    name: Cameras
+    view: yes
+    icon: mdi:cctv
+    entities:
+        - device_tracker.cam1
+        - device_tracker.cam2
+        - device_tracker.cam3
+        - device_tracker.cam4
+        - device_tracker.cam5
+        - camera.cam5
+        - camera.cam1
+        - camera.cam2
+        - camera.cam3
+        - camera.cam4
+
+  cam_tracker:
+    name: Cam Tracker
+    entities:
+       - device_tracker.cam1
+       - device_tracker.cam2
+       - device_tracker.cam3
+       - device_tracker.cam4
+       - device_tracker.cam5
+
+
 
 camera:
   - platform: foscam
@@ -26,32 +54,5 @@ camera:
   - platform: ffmpeg
     name: cam1
     input: !secret cam1_url
-
-group: 
-
-  Cameras:
-    name: Cameras
-    view: yes
-    icon: mdi:cctv
-    entities:
-        - device_tracker.cam1
-        - device_tracker.cam2
-        - device_tracker.cam3
-        - device_tracker.cam4
-        - device_tracker.cam5
-        - camera.cam5
-        - camera.cam1
-        - camera.cam2
-        - camera.cam3
-        - camera.cam4
-
-  cam_tracker:
-    name: Cam Tracker
-    entities:
-       - device_tracker.cam1
-       - device_tracker.cam2
-       - device_tracker.cam3
-       - device_tracker.cam4
-       - device_tracker.cam5
 
 
