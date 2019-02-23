@@ -25,7 +25,7 @@ binary_sensor:
     availability_topic: "tele/basic1/LWT"
     payload_available: "Online"
     payload_not_available: "Offline"
-    state_topic: "cmnd/basic1/POWER2"
+    state_topic: "cmnd/basic1-status/POWER2"
 
 
 

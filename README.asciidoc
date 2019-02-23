@@ -191,10 +191,26 @@ Keep the A/C at specific temperator, at specific days of the week
    sensor_eff_solar:  sensor.boiler_eff_solar0
 -------------------
 
-Keep the water in te bolier always hot. calculate some efficiency metric 
+Keep the water in the bolier always hot. calculate some efficiency metrics
 
 Input: Temperator of the water inside the bolier 
 Output: Enable/Disable the heater 
+
+.Tasmota configuration (once)
+[source,python]
+-------------------
+Rule1 on Power1#state==1 do  RuleTimer1 7200 endon on Rules#Timer=1 do power off endon on Power1#state==0 do  RuleTimer1 off endon
+Rule1 on
+poweronstate 0
+TelePeriod 60
+SetOption36 20
+-------------------
+
+* Rule1 The first rule make sure that if sonoff (TH16) disconnect from controler (wifi/broker is down/hass is down) the power won't stay on for more than 2 hours
+* poweronstate 0 : if sonoff reset set power to off (rules won't help here, beacuse rules trigger by change and not at boot)
+* SetOption36 20 : to disable boot loop 
+* TelePeriod 60  : set notification each 1 min
+
 
 ==== CWaterMonitor app
 
@@ -216,7 +232,6 @@ water_monitor:
   watchdog_leakage_ticks: 3
   max_day: 2000
   max_burst: 400
-
 -------------------
 
 ==== SimpleTimerOff
