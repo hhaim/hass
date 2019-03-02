@@ -13,7 +13,7 @@ from datetime import timedelta
 from typing import Optional
 
 import voluptuous as vol
-
+from ..tasmota import (get_tasmota_avail_topic,get_tasmota_result,get_tasmota_tele,get_tasmota_state,get_tasmota_command)
 from homeassistant.core import callback
 from homeassistant.components import sensor
 from homeassistant.components.mqtt import (
@@ -36,30 +36,24 @@ from homeassistant.helpers.restore_state import RestoreEntity
 _LOGGER = logging.getLogger(__name__)
 
 
-DOMAIN = 'tasmota_counter'
 
 DEPENDENCIES = ['mqtt']
 CONF_SHORT_TOPIC ='stopic' # short_topic
-CONF_COUNTER_ID = 'counter_id'
+CONF_ID = 'id'
+SENSOR_TYPE = 'type'
+
 CONF_MAX_DIFF = 'max_valid_diff'
 CONF_EXPIRE_AFTER = 'expire_after'
+CONF_DEFAULT_MAX_DIFF = 2000
 
-
-def get_tasmota_avail_topic (topic):
-    return ('tele/{}/LWT'.format(topic))
-
-def get_tasmota_tele (topic):
-    return ('tele/{}/SENSOR'.format(topic))
-
-def get_tasmota_state (topic):
-     return ('tele/{}/STATE'.format(topic))
 
 
 PLATFORM_SCHEMA = cv.PLATFORM_SCHEMA.extend({
     vol.Required(CONF_NAME): cv.string,
     vol.Required(CONF_SHORT_TOPIC): cv.string,
-    vol.Required(CONF_COUNTER_ID):cv.positive_int,
-    vol.Required(CONF_MAX_DIFF):cv.positive_int,
+    vol.Required(CONF_ID):cv.positive_int,
+    vol.Optional(SENSOR_TYPE,default='counter'):cv.string,
+    vol.Optional(CONF_MAX_DIFF,default=CONF_DEFAULT_MAX_DIFF):cv.positive_int,
     vol.Optional(CONF_VALUE_TEMPLATE): cv.template,
     vol.Optional(CONF_UNIT_OF_MEASUREMENT): cv.string,
     vol.Optional(CONF_ICON): cv.icon,
@@ -122,7 +116,7 @@ class MqttTasmotaCounter(MqttAvailability,  RestoreEntity):
         self._state_tele = get_tasmota_tele(stopic)
         self._state_state = get_tasmota_state(stopic)
         self._expire_after = config.get(CONF_EXPIRE_AFTER)
-        self._couner_id = config.get(CONF_COUNTER_ID)
+        self._couner_id = config.get(CONF_ID)
         self._qos = DEFAULT_QOS
         self._unit_of_measurement = config.get(CONF_UNIT_OF_MEASUREMENT)
         self._template = config.get(CONF_VALUE_TEMPLATE)

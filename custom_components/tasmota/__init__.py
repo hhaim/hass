@@ -16,9 +16,26 @@ from homeassistant.helpers import config_validation as cv
 
 _LOGGER = logging.getLogger(__name__)
 
-DOMAIN = 'tasmota_alarm'
+DOMAIN = "tasmota"
+
 CONF_SHORT_TOPIC ='stopic' # short_topic
 CONF_POLAR ='polar'
+
+
+def get_tasmota_avail_topic (topic):
+    return ('tele/{}/LWT'.format(topic))
+
+def get_tasmota_result (topic):
+    return ('stat/{}/RESULT'.format(topic))
+
+def get_tasmota_tele (topic):
+    return ('tele/{}/SENSOR'.format(topic))
+
+def get_tasmota_state (topic):
+    return ('tele/{}/STATE'.format(topic))
+
+def get_tasmota_command (topic,_index):
+    return ('cmnd/{}/POWER{}'.format(topic,_index))
 
 
 _BINARY_SENSOR_SCHEMA = vol.All(
@@ -91,7 +108,7 @@ class ConfiguredDevice:
 
         discovery.load_platform(
             self.hass, 'binary_sensor',
-            'mqtt_alarm', {'device_id': self.device_id},self.config)
+            'tasmota', {'device_id': self.device_id},self.config)
 
         #discovery.load_platform(
         #    self.hass, 'switch', DOMAIN,

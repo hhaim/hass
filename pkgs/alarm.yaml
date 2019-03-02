@@ -170,18 +170,18 @@ input_number:
 
 switch:
     # disable the alarm
-  - platform: mqtt_tasmota
+  - platform: tasmota
     name: alarm-s0
     index: '1'
     stopic: alarm
     
     # enable horm 
-  - platform: mqtt_tasmota
+  - platform: tasmota
     name: alarm-s1
     index: '2'
     stopic: alarm
 
-tasmota_alarm:
+tasmota:
   devices:
     - name: alarm
       stopic: alarm

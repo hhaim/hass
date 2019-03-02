@@ -8,6 +8,7 @@ import json
 
 import voluptuous as vol
 
+from ..tasmota import (get_tasmota_avail_topic,get_tasmota_result,get_tasmota_tele,get_tasmota_state,get_tasmota_command)
 from homeassistant.core import callback
 from homeassistant.components import mqtt, binary_sensor
 from homeassistant.components.binary_sensor import (
@@ -25,7 +26,6 @@ from homeassistant.helpers.typing import HomeAssistantType, ConfigType
 
 _LOGGER = logging.getLogger(__name__)
 
-DOMAIN = 'mqtt_alarm'
 
 DEFAULT_NAME = 'MQTT Binary sensor'
 CONF_UNIQUE_ID = 'unique_id'
@@ -53,20 +53,10 @@ async def async_setup_platform(hass: HomeAssistantType, config: ConfigType,
     if discovery_info is None:
         await _async_setup_entity(hass, config, async_add_entities)
     else:
-        data = hass.data['tasmota_alarm']
+        data = hass.data['tasmota']
         device_id = discovery_info['device_id']
         device = data[CONF_DEVICES][device_id]
         await _async_setup_discover(hass,device,async_add_entities)
-
-
-def get_tasmota_avail_topic (topic):
-    return ('tele/{}/LWT'.format(topic))
-
-def get_tasmota_result (topic):
-    return ('stat/{}/RESULT'.format(topic))
-
-def get_tasmota_tele (topic):
-    return ('tele/{}/SENSOR'.format(topic))
 
 
 async def _async_setup_discover(hass, device, async_add_entities):

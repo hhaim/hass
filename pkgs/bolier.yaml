@@ -59,7 +59,7 @@ input_number:
 
 switch:
 
-  - platform: mqtt_tasmota
+  - platform: tasmota
     name: b0
     stopic: b0
 

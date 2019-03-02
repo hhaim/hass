@@ -27,8 +27,8 @@ group:
        - switch.tv
        - media_player.main
        - media_player.kodi
-       - sensor.water_total_norm
        - sensor.water_total_external_norm
+
 
   air_conditioner_automation:
        name: Automation
@@ -55,15 +55,16 @@ input_number:
 
 
 switch:
-  - platform: mqtt_tasmota
+  - platform: tasmota
     name: ac1
     index: '1'
     stopic: s0
 
-  - platform: mqtt_tasmota
+  - platform: tasmota
     name: ac2
     index: '1'
     stopic: s1
+
 
 sensor:
 

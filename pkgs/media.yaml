@@ -7,7 +7,7 @@ homeassistant:
 
 
 switch:
-  - platform: mqtt_tasmota
+  - platform: tasmota
     name: TV
     stopic: p0
 

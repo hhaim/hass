@@ -1,41 +1,37 @@
 
 sensor:
 
-  - platform: tasmota_counter
+  - platform: tasmota
     name: water_total
     stopic: water_out
-    counter_id: 1
-    max_valid_diff: 2000
+    id: 1
     unit_of_measurement: 'l'
     icon: mdi:water-pump
     expire_after: 300
     value_template: "{{ (45497 + (value))|int }}"
 
-  - platform: tasmota_counter
+  - platform: tasmota
     name: water_total_external
     stopic: water_out
-    counter_id: 1
-    max_valid_diff: 2000
+    id: 1
     unit_of_measurement: 'l'
     icon: mdi:water-pump
     expire_after: 300
     value_template: "{{ (80600 + 45497 + (value))|int }}"
 
-  - platform: tasmota_counter
+  - platform: tasmota
     name: water_total_norm
     stopic: water_out
-    counter_id: 1
-    max_valid_diff: 2000
+    id: 1
     unit_of_measurement: 'l'
     icon: mdi:water-pump
     expire_after: 300
     value_template: "{{ (37950 + (value/1.21))|int }}"
 
-  - platform: tasmota_counter
+  - platform: tasmota
     name: water_total_external_norm
     stopic: water_out
-    counter_id: 1
-    max_valid_diff: 2000
+    id: 1
     unit_of_measurement: 'l'
     icon: mdi:water-pump
     expire_after: 300
@@ -55,7 +51,6 @@ sensor:
         friendly_name: 'water usage in bulks'
         unit_of_measurement: "l"
         value_template: "{{ states('sensor.water_bursts') }}"
-
 
 
 

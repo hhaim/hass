@@ -2,15 +2,15 @@
 
 switch:
 
-  - platform: mqtt_tasmota
+  - platform: tasmota
     name: door-lamp0
     stopic: basic1
 
-  - platform: mqtt_tasmota
+  - platform: tasmota
     name: garden-lamp0
     stopic: basic0
 
-  - platform: mqtt_tasmota
+  - platform: tasmota
     name: gardenlamp1
     stopic: basic2
 

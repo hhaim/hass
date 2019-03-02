@@ -61,10 +61,10 @@ See discussion here link:https://github.com/arendst/Sonoff-Tasmota/issues/4681[4
 
 [source,bash]
 -------------------
-  - platform: tasmota_counter
+  - platform: tasmota
     name: water_total
     stopic: water_out    
-    counter_id: 1        
+    id: 1        
     max_valid_diff: 2000 
     unit_of_measurement: 'l' 
     icon: mdi:water-pump
@@ -108,7 +108,7 @@ This chip has two mqtt async responses(interrupt and status) and it is tedious t
 
 [source,python]
 -------------------
- tasmota_alarm:
+ tasmota:
    devices:
     - name: HASS_NAME
       stopic: TOPIC

@@ -8,6 +8,7 @@ import json
 
 import voluptuous as vol
 
+from ..tasmota import (get_tasmota_avail_topic,get_tasmota_result,get_tasmota_tele,get_tasmota_state,get_tasmota_command)
 from homeassistant.core import callback
 from homeassistant.components.mqtt import (
     CONF_AVAILABILITY_TOPIC,CONF_PAYLOAD_AVAILABLE,CONF_PAYLOAD_NOT_AVAILABLE, CONF_QOS, CONF_RETAIN, MqttAvailability)
@@ -24,8 +25,6 @@ from homeassistant.helpers.restore_state import RestoreEntity
 _LOGGER = logging.getLogger(__name__)
 
 DEPENDENCIES = ['mqtt']
-
-DOMAIN = 'mqtt_tasmota'
 
 
 DEFAULT_INDEX =""
@@ -70,20 +69,6 @@ async def _async_setup_entity(hass, config, async_add_entities,
 
     async_add_entities([newswitch])
 
-def get_tasmota_avail_topic (topic):
-    return ('tele/{}/LWT'.format(topic))
-
-def get_tasmota_result (topic):
-    return ('stat/{}/RESULT'.format(topic))
-
-def get_tasmota_tele (topic):
-    return ('tele/{}/SENSOR'.format(topic))
-
-def get_tasmota_state (topic):
-    return ('tele/{}/STATE'.format(topic))
-
-def get_tasmota_command (topic,_index):
-    return ('cmnd/{}/POWER{}'.format(topic,_index))
 
 
 class MqttTasmotaSwitch(MqttAvailability, SwitchDevice, RestoreEntity):
