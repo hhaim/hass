@@ -9,7 +9,8 @@ sensor:
       - type: processor_use
       - type: last_boot
 
-  - platform: fastdotcom
+
+fastdotcom:
 
 
 group: 
