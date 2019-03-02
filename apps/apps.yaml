@@ -35,7 +35,7 @@ heater_ac1:
      modes :
         a : 
           cool: { min_o: 27.9, min_i: 27.3, max_i: 29.5}
-          heat: { min_o: 18.0, min_i: 19.7, max_i: 21.5} 
+          heat: { min_o: 10.0, min_i: 19.7, max_i: 21.0} 
 
 
  # the up floor  
@@ -61,10 +61,10 @@ heater_ac_up:
      modes :
         a : 
           cool: { min_o: 27.3, min_i: 27.3, max_i: 31.1} 
-          heat: { min_o: 16.0, min_i: 14.9, max_i: 18.5} 
+          heat: { min_o: 10.0, min_i: 14.9, max_i: 18.5} 
         b : 
           cool: { min_o: 27.9, min_i: 27.3, max_i: 29.5} 
-          heat: { min_o: 15.0, min_i: 17.0, max_i: 18.5} 
+          heat: { min_o: 10.0, min_i: 17.0, max_i: 18.5} 
 
 
 calc_sensor_inside1:
