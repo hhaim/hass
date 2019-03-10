@@ -181,6 +181,7 @@ switch:
     index: '2'
     stopic: alarm
 
+
 tasmota:
   devices:
     - name: alarm

@@ -89,6 +89,13 @@ sun:
 sensor:
   - platform: uptime
 
+  - platform: wbi1
+    name: ac1_hours1
+    entity_id: switch.ac1
+    state_on: 'on'
+    state_off: 'off'
+
+
 # Text to speech
 tts:
   - platform: google
