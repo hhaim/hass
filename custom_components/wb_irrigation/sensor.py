@@ -1,28 +1,31 @@
 """
 
 sensors for 
+
 1. rain in mm (hourly) 
 2. rain in mm (day)
 3. EV (day)
-4. queue - per name 
-
+4. queue - per tap name. clear by the automation 
 
 """
 import logging
 import json
 import re
+import requests 
+
 from datetime import timedelta
 from typing import Optional
-from requests import get
 
 import voluptuous as vol
-from ..wb_irrigation import (TYPE_RAIN,TYPE_RAIN_DAY,TYPE_EV_DAY,TYPE_EV_RAIN_BUCKET,CONF_RAIN_FACTOR,CONF_TAPS)
+from ..wb_irrigation import (TYPE_RAIN,TYPE_RAIN_DAY,TYPE_EV_DAY,TYPE_EV_RAIN_BUCKET,CONF_RAIN_FACTOR,CONF_TAPS,CONF_MAX_EV,CONF_MIN_EV)
 from homeassistant.core import callback
 from homeassistant.components import sensor
 from homeassistant.components.sensor import DEVICE_CLASSES_SCHEMA
+from homeassistant.util import Throttle
+from homeassistant.helpers.event import async_track_utc_time_change
 
 from homeassistant.const import (
-    CONF_NAME, CONF_TYPE, 
+    CONF_NAME, CONF_TYPE,CONF_UNIT_OF_MEASUREMENT,CONF_ICON,
     CONF_API_KEY, CONF_LATITUDE, CONF_LONGITUDE, CONF_MODE, 
     STATE_UNKNOWN, TEMP_CELSIUS)
 
@@ -38,11 +41,9 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_platform(hass: HomeAssistantType, config: ConfigType,
                                async_add_entities, discovery_info=None):
-    if discovery_info is None:
-        await _async_setup_entity(hass, config, async_add_entities)
-    else:
-        _LOGGER.warning(" discover  {} {}".format(discovery_info,config))
-        await _async_setup_entity(hass, config, async_add_entities)
+
+    if discovery_info:
+        async_add_entities([WeatherIrrigarion(hass,discovery_info)])
 
 
 async def _async_setup_entity(hass: HomeAssistantType, config: ConfigType,
@@ -53,9 +54,8 @@ async def _async_setup_entity(hass: HomeAssistantType, config: ConfigType,
 
 
 
-#TBD change this 
-#MIN_TIME_BETWEEN_FORECAST_UPDATES = timedelta(minutes=60)
-MIN_TIME_BETWEEN_FORECAST_UPDATES = timedelta(seconds=1)
+MIN_TIME_BETWEEN_FORECAST_UPDATES = timedelta(minutes=60)
+#MIN_TIME_BETWEEN_FORECAST_UPDATES = timedelta(seconds=1)
 OWM_URL = "https://api.openweathermap.org/data/2.5/weather?units=metric&lat={}&lon={}&appid={}"
 
 
@@ -73,43 +73,51 @@ class WeatherIrrigarion(RestoreEntity):
         self._lat = conf.get(CONF_LATITUDE)
         self._lon = conf.get(CONF_LONGITUDE)
         self._api = conf.get(CONF_API_KEY)
+        self._max_ev = conf.get(CONF_MAX_EV)
+        self._min_ev = conf.get(CONF_MIN_EV)
 
-        self._rain_mm =0
-        self._ev = 0
-        self._skip = 0
+        self.reset_data ()
 
-        # TBD change this 23,58,0
         async_track_utc_time_change(
             hass, self._async_update_last_day,
-            hour=0, minute=0, second=5)
+            hour=23, minute=58, second=0)
 
+    def reset_data (self):
+        self._rain_mm =0
+        self._max_temp = -50;
+        self._min_temp = 50;
+        self._skip = 0
+        self._ev = 0
 
     def get_data (self):
         url=OWM_URL.format(self._lat,self._lon,self._api)
         d = None
         try:
-           r = get(url)
+           r = requests.get(url)
            d = json.loads(r.text)
-           _LOGGER.warning(" WB_IR get_data read {}".format(d))
-       except Exception  as e:
+           #_LOGGER.warning(" WB_IR get_data read {}".format(d))
+        except Exception  as e:
            _LOGGER.warning("Failed to get OWM URL ")
            pass 
-       return d;
+        return d;
 
 
     async def _async_update_last_day(self,time=None):
 
         if self._type == TYPE_RAIN_DAY:
             self._state = self._rain_mm
-            self._rain_mm = 0
 
         if self._type == TYPE_EV_DAY:
             self._state = self._ev
 
         if self._type == TYPE_EV_RAIN_BUCKET:
             self._state += (-self._ev) + (self._rain_mm * self._rain_factor)
-            self._rain_mm = 0   
+            if self._state > self._max_ev:
+               self._state = self._max_ev
+            if self._state < self._min_ev:
+               self._state = self._min_ev
 
+        self.reset_data ()
         self.async_schedule_update_ha_state()
 
 
@@ -117,7 +125,15 @@ class WeatherIrrigarion(RestoreEntity):
     def update(self, **kwargs):
         """Fetch the  status from URL"""
         d=  self.get_data()
-        tmean = (d['main']['temp_min'] + d['main']['temp_max'])/2
+
+        tmax = d['main']['temp_max']
+        tmin = d['main']['temp_min']
+        if tmax > self._max_temp:
+            self._max_temp = tmax
+        if tmin < self._min_temp:
+                self._min_temp = tmin
+        
+        tmean = (tmax + tmin)/2
         hours = (d["sys"]["sunset"] - d["sys"]["sunrise"]) /3600.0
         rain_mm = 0
         if "rain" in d:
@@ -132,7 +148,8 @@ class WeatherIrrigarion(RestoreEntity):
 
         ev = hours * (0.46 * tmean + 8.13)
 
-        _LOGGER.warning(" WB_IR t:{} h:{} r:{} ev:{}".format(tmean,hours,rain_mm,ev))
+        #_LOGGER.warning(" WB_IR t:{} h:{} r:{} ev:{}".format(tmean,hours,rain_mm,ev))
+
         if self._type == TYPE_RAIN:
             self._state = rain_mm
         if self._type == TYPE_RAIN_DAY:
@@ -161,7 +178,7 @@ class WeatherIrrigarion(RestoreEntity):
     @property
     def device_state_attributes(self):
         """Return the state attributes."""
-         return {}
+        return {}
 
     @property
     def icon(self):

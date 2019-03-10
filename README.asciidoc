@@ -243,4 +243,66 @@ Turn off a switch after timeout of x min
 Turn on light based by PIR sensor 
 
 
+==== Weather base irrigation
+
+The objective is to irrigate base on actual weather data (no forcast). 
+A simple model of leaky bucket from networking (policer) is used. 
+
+1. Rain will fill the bucket (up to maximum)
+2. Evaporation reduce the bucket - there are many models for ev 
+
+The simplet Blaney-Criddle is used here (base on mean temperature and p - hours of daylight )
+
+see   link:https://en.wikipedia.org/wiki/Blaney%E2%80%93Criddle_equation[BlaneyCriddle]
+
+3. Irrigation time is based on the bucket level at the time of irrigation time. 
+
+Irrigation time = bucket level * max_tap_time (min)
+
+After Irrigation the bucket is zeroed
+
+*Example*: 
+
+
+[options="header",cols="1,1,3"]
+|=================
+| Day  | bucket level | desc
+|0     |  +500(rain)-100ev | rain of 5mm *100 ev/mm
+|1     |  +200(rain)-100ev | rain of 2mm *100 ev/mm
+|2     |  Irrigation?    | no the bucket is positive (+500)	
+|3     |  500-200ev =300 |  Sunny - 10 hours 
+|4     |  200- 200ev =0  |  Sunny - 10 hours 
+|5     |  -200           |  Sunny - 10 hours 
+|6     |  Irigation?     |  Sunny - 10 hours , yes base of value * factor tap
+|=======================================
+
+
+As you can see this simple model can tune the irrigation time dynamically base on the weather actual data (again, no forcast needed)
+The feedback/calculation is slow and done per day 
+
+[source,python]
+-------------------
+
+wb_irrigation:
+  api_key: !secret openweathermap_key
+  rain_factor: 120
+  max_ev: 3750 
+  min_ev: -1500.0
+  name: "wb_irrigation"
+  longitude: !secret accurate_longitude
+  latitude: !secret accurate_latitude
+  taps: 
+    - name: p1
+    - name: p2
+-------------------
+
+1. api_key: a free key to  link:https://openweathermap.org/[openweathermap.org]
+2. rain_factor: ev/mm factor 
+3. max_ev: the maximum of the bucket level. if a rainy day has an evaporation of ~150 ev. 3750 means that after a good rain we can stop irrigation for ~20 days
+4. min_ev: the minimum of the bucket level. if we didn't irrigate for that time we can't compensate for for this value
+5. longitude,latitude for accurate value for irrigation 
+6. taps names. each will have a sensor with bucket calculation 
+
+TODO: appdaemon automation to turn-on/off the taps and zero the buckets 
+
 
