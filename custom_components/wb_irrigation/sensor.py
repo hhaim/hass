@@ -64,7 +64,6 @@ class WeatherIrrigarion(RestoreEntity):
     def __init__(self, hass, conf):
         """Initialize the sensor."""
         self.hass = hass
-        self._state = STATE_UNKNOWN
         self._name = conf.get(CONF_NAME)
         self._unit_of_measurement = conf.get(CONF_UNIT_OF_MEASUREMENT)
         self._icon = conf.get(CONF_ICON)
@@ -75,12 +74,21 @@ class WeatherIrrigarion(RestoreEntity):
         self._api = conf.get(CONF_API_KEY)
         self._max_ev = conf.get(CONF_MAX_EV)
         self._min_ev = conf.get(CONF_MIN_EV)
-
+        self._state = 0.0
+        if self._type == TYPE_EV_RAIN_BUCKET:
+            self._state = 500.0
         self.reset_data ()
 
         async_track_utc_time_change(
             hass, self._async_update_last_day,
-            hour=23, minute=58, second=0)
+             hour=23, minute=58,second=0)
+
+    async def async_added_to_hass(self):
+       """Call when entity about to be added to Home Assistant."""
+       await super().async_added_to_hass()
+       state = await self.async_get_last_state()
+       if state is not None:
+           self._state = float(state.state)
 
     def reset_data (self):
         self._rain_mm =0
@@ -97,7 +105,7 @@ class WeatherIrrigarion(RestoreEntity):
            d = json.loads(r.text)
            #_LOGGER.warning(" WB_IR get_data read {}".format(d))
         except Exception  as e:
-           _LOGGER.warning("Failed to get OWM URL ")
+           _LOGGER.warning("Failed to get OWM URL {}".format(r.text))
            pass 
         return d;
 
@@ -111,7 +119,10 @@ class WeatherIrrigarion(RestoreEntity):
             self._state = self._ev
 
         if self._type == TYPE_EV_RAIN_BUCKET:
-            self._state += (-self._ev) + (self._rain_mm * self._rain_factor)
+            # first time
+            if not isinstance(self._state, float):
+                self._state = 500.0
+            self._state += round((-self._ev) + (self._rain_mm * self._rain_factor),2)
             if self._state > self._max_ev:
                self._state = self._max_ev
             if self._state < self._min_ev:
@@ -125,6 +136,8 @@ class WeatherIrrigarion(RestoreEntity):
     def update(self, **kwargs):
         """Fetch the  status from URL"""
         d=  self.get_data()
+        if d is None:
+            return;
 
         tmax = d['main']['temp_max']
         tmin = d['main']['temp_min']
@@ -146,9 +159,7 @@ class WeatherIrrigarion(RestoreEntity):
                 else:
                     self._skip = self._skip -1
 
-        ev = hours * (0.46 * tmean + 8.13)
-
-        #_LOGGER.warning(" WB_IR t:{} h:{} r:{} ev:{}".format(tmean,hours,rain_mm,ev))
+        ev = round(hours * (0.46 * tmean + 8.13),0)
 
         if self._type == TYPE_RAIN:
             self._state = rain_mm
