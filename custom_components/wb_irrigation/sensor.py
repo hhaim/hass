@@ -122,11 +122,12 @@ class WeatherIrrigarion(RestoreEntity):
             # first time
             if not isinstance(self._state, float):
                 self._state = 500.0
-            self._state += round((-self._ev) + (self._rain_mm * self._rain_factor),2)
+            self._state += (-self._ev) + (self._rain_mm * self._rain_factor)
             if self._state > self._max_ev:
                self._state = self._max_ev
             if self._state < self._min_ev:
                self._state = self._min_ev
+            self._state = round(self._state,1)
 
         self.reset_data ()
         self.async_schedule_update_ha_state()
