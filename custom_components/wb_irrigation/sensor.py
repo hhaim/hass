@@ -140,36 +140,51 @@ class WeatherIrrigarion(RestoreEntity):
         if d is None:
             return;
 
-        tmax = d['main']['temp_max']
-        tmin = d['main']['temp_min']
-        if tmax > self._max_temp:
-            self._max_temp = tmax
-        if tmin < self._min_temp:
-                self._min_temp = tmin
+        if self._type == TYPE_RAIN:
+            _LOGGER.warning(" data {}".format(d))
+
+        tmean = None
+        hours = None
+
+        if "main" in d:
+           tmax = d['main']['temp_max']
+           tmin = d['main']['temp_min']
+           if tmax > self._max_temp:
+              self._max_temp = tmax
+           if tmin < self._min_temp:
+              self._min_temp = tmin
         
-        tmean = (tmax + tmin)/2
-        hours = (d["sys"]["sunset"] - d["sys"]["sunrise"]) /3600.0
+           tmean = (self._max_temp + self._min_temp)/2
+
+        if "sys" in d:
+           hours = (d["sys"]["sunset"] - d["sys"]["sunrise"]) /3600.0
+
         rain_mm = 0
         if "rain" in d:
             if "1h" in d["rain"]:
-                rain_mm = d["rain"]["1h"]
+                rain_mm = float(d["rain"]["1h"])
             if "3h" in d["rain"]:
                 if self._skip ==0:
-                   rain_mm = d["rain"]["3h"]
+                   rain_mm = float(d["rain"]["3h"])
                    self._skip = 2
                 else:
                     self._skip = self._skip -1
 
-        ev = round(hours * (0.46 * tmean + 8.13),0)
+        ev = None; 
+        if tmean and hours:
+           ev = round(hours * (0.46 * tmean + 8.13),0)
+            
 
         if self._type == TYPE_RAIN:
             self._state = rain_mm
         if self._type == TYPE_RAIN_DAY:
             self._rain_mm += rain_mm
         if self._type == TYPE_EV_DAY:
-            self._ev = ev
+            if ev:
+               self._ev = ev
         if self._type == TYPE_EV_RAIN_BUCKET:
-            self._ev = ev
+            if ev:
+               self._ev = ev
             self._rain_mm += rain_mm
 
     @property
