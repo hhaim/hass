@@ -2,8 +2,9 @@ homeassistant:
   # Name of the location where Home Assistant is running
   name: Home
   # Location required to calculate the time the sun rises and sets
-  latitude: 32.0806
-  longitude: 34.8142
+  latitude: !secret accurate_latitude
+  longitude: !secret accurate_longitude
+
   # Impacts weather/sunrise data (altitude above sea level in meters)
   elevation: 43
   # metric for Metric, imperial for Imperial
@@ -132,9 +133,8 @@ recorder:
 xiaomi_aqara:
   discovery_retry: 5
   gateways:
-      -  mac: 7C:49:EB:19:3B:55
-         key: 4236ABC769D14A9F
-
+      -  mac: !secret mii_mac
+         key: !secret mii_key 
 
 
 
