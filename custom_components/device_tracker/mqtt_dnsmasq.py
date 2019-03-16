@@ -61,7 +61,7 @@ async def async_setup_scanner(hass, config, async_see, discovery_info=None):
             _LOGGER.info("mqtt_dnsmask:  skip {0}-{1}".format(d,localtion))
             return
 
-        _LOGGER.info("mqtt_dnsmask: {0}-{1}".format(d,localtion))
+        #_LOGGER.info("mqtt_dnsmask: {0}-{1}".format(d,localtion))
         hass.async_add_job(
             async_see(mac=d['mac'], host_name=d["host"], location_name=localtion,source_type="dhcp"))
 

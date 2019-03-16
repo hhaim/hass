@@ -992,3 +992,8 @@ class CMiiButton(hass.Hass):
         self.log(msg)
 
 
+
+
+        
+
+

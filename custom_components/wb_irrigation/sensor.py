@@ -84,6 +84,10 @@ class WeatherIrrigarion(RestoreEntity):
         async_track_utc_time_change(
             hass, self._async_update_last_day,
              hour=23, minute=58,second=0)
+        async_track_utc_time_change(
+            hass, self._async_update_every_hour,
+              minute=0,second=0)
+
 
     async def async_added_to_hass(self):
        """Call when entity about to be added to Home Assistant."""
@@ -150,8 +154,7 @@ class WeatherIrrigarion(RestoreEntity):
         return 10.0 
 
 
-    @Throttle(MIN_TIME_BETWEEN_FORECAST_UPDATES)
-    def update(self, **kwargs):
+    async def _async_update_every_hour(self,time=None):
         """Fetch the  status from URL"""
         d=  self.get_data()
         if d is None:
@@ -209,6 +212,11 @@ class WeatherIrrigarion(RestoreEntity):
             if ev:
                self._ev = ev
             self._rain_mm += rain_mm
+
+    @property
+    def should_poll(self):
+       """No polling needed."""
+       return False
 
     @property
     def name(self):

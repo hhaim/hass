@@ -63,11 +63,11 @@ views:
           - entity: sensor.uptime
             name: uptime
           - entity: sensor.water_total_external
-            name: water_total 
+            name: Water 
           - entity: sensor.wb_irrigation_p1
-            name: Pipe 1
+            name: Pipe1
           - entity: sensor.wb_irrigation_p2
-            name: Pipe 2
+            name: Pipe2
           - entity: sensor.wb_irrigation_rain
             name: Rain
 

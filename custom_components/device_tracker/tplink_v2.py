@@ -318,7 +318,7 @@ class TPlinkScanner(DeviceScanner):
                 self.tp.login(); 
                 self.last_results = self.tp.get_list_devices ()
                 self.tp.logout(); 
-                _LOGGER.info("wireless clients {0}: {1}".format(self.tp.name,str(self.last_results)))
+                #_LOGGER.info("wireless clients {0}: {1}".format(self.tp.name,str(self.last_results)))
                 valid =True
                 break;
             except Exception as e:
