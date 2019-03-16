@@ -7,6 +7,8 @@ sensors for
 3. EV (day)
 4. queue - per tap name. clear by the automation 
 
+the rain_mm is based on actual information from openweathermap and in some cases estimate (in case there is no information)
+
 """
 import logging
 import json
@@ -94,7 +96,6 @@ class WeatherIrrigarion(RestoreEntity):
         self._rain_mm =0
         self._max_temp = -50;
         self._min_temp = 50;
-        self._skip = 0
         self._ev = 0
 
     def get_data (self):
@@ -132,6 +133,22 @@ class WeatherIrrigarion(RestoreEntity):
         self.reset_data ()
         self.async_schedule_update_ha_state()
 
+    def rain_desc_to_mm (self,code):
+        CONVERT= {500:1.0,
+                 501:2.0,
+                 502:5.0,
+                 503:20.0,
+                 504:60.0,
+                 511:5.0,
+                 520:5.0,
+                 521:5.0,
+                 522:20.0,
+                 531:50.0}
+        if code in CONVERT:
+            return CONVERT[code]
+        _LOGGER.warning(" can't findany key in {}".format(code))
+        return 10.0 
+
 
     @Throttle(MIN_TIME_BETWEEN_FORECAST_UPDATES)
     def update(self, **kwargs):
@@ -139,9 +156,6 @@ class WeatherIrrigarion(RestoreEntity):
         d=  self.get_data()
         if d is None:
             return;
-
-        if self._type == TYPE_RAIN:
-            _LOGGER.warning(" data {}".format(d))
 
         tmean = None
         hours = None
@@ -155,20 +169,29 @@ class WeatherIrrigarion(RestoreEntity):
               self._min_temp = tmin
         
            tmean = (self._max_temp + self._min_temp)/2
+        else:
+           _LOGGER.warning(" can't find main in {}".format(d))
 
         if "sys" in d:
            hours = (d["sys"]["sunset"] - d["sys"]["sunrise"]) /3600.0
 
         rain_mm = 0
         if "rain" in d:
+            # accurate 
             if "1h" in d["rain"]:
                 rain_mm = float(d["rain"]["1h"])
             if "3h" in d["rain"]:
-                if self._skip ==0:
-                   rain_mm = float(d["rain"]["3h"])
-                   self._skip = 2
-                else:
-                    self._skip = self._skip -1
+                rain_mm = float(d["rain"]["3h"])/3.0
+        else:
+            # this is estimation base on string 
+            if "weather" in d:
+                w = d['weather']
+                for obj in w:
+                    if obj['main']=='Rain':
+                        rain_mm = self.rain_desc_to_mm(obj['id'])
+        if "snow" in d:
+            # not acurate, in case of snow 
+            rain_mm = rain_mm + 50
 
         ev = None; 
         if tmean and hours:
