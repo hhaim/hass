@@ -85,22 +85,11 @@ map:
 # Track the sun
 sun:
 
+lovelace:
+  mode: yaml
 
 sensor:
   - platform: uptime
-
-wb_irrigation:
-  api_key: !secret openweathermap_key
-  rain_factor: 120
-  max_ev: 3750 
-  min_ev: -1500.0
-  name: "wb_irrigation"
-  longitude: !secret accurate_longitude
-  latitude: !secret accurate_latitude
-  taps: 
-    - name: p1
-    - name: p2
-
 
 
 # Text to speech

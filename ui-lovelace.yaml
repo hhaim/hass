@@ -62,6 +62,15 @@ views:
             icon: mdi:oil-temperature
           - entity: sensor.uptime
             name: uptime
+          - entity: sensor.water_total_external
+            name: water_total 
+          - entity: sensor.wb_irrigation_p1
+            name: Pipe 1
+          - entity: sensor.wb_irrigation_p2
+            name: Pipe 2
+          - entity: sensor.wb_irrigation_rain
+            name: Rain
+
 
       - type: entities
         title: A/C TV
@@ -126,14 +135,18 @@ views:
         title: Machine
         show_header_toggle: true
         entities:
-          - sensor.disk_free_
-          - sensor.energy_total
-          - sensor.energy_yesterday
-          - sensor.fastcom_download
-          - sensor.memory_free
-          - sensor.processor_use
-          - switch.power0
-          - input_boolean.simple_switch0
+           - group.cpu
+           - switch.power0
+           - input_boolean.simple_switch0
+           - input_boolean.disable_ap_c7
+           - input_boolean.gateway_sound_enable
+           - input_number.gateway_sound_id
+           - binary_sensor.cube_158d000276ed22
+           - sensor.tv_hours
+           - sensor.water_total
+           - sensor.water_total_external
+           - light.gateway_light_7c49eb193b55
+           - light.light1
 
   - title: Camera
     id: cam
@@ -158,19 +171,36 @@ views:
     cards:
       - type: entity-filter
         entities:
-          - binary_sensor.alarm0
-          - binary_sensor.alarm1
-          - binary_sensor.alarm2
-          - binary_sensor.alarm3
-          - binary_sensor.alarm4
-          - binary_sensor.alarm5
-          - binary_sensor.alarm6
-          - binary_sensor.alarm7
-          - binary_sensor.alarm8
-          - binary_sensor.alarm14
-          - binary_sensor.alarm15
+            - binary_sensor.alarm0
+            - binary_sensor.alarm1
+            - binary_sensor.alarm2
+            - binary_sensor.alarm3
+            - binary_sensor.alarm4
+            - binary_sensor.alarm5
+            - binary_sensor.alarm6
+            - binary_sensor.alarm7
+            - binary_sensor.alarm8
+            - binary_sensor.alarm14
+            - binary_sensor.alarm15
+            - binary_sensor.alarm16
+            - binary_sensor.smoke_sensor_158d00024e008a
+            - binary_sensor.smoke_sensor_158d000287ae79
+            - binary_sensor.water_leak_sensor_158d000256cd9d
+            - binary_sensor.water_leak_sensor_158d00023385f2
+            - binary_sensor.water_leak_sensor_158d000256ce72
+            - binary_sensor.water_leak_sensor_158d000256ce93
+            - binary_sensor.water_leak_sensor_158d000256cede
+            - binary_sensor.water_leak_sensor_158d00027049bb
+            - binary_sensor.motion_sensor_158d0002b48209     
+            - binary_sensor.motion_sensor_158d0002b75328     
+            - binary_sensor.motion_sensor_158d0002b75423     
+            - binary_sensor.motion_sensor_158d0002b7d400     
+            - binary_sensor.motion_sensor_158d0002b7d548     
+            - binary_sensor.motion_sensor_158d0002b7f8b4     
+            - binary_sensor.motion_sensor_158d0002b85a33     
+            - binary_sensor.motion_sensor_158d0002c7165a     
         state_filter:
-          - 'off'
+              - 'on'
         card:
           type: glance
           title: sensors
@@ -179,24 +209,84 @@ views:
         title: graph 
         hours_to_show : 1
         entities:
-          - binary_sensor.alarm0
-          - binary_sensor.alarm1
-          - binary_sensor.alarm2
-          - binary_sensor.alarm3
-          - binary_sensor.alarm4
-          - binary_sensor.alarm5
-          - binary_sensor.alarm6
-          - binary_sensor.alarm7
-          - binary_sensor.alarm11
-          - binary_sensor.alarm12
-          - binary_sensor.alarm13
-          - binary_sensor.alarm14
-          - binary_sensor.alarm15
+            - binary_sensor.alarm0
+            - binary_sensor.alarm1
+            - binary_sensor.alarm2
+            - binary_sensor.alarm3
+            - binary_sensor.alarm4
+            - binary_sensor.alarm5
+            - binary_sensor.alarm6
+            - binary_sensor.alarm7
+            - binary_sensor.alarm8
+            - binary_sensor.alarm14
+            - binary_sensor.alarm15
+            - binary_sensor.alarm16
+            - binary_sensor.smoke_sensor_158d00024e008a
+            - binary_sensor.smoke_sensor_158d000287ae79
+            - binary_sensor.water_leak_sensor_158d000256cd9d
+            - binary_sensor.water_leak_sensor_158d00023385f2
+            - binary_sensor.water_leak_sensor_158d000256ce72
+            - binary_sensor.water_leak_sensor_158d000256ce93
+            - binary_sensor.water_leak_sensor_158d000256cede
+            - binary_sensor.water_leak_sensor_158d00027049bb
+            - binary_sensor.motion_sensor_158d0002b48209     
+            - binary_sensor.motion_sensor_158d0002b75328     
+            - binary_sensor.motion_sensor_158d0002b75423     
+            - binary_sensor.motion_sensor_158d0002b7d400     
+            - binary_sensor.motion_sensor_158d0002b7d548     
+            - binary_sensor.motion_sensor_158d0002b7f8b4     
+            - binary_sensor.motion_sensor_158d0002b85a33     
+            - binary_sensor.motion_sensor_158d0002c7165a     
       
       - type: entities
         title: Alarm control 
         show_header_toggle: true
         entities:
-          - switch.alarms0
-          - switch.alarms1
+          - switch.alarm_s0
+          - switch.alarm_s1
+
+  - title: Boiler
+    id: boiler
+    background: radial-gradient(crimson, skyblue)
+    theme: dark-mode
+    cards:
+      - type: entities
+        entities:
+          - sensor.btemp0
+          - switch.b0
+          - input_boolean.boiler_auto_enable
+          - input_number.boiler_timer_time
+          - input_number.boiler_temp_min
+          - input_number.boiler_temp_max
+          - sensor.boiler_total_hours
+          - sensor.boiler_total_hours2
+          - sensor.stats_mean
+      - type: history-graph
+        title: graph 
+        hours_to_show : 24
+        entities:
+          - sensor.btemp0
+          - switch.b0
+
+  - title: Irrigation
+    id: Irrigation
+    background: radial-gradient(crimson, skyblue)
+    theme: dark-mode
+    cards:
+      - type: entities
+        entities:
+          - sensor.wb_irrigation_ev_day
+          - sensor.wb_irrigation_rain
+          - sensor.wb_irrigation_rain_day
+          - sensor.wb_irrigation_p1
+          - sensor.wb_irrigation_p2
+      - type: history-graph
+        title: graph 
+        hours_to_show : 168
+        entities:
+          - sensor.wb_irrigation_ev_day
+          - sensor.wb_irrigation_rain
+          - sensor.wb_irrigation_rain_day
+          - sensor.wb_irrigation_p1
+          - sensor.wb_irrigation_p2
 

@@ -155,6 +155,7 @@ group:
 
 
 
+
 input_boolean:
   gateway_sound_enable:
     name: Start sound
