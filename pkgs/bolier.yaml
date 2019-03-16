@@ -34,6 +34,33 @@ group:
       - sensor.stats_mean
 
 
+views:
+
+  - title: Boiler2
+    id: boiler
+    background: radial-gradient(crimson, skyblue)
+    theme: dark-mode
+    cards:
+      - type: entities
+        entities:
+          - sensor.btemp0
+          - switch.b0
+          - input_boolean.boiler_auto_enable
+          - input_number.boiler_timer_time
+          - input_number.boiler_temp_min
+          - input_number.boiler_temp_max
+          - sensor.boiler_total_hours
+          - sensor.boiler_total_hours2
+          - sensor.stats_mean
+      - type: history-graph
+        title: graph 
+        hours_to_show : 24
+        entities:
+          - sensor.btemp0
+          - switch.b0
+
+
+
 input_boolean:
   boiler_auto_enable:
     name: Enable auto
