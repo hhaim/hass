@@ -56,14 +56,12 @@ async def async_setup_scanner(hass, config, async_see, discovery_info=None):
             _LOGGER.error("Error parsing JSON payload: %s", payload)
             return
 
-        localtion=HOME_MODE_HOME
         if d['op']=='del':
-            _LOGGER.info("mqtt_dnsmask:  skip {0}-{1}".format(d,localtion))
+            _LOGGER.info("mqtt_dnsmask:  skip {0}".format(d))
             return
 
-        #_LOGGER.info("mqtt_dnsmask: {0}-{1}".format(d,localtion))
         hass.async_add_job(
-            async_see(mac=d['mac'], host_name=d["host"], location_name=localtion,source_type="dhcp"))
+            async_see(mac=d['mac'],  source_type="dhcp"))
 
     await mqtt.async_subscribe(
         hass, topic+"/+", async_message_received, qos)
