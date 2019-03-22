@@ -200,7 +200,7 @@ views:
 
       - type: history-graph
         title: graph 
-        hours_to_show : 1
+        hours_to_show : 0.1
         entities:
             - binary_sensor.alarm0
             - binary_sensor.alarm1
