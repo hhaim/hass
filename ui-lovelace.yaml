@@ -37,10 +37,8 @@ views:
           - 'home'
         card:
           type: glance
-          title: At Home
       
       - type: glance
-        title: Temperator
         entities:
           - entity: switch.b0
             name: Boiler-On
@@ -48,9 +46,6 @@ views:
           - entity: sensor.btemp0
             name: Boiler
             icon: mdi:oil-temperature
-          - entity: sensor.boiler_total_hours
-            name: Boiler-hours
-            icon: mdi:shower
           - entity: sensor.heat_index0
             name: Down
             icon: mdi:oil-temperature
@@ -62,7 +57,7 @@ views:
             icon: mdi:oil-temperature
           - entity: sensor.uptime
             name: uptime
-          - entity: sensor.water_total_external
+          - entity: sensor.water_total_external_norm
             name: Water 
           - entity: sensor.wb_irrigation_p1
             name: Pipe1
@@ -71,9 +66,7 @@ views:
           - entity: sensor.wb_irrigation_rain
             name: Rain
 
-
       - type: entities
-        title: A/C TV
         show_header_toggle: true
         entities:
           - switch.tv
