@@ -184,6 +184,7 @@ class AccumStatsSensor(RestoreEntity):
 
 
     async def async_added_to_hass(self):
+        await super().async_added_to_hass()
         if self.value is not None:
              return
 

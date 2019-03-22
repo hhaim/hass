@@ -35,8 +35,8 @@ the beginning of this page**
 ** Could scale with gpio/cheaper 
 ** It uses Tasmota firmware
 4. Media automation
-5. Israel Boiler -- Make sure water is already hot. Water temperator indication
-6. Light -- turn them automaticly 
+5. Israel Boiler -- keep the water always hot in specific temperature. 
+6. Light -- turn them automaticly using PIR
 7. Cameras -- BlueIris as DVR + PIR using Object detection Yolo3
 
 
