@@ -206,13 +206,14 @@ wb_irrigation:
 1. api_key: a free key to  link:https://openweathermap.org/[openweathermap.org]
 2. rain_factor: ev/mm factor 
 3. max_ev: the maximum of the bucket level. if a rainy day has an evaporation of ~150 ev. 3750 means that after a good rain we can stop irrigation for ~20 days
-4. min_ev: the minimum of the bucket level. if we didn't irrigate for that time we can't compensate for for this value
+4. min_ev: the minimum of the bucket level. it is not possible to compensate for more than this ev
 5. longitude,latitude for accurate value for irrigation 
 6. taps names. each will have a sensor with bucket calculation 
 
 It will define a few sensors with prefix of name_xx for rain/ev/bucket for each tap
+With the above example there would be *wb_irrigation_p1* and *wb_irrigation_p2* sensors one for each tap.
 
-For the switch relay (turn on/off the water taps) Sonoff 4ch pro is used. The two first channels are used 
+For the switch relay (turn on/off the water taps) Sonoff 4ch pro is used. In this example the two first channels are used 
 
 .Tasmota configuration (once)
 [source,python]
@@ -226,8 +227,7 @@ TelePeriod 60
 SetOption36 20
 -------------------
 
-The first tap is limited to 30min (if it disconnect for some reason from the controler) and for tap 2 it is 45 min
-
+The first tap is limited to 30min (if it is disconnected for some reason from the controller) and for tap 2 it is 45 min
 
 
 === Appdaemon apps 
