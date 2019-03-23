@@ -326,11 +326,11 @@ Turn on light based by PIR sensor
 
 The app is responsible to to turn on the taps in specific schedule. +
 The total time is calculated from the weather component (*wb_irrigation* see below). +
-In case the tap state is changed to ON (manually) the time is taken from the input and weather queue is not updated 
+In case the tap state is changed to ON (manually) the time is taken from the input and weather queue is not updated.+ 
 It is possible to estimate how much littler is consumed by each tap using the global water input sensor (if exists)  
 
-see here for switch and sensor defenition for this app to work link:pkgs/irrigation.yaml[pkgs/irrigation.yaml]
-the app is located here link:apps/heat_app.py[CWBIrrigation]
+See here for switch and sensor defenition for this app to work link:pkgs/irrigation.yaml[pkgs/irrigation.yaml].+
+The app is located here link:apps/heat_app.py[CWBIrrigation].+
 
 .Irrigation configuration 
 [source,python]
