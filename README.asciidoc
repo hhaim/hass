@@ -212,6 +212,24 @@ wb_irrigation:
 
 It will define a few sensors with prefix of name_xx for rain/ev/bucket for each tap
 
+For the switch relay (turn on/off the water taps) Sonoff 4ch pro is used. The two first channels are used 
+
+.Tasmota configuration (once)
+[source,python]
+-------------------
+Rule1 on Power1#state==1 do  RuleTimer1 1800 endon on Rules#Timer=1 do power1 off endon on Power1#state==0 do  RuleTimer1 off endon
+Rule2 on Power2#state==1 do  RuleTimer2 2700 endon on Rules#Timer=2 do power2 off endon on Power2#state==0 do  RuleTimer2 off endon
+Rule1 on
+Rule2 on
+poweronstate 0
+TelePeriod 60
+SetOption36 20
+-------------------
+
+The first tap is limited to 30min (if it disconnect for some reason from the controler) and for tap 2 it is 45 min
+
+
+
 === Appdaemon apps 
 
 
@@ -306,6 +324,47 @@ Turn on light based by PIR sensor
 
 ==== Weather base irrigation
 
-TODO: appdaemon automation to turn-on/off the taps and zero the buckets 
+The app is responsible to to turn on the taps in specific schedule 
+The total time  is calculated from the weather component (see how it is calculated)
+In case the tap state is changed to ON  (manually) the time is taken from the input and weather queue is not updated 
+
+see here for switch and sensor defenition for this app to work 
+
+link:pkgs/irrigation.yaml[pkgs/irrigation.yaml]
+
+the app is located here link:apps/heat_app.py[CWBIrrigation]
+
+.Irrigation configuration 
+[source,python]
+-------------------
+# irrigation app
+wb_irrigation:
+  module: heat_app
+  class: CWBIrrigation
+  m_temp_celsius: 26 #fill from here https://www.holiday-weather.com/[your location]/averages/
+  m_temp_hours: 12 #fill from here https://www.holiday-weather.com/[your location]/averages/
+  enabled: input_boolean.wbi_enabled #disable irrigation  # disable the irrigation 
+  water_sensor: sensor.water_total_external_norm # read total water  # optional to read water global sensor in litters 
+  taps: 
+     - name: p1  # the name of the tap
+       days: [1,3,5]  # 1-7 1 for sunday, .. 7 for saturday 
+       stime: "05:45:00" # time to start irrigating 
+       m_week_duration_min: 60 # total time in minutes for all the week
+       switch: switch.wbi_p1 # the switch for on/off 
+       manual_duration: input_number.wbi_p1_duration # the time for manual on/off 
+       queue_sensor: sensor.wb_irrigation_p1   # the calculated queue sensor from wb_irrigation sensors  
+       water_sensor: sensor.wbi_water_p1 # calculated from input water_sensor tht total for this tap 
+       
+     - name: p2
+       days: [2,5]
+       stime: "05:00:00"
+       m_week_duration_min: 20
+       switch: switch.wbi_p2
+       manual_duration: input_number.wbi_p2_duration
+       queue_sensor: sensor.wb_irrigation_p2
+       water_sensor: sensor.wbi_water_p2
+-------------------
+
+
 
 

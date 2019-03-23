@@ -991,6 +991,135 @@ class CMiiButton(hass.Hass):
         msg=" click {}   ".format(str(data))
         self.log(msg)
 
+class CWBIrrigation(HassBase):
+    """  """
+    #input: 
+    #output: 
+    def initialize(self):
+        self.log("start irrigation app");
+        self.init_all_taps()
+
+    
+    def init_all_taps(self):
+        hours = self.args["m_temp_hours"]
+        tmean = self.args["m_temp_celsius"]
+        self.max_ev_week = 7.0 * hours * (0.46 * tmean + 8.13)
+        for tap in self.args["taps"]:
+             self.turn_off(tap["switch"])
+             self.register_call_backs(tap)
+             self.listen_state(self.do_button_change,tap["switch"],tap=tap)
+             tap["handle"] = None
+
+    def do_button_change (self,entity, attribute, old, new, kwargs):
+        tap = kwargs['tap']
+        if tap["handle"] is None:
+           # manual start 
+            if new == "on":
+                duration_sec = float(self.get_state(tap["manual_duration"]))*60.0
+                self.log("turn on by user {} {} min ".format(tap["name"],int(duration_sec/60.0)))
+                self.start_tap(tap, int(duration_sec) , "manual",False)
+        else:
+            if new == "off":
+              # tuen off by user 
+              self.log("turn off by user {} ".format(tap["name"]))
+              kwargs={}
+              kwargs['tap']=tap
+              kwargs['clear_queue']=False
+              self.time_cb_event_stop(kwargs)
+                
+
+    def register_call_backs(self,tap):
+        start_time = self.parse_time(tap["stime"])
+        start_days = tap["days"]
+        days = []
+        for day in start_days: 
+            days.append(ada.schedule.day_of_week(day))
+        days=str(days)[1:-1].replace("'", "").replace(" ","")    
+        self.log("irrigation init {} {} {} ".format(tap["name"],days,start_time))
+        self.run_daily(self.time_cb_event, 
+            start_time, 
+            constrain_days = days,
+            tap=tap)
+
+    def time_cb_event_stop_verify(self,kwargs):
+        tap = kwargs['tap']
+        if self.get_state(tap["switch"]) == "on":
+           self.turn_off(tap["switch"])
+           self.my_notify ("ERROR can't stop tap {}".format(tap["name"]))
+           self.run_in(self.time_cb_event_stop_verify, 5,tap=tap)
+
+    def time_cb_event_stop(self,kwargs):
+        tap = kwargs['tap']
+
+        state = self.get_state(tap["switch"])
+        if state == 'off':
+           self.log(" irrigation stop but already off {} ".format(tap["name"]))
+        
+        self.log(" irrigation stop for {} {}".format(tap["name"],state))
+        self.turn_off(tap["switch"])
+        
+        if self.get_state(tap["switch"]) == "on":
+           self.run_in(self.time_cb_event_stop_verify, 5,tap=tap)
+        
+        self.inc_sensor( tap["water_sensor"],
+                         self.read_water_sensor () - tap["start"])
+        if kwargs['clear_queue']:
+           self.set_state(tap["queue_sensor"],state = "0.0") # zero the tap                  
+        tap["handle"] = None    
+        
+    def read_water_sensor (self):
+       if "water_sensor" in self.args:
+           return float(self.get_state(self.args["water_sensor"]))
+       else:
+           return 0.0 # not supported     
+
+    def inc_sensor (self,sensor,val):
+        input = self.get_state(sensor)
+        if not isinstance(input, float):
+           input = 0.0
+        input += val
+        self.set_state(sensor,state = "{:.1f}".format(input))
+
+    def start_tap (self,tap,duration_sec,desc,clear_queue):
+        msg = "irrigation time tap {} {} {} min".format(tap["name"],desc,int(duration_sec/60.0))
+        self.my_notify (msg)
+
+        assert(tap["handle"] is None)
+        tap["handle"] = self.run_in(self.time_cb_event_stop, 
+                        duration_sec, 
+                        tap=tap,clear_queue=clear_queue)
+        tap["start"] = self.read_water_sensor ()
+        self.turn_on(tap["switch"])
+    
+    
+    def time_cb_event(self,kwargs):
+        if self.get_state(self.args["enabled"]) != "on":
+            self.log(" irrigation is disabled ")
+            return;
+           
+        tap = kwargs['tap']
+        self.log(" irrigation event for {}".format(tap["name"]))
+        
+        # calculate the irrigation time 
+        queue = float(self.get_state(tap["queue_sensor"]))
+        if queue > 0.0:
+           self.log(" irrigation nothing to do queue: {} ".format(queue))
+           return;
+        duration_min = tap["m_week_duration_min"]
+        
+        irrigation_time_min =  (-queue) *  duration_min / self.max_ev_week
+        if irrigation_time_min < 2.0:
+           self.log(" irrigation  queue is small  {} ".format(queue))
+           return; 
+
+        if irrigation_time_min > duration_min:
+           self.log(" ERROR irrigation time is high {} min ".format(irrigation_time_min))
+           irrigation_time_min = duration_min
+
+        self.start_tap(tap, irrigation_time_min * 60, "timer",True)
+            
+         
+
 
 
 

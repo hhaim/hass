@@ -200,7 +200,7 @@ views:
 
       - type: history-graph
         title: graph 
-        hours_to_show : 0.1
+        hours_to_show : 1
         entities:
             - binary_sensor.alarm0
             - binary_sensor.alarm1
@@ -266,6 +266,27 @@ views:
     background: radial-gradient(crimson, skyblue)
     theme: dark-mode
     cards:
+      - type: glance
+        entities:
+          - entity: switch.wbi_p1
+            name: tap1
+          - entity: switch.wbi_p2
+            name: tap2
+          - entity: sensor.wb_irrigation_p1
+            name: Pipe1
+          - entity: sensor.wb_irrigation_p2
+            name: Pipe2
+          - entity: sensor.wb_irrigation_rain
+            name: Rain
+          - entity: sensor.wbi_p1_hours
+            name: hours
+          - entity: sensor.wbi_p2_hours
+            name: hours
+          - entity: sensor.wbi_water_p1
+            name: l
+          - entity: sensor.wbi_water_p2
+            name: l
+
       - type: entities
         entities:
           - sensor.wb_irrigation_ev_day
@@ -273,6 +294,10 @@ views:
           - sensor.wb_irrigation_rain_day
           - sensor.wb_irrigation_p1
           - sensor.wb_irrigation_p2
+          - input_number.wbi_p1_duration
+          - input_number.wbi_p2_duration
+          - input_boolean.wbi_enabled
+
       - type: history-graph
         title: graph 
         hours_to_show : 168

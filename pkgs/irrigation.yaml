@@ -1,5 +1,17 @@
 
+homeassistant:
+  customize:
+    switch.wbi_p1:
+      friendly_name: p1
+      icon: mdi:water-pump
 
+    switch.wbi_p2:
+      friendly_name: p2
+      icon: mdi:water-pump
+    
+
+# sensors for weather based irrigation 
+# calculation factors based on rain and evaporation model
 wb_irrigation:
   api_key: !secret openweathermap_key
   rain_factor: 120
@@ -12,7 +24,61 @@ wb_irrigation:
     - name: p1
     - name: p2
 
+# manual duration time in minutes 
+input_number:
+  wbi_p1_duration:
+    name: p1
+    min: 5
+    max: 15
+    step: 1.0
+  wbi_p2_duration:
+    name: p2
+    min: 5.0
+    max: 25.0
+    step: 1.0
+
+input_boolean:
+  wbi_enabled:
+    name: Enable irrigation 
+
+# switch to manual turn on off 
+switch:
+
+  - platform: tasmota
+    name: wbi_p1
+    index: '1'
+    stopic: irrigation
+
+  - platform: tasmota
+    name: wbi_p2
+    index: '2'
+    stopic: irrigation
 
 
+sensor:
 
+  - platform: accumulator
+    name: wbi_p1_hours
+    entity_id: switch.wbi_p1
+    state_on: 'on'
+    state_off: 'off'
+
+  - platform: accumulator
+    name: wbi_p2_hours
+    entity_id: switch.wbi_p2
+    state_on: 'on'
+    state_off: 'off'
+
+    # update by automation to measure the water consumption
+  - platform: template
+    sensors:
+      wbi_water_p1:
+        friendly_name: 'water pump 1'
+        unit_of_measurement: "l"
+        value_template: "{{ states('sensor.wbi_water_p1') }}"
+      
+      wbi_water_p2:
+        friendly_name: 'water pump 2'
+        unit_of_measurement: "l"
+        value_template: "{{ states('sensor.wbi_water_p2') }}"
 
