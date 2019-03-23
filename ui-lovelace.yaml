@@ -290,10 +290,7 @@ views:
       - type: entities
         entities:
           - sensor.wb_irrigation_ev_day
-          - sensor.wb_irrigation_rain
           - sensor.wb_irrigation_rain_day
-          - sensor.wb_irrigation_p1
-          - sensor.wb_irrigation_p2
           - input_number.wbi_p1_duration
           - input_number.wbi_p2_duration
           - input_boolean.wbi_enabled
