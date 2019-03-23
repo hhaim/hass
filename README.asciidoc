@@ -346,10 +346,10 @@ wb_irrigation:
      - name: p1  # the name of the tap
        days: [1,3,5]  # 1-7 1 for sunday, .. 7 for saturday 
        stime: "05:45:00" # time to start irrigating 
-       m_week_duration_min: 60 # total time in minutes for all the week
-       switch: switch.wbi_p1 # the switch for on/off 
-       manual_duration: input_number.wbi_p1_duration # the time for manual on/off 
-       queue_sensor: sensor.wb_irrigation_p1   # the calculated queue sensor from wb_irrigation sensors  
+       m_week_duration_min: 60 # weakly total time in minutes at the hottest season 
+       switch: switch.wbi_p1 # the switch for on/off - on the tap is open, off - close 
+       manual_duration: input_number.wbi_p1_duration # the time in minuts for manual on/off 
+       queue_sensor: sensor.wb_irrigation_p1   # the calculated queue/bucket sensor from wb_irrigation sensors  
        water_sensor: sensor.wbi_water_p1 # calculated from input water_sensor tht total for this tap 
        
      - name: p2
