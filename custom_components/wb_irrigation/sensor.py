@@ -100,7 +100,7 @@ class WeatherIrrigarion(RestoreEntity):
         self._max_temp = -50;
         self._min_temp = 50;
         self._min_max_updated = False
-        self._ev = 0
+        self._ev = 180
 
     def get_data (self):
         url=OWM_URL.format(self._lat,self._lon,self._api)
