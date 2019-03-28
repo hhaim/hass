@@ -191,7 +191,7 @@ class AccumStatsSensor(RestoreEntity):
         state = await self.async_get_last_state()
         if not state:
             _LOGGER.info("async_added_to_hass no state %s",str(state)) 
-            _LOGGER.error("first init, should be once") 
+            _LOGGER.info("first init, should be once") 
             self.value = 0.0; 
             self.count = 0
             self.day_value =0.0
@@ -221,7 +221,7 @@ class AccumStatsSensor(RestoreEntity):
                 try:
                   setattr(self, var, t(state.attributes[attr]))
                 except Exception as e:
-                  _LOGGER.error("converting %s to %s ",state.attributes[attr],var)
+                  _LOGGER.info("converting %s to %s ",state.attributes[attr],var)
 
     def update_state (self):
         # update the state 
