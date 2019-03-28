@@ -19,9 +19,9 @@ group:
   air_conditioner:
     name: Air Conditioner
     entities:
-       - sensor.heat_index0
-       - sensor.heat_index1
-       - sensor.heat_index_outside0
+       - variable.heat_index0
+       - variable.heat_index1
+       - variable.heat_index_outside0
        - switch.ac1
        - switch.ac2
        - switch.tv

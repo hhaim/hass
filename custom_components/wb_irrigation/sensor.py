@@ -19,7 +19,7 @@ from datetime import timedelta
 from typing import Optional
 
 import voluptuous as vol
-from ..wb_irrigation import (TYPE_RAIN,TYPE_RAIN_DAY,TYPE_EV_DAY,TYPE_EV_RAIN_BUCKET,CONF_RAIN_FACTOR,CONF_TAPS,CONF_MAX_EV,CONF_MIN_EV)
+from ..wb_irrigation import (TYPE_RAIN,TYPE_RAIN_DAY,TYPE_EV_DAY,TYPE_EV_RAIN_BUCKET,CONF_RAIN_FACTOR,CONF_TAPS,CONF_MAX_EV,CONF_MIN_EV,CONF_DEBUG)
 from homeassistant.core import callback
 from homeassistant.components import sensor
 from homeassistant.components.sensor import DEVICE_CLASSES_SCHEMA
@@ -56,10 +56,7 @@ async def _async_setup_entity(hass: HomeAssistantType, config: ConfigType,
 
 
 
-MIN_TIME_BETWEEN_FORECAST_UPDATES = timedelta(minutes=60)
-#MIN_TIME_BETWEEN_FORECAST_UPDATES = timedelta(seconds=1)
 OWM_URL = "https://api.openweathermap.org/data/2.5/weather?units=metric&lat={}&lon={}&appid={}"
-
 
 class WeatherIrrigarion(RestoreEntity):
     """"""
@@ -72,6 +69,7 @@ class WeatherIrrigarion(RestoreEntity):
         self._type = conf.get(CONF_TYPE)
         self._rain_factor = conf.get(CONF_RAIN_FACTOR)
         self._lat = conf.get(CONF_LATITUDE)
+        self._debug = conf.get(CONF_DEBUG)
         self._lon = conf.get(CONF_LONGITUDE)
         self._api = conf.get(CONF_API_KEY)
         self._max_ev = conf.get(CONF_MAX_EV)
@@ -84,6 +82,7 @@ class WeatherIrrigarion(RestoreEntity):
         async_track_utc_time_change(
             hass, self._async_update_last_day,
              hour=23, minute=58,second=0)
+
         async_track_utc_time_change(
             hass, self._async_update_every_hour,
               minute=0,second=0)
@@ -100,6 +99,7 @@ class WeatherIrrigarion(RestoreEntity):
         self._rain_mm =0
         self._max_temp = -50;
         self._min_temp = 50;
+        self._min_max_updated = False
         self._ev = 0
 
     def get_data (self):
@@ -116,9 +116,6 @@ class WeatherIrrigarion(RestoreEntity):
 
 
     async def _async_update_last_day(self,time=None):
-
-        if self._type == TYPE_RAIN_DAY:
-            self._state = self._rain_mm
 
         if self._type == TYPE_EV_DAY:
             self._state = self._ev
@@ -139,15 +136,15 @@ class WeatherIrrigarion(RestoreEntity):
 
     def rain_desc_to_mm (self,code):
         CONVERT= {500:1.0,
-                 501:2.0,
-                 502:5.0,
-                 503:20.0,
-                 504:60.0,
-                 511:5.0,
-                 520:5.0,
-                 521:5.0,
-                 522:20.0,
-                 531:50.0}
+                  501:2.0,
+                  502:5.0,
+                  503:20.0,
+                  504:60.0,
+                  511:5.0,
+                  520:5.0,
+                  521:5.0,
+                  522:20.0,
+                  531:50.0}
         if code in CONVERT:
             return CONVERT[code]
         _LOGGER.warning(" can't findany key in {}".format(code))
@@ -160,23 +157,30 @@ class WeatherIrrigarion(RestoreEntity):
         if d is None:
             return;
 
-        tmean = None
-        hours = None
+        if self._debug and self._type == TYPE_RAIN:
+            _LOGGER.error(" wbi_raw_data {} ".format(d))
 
+
+        tmean = None
+            
         if "main" in d:
-           tmax = d['main']['temp_max']
-           tmin = d['main']['temp_min']
-           if tmax > self._max_temp:
-              self._max_temp = tmax
-           if tmin < self._min_temp:
-              self._min_temp = tmin
+           dt=d['dt']
+           if ((dt > d['sys']['sunrise']) and (dt < d['sys']['sunset']) ):
+             tmax = d['main']['temp_max']
+             tmin = d['main']['temp_min']
+             if tmax > self._max_temp:
+                self._max_temp = tmax
+             if tmin < self._min_temp:
+                self._min_temp = tmin
+             self._min_max_updated = True
         
-           tmean = (self._max_temp + self._min_temp)/2
         else:
            _LOGGER.warning(" can't find main in {}".format(d))
 
-        if "sys" in d:
-           hours = (d["sys"]["sunset"] - d["sys"]["sunrise"]) /3600.0
+        if self._min_max_updated:
+           tmean = (self._max_temp + self._min_temp)/2
+
+        hours = (d["sys"]["sunset"] - d["sys"]["sunrise"]) /3600.0
 
         rain_mm = 0
         if "rain" in d:
@@ -205,6 +209,7 @@ class WeatherIrrigarion(RestoreEntity):
             self._state = rain_mm
         if self._type == TYPE_RAIN_DAY:
             self._rain_mm += rain_mm
+            self._state = self._rain_mm
         if self._type == TYPE_EV_DAY:
             if ev:
                self._ev = ev
@@ -212,6 +217,8 @@ class WeatherIrrigarion(RestoreEntity):
             if ev:
                self._ev = ev
             self._rain_mm += rain_mm
+
+        self.async_schedule_update_ha_state()     
 
     @property
     def should_poll(self):
@@ -236,7 +243,12 @@ class WeatherIrrigarion(RestoreEntity):
     @property
     def device_state_attributes(self):
         """Return the state attributes."""
-        return {}
+        if self._type == TYPE_RAIN_DAY:
+           return { 'rain_total' :  round(self._rain_mm,1) }
+        elif self._type == TYPE_EV_DAY:
+           return { 'ev' :  round(self._ev,1) }
+        else:
+           return {}
 
     @property
     def icon(self):

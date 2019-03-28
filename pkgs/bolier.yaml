@@ -63,6 +63,21 @@ switch:
     name: b0
     stopic: b0
 
+variable:
+      boiler_eff_power0:
+        value: 0
+        restore: true
+        attributes:
+          friendly_name: 'Boiler power-ef C/hour'
+          unit_of_measurement: "C"
+
+      boiler_eff_solar0:
+        value: 0
+        restore: true
+        attributes:
+          friendly_name: 'Boiler solar-ef C/hour'
+          unit_of_measurement: "C"
+
 sensor:
 
   - platform: mqtt
@@ -93,17 +108,6 @@ sensor:
     duration:
        days: 7
   
-  - platform: template
-    sensors:
-      boiler_eff_power0:
-        friendly_name: 'Boiler power-ef C/hour'
-        unit_of_measurement: "C"
-        value_template: "{{ states('sensor.boiler_eff_power0') }}"
-      boiler_eff_solar0:
-        friendly_name: 'Boiler solar-ef C/hour'
-        unit_of_measurement: "C"
-        value_template: "{{ states('sensor.boiler_eff_solar0') }}"
-
 
 history_graph:
   gr2:

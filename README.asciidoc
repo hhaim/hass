@@ -28,16 +28,25 @@ the beginning of this page**
 
 === Main components 
 
-1. Home water consumption/leakage detection
+1. Home water consumption/leakage detection.  
+** Tasmota + Wemo d1  
+** Sensor link:https://www.revaho.nl/wp-content/uploads/Ch_11_Water_meters.pdf[water sensor ev 1 litter] 
 2. Air Conditioner automation  (Electra /Israel) 
+** Uses SonOff 4ch pro for cold switch on/off 
 3. Alarm: Converting old PIMA Alarm + xiaomi mii sensros to be new smart alarm inspired by link:https://konnected.io/products/konnected-alarm-panel-wired-alarm-system-conversion-kit[konnected]
 ** Tasmota/Wemo d1/i2c 16 gpio  
 ** Could scale with gpio/cheaper 
 ** It uses Tasmota firmware
 4. Media automation
 5. Israel Boiler -- keep the water always hot in specific temperature. 
+** Tasmota +Sonoff TH16 + DS18b20 raw chip inside the mechanical termostat of the Boiler
 6. Light -- turn them automaticly using PIR
+** Tasmota + WemoD1 mini
 7. Cameras -- BlueIris as DVR + PIR using Object detection Yolo3
+8. Weather based Irrigation 
+** Tasmota +Sonoff 4CH Pro
+** 48vAC Power  
+** Taps to control the taps 
 
 
 === Home Assistant - custom components 
@@ -266,8 +275,8 @@ Keep the A/C at specific temperator, at specific days of the week
    input_automation: input_boolean.boiler_auto_enable
    input_temp_min:   input_number.boiler_temp_min
    input_temp_max:   input_number.boiler_temp_max
-   sensor_eff_power: sensor.boiler_eff_power0
-   sensor_eff_solar:  sensor.boiler_eff_solar0
+   sensor_eff_power: variable.boiler_eff_power0
+   sensor_eff_solar:  variable.boiler_eff_solar0
 -------------------
 
 Keep the water in the bolier always hot. calculate some efficiency metrics
@@ -305,8 +314,8 @@ water_monitor:
   module: heat_app
   class: CWaterMonitor
   sensor_water_total: sensor.water_total
-  sensor_water_leak_detector: sensor.water_leak_detector
-  sensor_water_bursts: sensor.water_bursts
+  sensor_water_leak_detector: variable.water_leak_detector
+  sensor_water_bursts: variable.water_bursts
   watchdog_duration_min: 50 
   watchdog_leakage_ticks: 3
   max_day: 2000
@@ -351,7 +360,7 @@ wb_irrigation:
        switch: switch.wbi_p1 # the switch for on/off - on the tap is open, off - close 
        manual_duration: input_number.wbi_p1_duration # the time in minuts for manual on/off 
        queue_sensor: sensor.wb_irrigation_p1   # the calculated queue/bucket sensor from wb_irrigation sensors  
-       water_sensor: sensor.wbi_water_p1 # calculated from input water_sensor tht total for this tap 
+       water_sensor: variable.wbi_water_p1 # calculated from input water_sensor tht total for this tap 
        
      - name: p2
        days: [2,5]
@@ -360,6 +369,6 @@ wb_irrigation:
        switch: switch.wbi_p2
        manual_duration: input_number.wbi_p2_duration
        queue_sensor: sensor.wb_irrigation_p2
-       water_sensor: sensor.wbi_water_p2
+       water_sensor: variable.wbi_water_p2
 -------------------
 

@@ -1,4 +1,27 @@
 
+variable:
+      heat_index0:
+        value: 0
+        restore: true
+        attributes:
+          friendly_name: 'Heat Index first floor'
+          unit_of_measurement: "C"
+      
+      heat_index1:
+        value: 0
+        restore: true
+        attributes:
+          friendly_name: 'Heat Index second floor'
+          unit_of_measurement: "C"
+
+      heat_index_outside0:
+        value: 0
+        restore: true
+        attributes:
+          friendly_name: 'Index outside'
+          unit_of_measurement: "C"
+
+
 # Weather prediction
 sensor:
 
@@ -43,25 +66,6 @@ sensor:
       - uv_index
   
   
-  - platform: template
-    sensors:
-      heat_index0:
-        friendly_name: 'Heat Index first floor'
-        unit_of_measurement: "C"
-        entity_id: sensor.heat_index
-        value_template: "{{ states('sensor.heat_index0') }}"
-
-      heat_index1:
-        friendly_name: 'Heat Index second floor'
-        unit_of_measurement: "C"
-        entity_id: sensor.heat_index
-        value_template: "{{ states('sensor.heat_index1') }}"
-
-      heat_index_outside0:
-        friendly_name: 'Heat Index outside'
-        unit_of_measurement: "C"
-        entity_id: sensor.heat_index_outside
-        value_template: "{{ states('sensor.heat_index_outside0') }}"
 
 
 history_graph:
@@ -69,9 +73,9 @@ history_graph:
     name: Temperature
     hours_to_show: 24
     entities:
-       - sensor.heat_index0
-       - sensor.heat_index1
-       - sensor.heat_index_outside0
+       - variable.heat_index0
+       - variable.heat_index1
+       - variable.heat_index_outside0
        - switch.ac1
        - switch.ac2
 

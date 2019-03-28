@@ -57,6 +57,7 @@ CONF_TAPS = "taps"
 CONF_RAIN_FACTOR ="rain_factor"
 CONF_MAX_EV = "max_ev"
 CONF_MIN_EV = "min_ev"
+CONF_DEBUG = "debug"
 
 
 _TAP_SCHEMA = vol.All(
@@ -74,6 +75,7 @@ CONFIG_SCHEMA = vol.Schema(
            vol.Required(CONF_NAME): cv.string,
            vol.Optional(CONF_LATITUDE): cv.latitude,
            vol.Optional(CONF_LONGITUDE): cv.longitude,
+           vol.Optional(CONF_DEBUG,default=False): cv.boolean,
            vol.Required(CONF_RAIN_FACTOR): vol.Coerce(float),
            vol.Required(CONF_MAX_EV): vol.Coerce(float),
            vol.Required(CONF_MIN_EV): vol.Coerce(float),

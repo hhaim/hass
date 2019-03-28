@@ -18,6 +18,7 @@ wb_irrigation:
   max_ev: 3750 
   min_ev: -1500.0
   name: "wb_irrigation"
+  debug: true
   longitude: !secret accurate_longitude
   latitude: !secret accurate_latitude
   taps: 
@@ -55,6 +56,22 @@ switch:
     stopic: irrigation
 
 
+variable:
+
+      wbi_water_p1:
+        value: 0
+        restore: true
+        attributes:
+           friendly_name: 'water pump 1'
+           unit_of_measurement: "l"
+
+      wbi_water_p2:
+        value: 0
+        restore: true
+        attributes:
+           friendly_name: 'water pump 2'
+           unit_of_measurement: "l"
+    
 sensor:
 
   - platform: accumulator
@@ -69,16 +86,4 @@ sensor:
     state_on: 'on'
     state_off: 'off'
 
-    # update by automation to measure the water consumption
-  - platform: template
-    sensors:
-      wbi_water_p1:
-        friendly_name: 'water pump 1'
-        unit_of_measurement: "l"
-        value_template: "{{ states('sensor.wbi_water_p1') }}"
-      
-      wbi_water_p2:
-        friendly_name: 'water pump 2'
-        unit_of_measurement: "l"
-        value_template: "{{ states('sensor.wbi_water_p2') }}"
 

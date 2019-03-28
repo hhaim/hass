@@ -1,4 +1,4 @@
-title: My Awesome Home
+#title: My Awesome Home
 # Include external resources
 #resources:
 #  - url: /local/my-custom-card.js
@@ -46,13 +46,13 @@ views:
           - entity: sensor.btemp0
             name: Boiler
             icon: mdi:oil-temperature
-          - entity: sensor.heat_index0
+          - entity: variable.heat_index0
             name: Down
             icon: mdi:oil-temperature
-          - entity: sensor.heat_index1
+          - entity: variable.heat_index1
             name: Up
             icon: mdi:oil-temperature
-          - entity: sensor.heat_index_outside0
+          - entity: variable.heat_index_outside0
             name: Outside
             icon: mdi:oil-temperature
           - entity: sensor.uptime
@@ -98,9 +98,9 @@ views:
         title: A/C
         show_header_toggle: true
         entities:
-          - sensor.heat_index0
-          - sensor.heat_index1
-          - sensor.heat_index_outside0
+          - variable.heat_index0
+          - variable.heat_index1
+          - variable.heat_index_outside0
           - switch.ac1
           - switch.ac2
       - type: entities
@@ -113,9 +113,9 @@ views:
         title: graph 
         hours_to_show : 24
         entities:
-          - sensor.heat_index0
-          - sensor.heat_index1
-          - sensor.heat_index_outside0
+          - variable.heat_index0
+          - variable.heat_index1
+          - variable.heat_index_outside0
           - switch.ac1
           - switch.ac2
 
@@ -282,9 +282,9 @@ views:
             name: hours
           - entity: sensor.wbi_p2_hours
             name: hours
-          - entity: sensor.wbi_water_p1
+          - entity: variable.wbi_water_p1
             name: l
-          - entity: sensor.wbi_water_p2
+          - entity: variable.wbi_water_p2
             name: l
 
       - type: entities
