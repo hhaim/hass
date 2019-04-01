@@ -41,6 +41,8 @@ from homeassistant.const import (
     ATTR_ENTITY_ID, ATTR_STATE, STATE_ON)
 from homeassistant.helpers import discovery
 from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers.entity_component import EntityComponent
+
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -59,12 +61,22 @@ CONF_MAX_EV = "max_ev"
 CONF_MIN_EV = "min_ev"
 CONF_DEBUG = "debug"
 
+DATA_KEY = 'wb_irrigation.devices'
+
 
 _TAP_SCHEMA = vol.All(
     vol.Schema({
         vol.Required(CONF_NAME): cv.string,
     }), 
 )
+
+SERVICE_SET_VALUE  = 'set_value'
+ATTR_VALUE = 'value'
+
+SERVICE_SET_VALUE_SCHEMA = vol.Schema({
+    vol.Optional(ATTR_ENTITY_ID): cv.entity_ids,
+    vol.Required(ATTR_VALUE): vol.Coerce(float),
+})
 
 
 # pylint: disable=no-value-for-parameter
@@ -93,6 +105,10 @@ def  fix_name(cfg,name):
 
 async def async_setup(hass, config):
     """Set up the platform."""
+
+    if DATA_KEY not in hass.data:
+        hass.data[DATA_KEY] = []
+
     cfg = config.get(DOMAIN)
     if cfg is None:
         cfg = {}
@@ -130,9 +146,27 @@ async def async_setup(hass, config):
        c[CONF_TYPE] = TYPE_EV_RAIN_BUCKET
        cfgs.append(c);
 
+
     for c in cfgs:
        discovery.load_platform(hass, 'sensor',DOMAIN, c, c)
 
+    async def async_set_value(service_call):
+        """Handle calls to alert services."""
+        entity_id = service_call.data.get("entity_id", None)
+        value = service_call.data.get(ATTR_VALUE)
+
+        for device in hass.data[DATA_KEY]:
+            if device.entity_id != entity_id[0]:
+                continue
+
+            device.async_set_context(service_call.context)
+            if service_call.service == SERVICE_SET_VALUE:
+                await device.async_set_value(value)
+
+
+    hass.services.async_register(
+        DOMAIN, SERVICE_SET_VALUE, async_set_value,
+        schema=SERVICE_SET_VALUE_SCHEMA)
 
     return True
 

@@ -998,6 +998,7 @@ class CWBIrrigation(HassBase):
     def initialize(self):
         self.log("start irrigation app");
         self.init_all_taps()
+          
 
     
     def init_all_taps(self):
@@ -1060,19 +1061,31 @@ class CWBIrrigation(HassBase):
         
         if self.get_state(tap["switch"]) == "on":
            self.run_in(self.time_cb_event_stop_verify, 5,tap=tap)
-        
-        self.inc_sensor( tap["water_sensor"],
+
+        if self.is_water_sensor_defined():
+           self.inc_sensor( tap["water_sensor"],
                          self.read_water_sensor () - tap["start"])
+                         
         if kwargs['clear_queue']:
-           self.set_state(tap["queue_sensor"],state = "0.0") # zero the tap                  
+           self.reset_queue (tap)
         tap["handle"] = None    
-        
-    def read_water_sensor (self):
+
+    def is_water_sensor_defined (self):
        if "water_sensor" in self.args:
+          return True
+       else:
+          return False
+                  
+    def read_water_sensor (self):
+       if self.is_water_sensor_defined():
            return float(self.get_state(self.args["water_sensor"]))
        else:
            return 0.0 # not supported     
 
+    def reset_queue (self,tap):
+       self.call_service('wb_irrigation/set_value', entity_id=tap["queue_sensor"],value="0.0")
+    
+    
     def inc_sensor (self,sensor,val):
         input = self.get_state(sensor)
         if not isinstance(input, float):
@@ -1082,7 +1095,8 @@ class CWBIrrigation(HassBase):
 
     def start_tap (self,tap,duration_sec,desc,clear_queue):
         msg = "irrigation time tap {} {} {} min".format(tap["name"],desc,int(duration_sec/60.0))
-        self.my_notify (msg)
+        if "tap_open" in self.args["notify"]:
+           self.my_notify(msg)
 
         assert(tap["handle"] is None)
         tap["handle"] = self.run_in(self.time_cb_event_stop, 

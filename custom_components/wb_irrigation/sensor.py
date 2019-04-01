@@ -40,20 +40,27 @@ from homeassistant.helpers.restore_state import RestoreEntity
 
 _LOGGER = logging.getLogger(__name__)
 
+DATA_KEY = 'wb_irrigation.devices'
+
 
 async def async_setup_platform(hass: HomeAssistantType, config: ConfigType,
                                async_add_entities, discovery_info=None):
 
+
     if discovery_info:
-        async_add_entities([WeatherIrrigarion(hass,discovery_info)])
+        obj=WeatherIrrigarion(hass,discovery_info)
+        async_add_entities([obj])
+        hass.data[DATA_KEY].append(obj)
+
+
 
 
 async def _async_setup_entity(hass: HomeAssistantType, config: ConfigType,
                               async_add_entities, discovery_hash=None):
 
-    async_add_entities([WeatherIrrigarion(
-        hass,conf)])
-
+    obj=WeatherIrrigarion(hass,conf)
+    async_add_entities([obj])
+    hass.data[DATA_KEY].append(obj)
 
 
 OWM_URL = "https://api.openweathermap.org/data/2.5/weather?units=metric&lat={}&lon={}&appid={}"
@@ -86,6 +93,7 @@ class WeatherIrrigarion(RestoreEntity):
         async_track_utc_time_change(
             hass, self._async_update_every_hour,
               minute=0,second=0)
+              
 
 
     async def async_added_to_hass(self):
@@ -240,6 +248,7 @@ class WeatherIrrigarion(RestoreEntity):
         """Return the state of the entity."""
         return self._state 
 
+
     @property
     def device_state_attributes(self):
         """Return the state attributes."""
@@ -255,4 +264,13 @@ class WeatherIrrigarion(RestoreEntity):
         """Return the icon."""
         return self._icon
 
+    async def async_set_value(self, value):
+        """Set new value."""
+        num_value = float(value)
+        if num_value < self._min_ev or num_value > self._max_ev:
+            _LOGGER.warning("Invalid value: %s (range %s - %s)",
+                            num_value, self._min_ev, self._max_ev)
+            return
+        self._state = num_value
+        self.async_schedule_update_ha_state()
 

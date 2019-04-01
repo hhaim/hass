@@ -220,6 +220,7 @@ wb_irrigation:
   m_temp_hours: 13 # average day hours hottest month
   enabled: input_boolean.wbi_enabled #disable irrigation 
   water_sensor: sensor.water_total_external_norm # read total water  # optional to read water global sensor 
+  notify: [tap_open] 
   taps: 
      - name: p1
        days: [1,3,5]  # 1-7 1 for sunday, .. 7 for saturday 
