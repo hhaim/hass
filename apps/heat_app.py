@@ -191,6 +191,12 @@ class HassBase(hass.Hass):
         self.blink_light();
         self.call_alarm(DOORBELL)
 
+    def alert_sms (self,msg):
+       self.call_service('notify/clicksend', message = msg)
+
+    def alert_tts (self,msg):
+       self.call_service('notify/clicksend_tts', message = msg)
+    
 
     def my_notify (self,msg):
         t=datetime.datetime.now().strftime("%H:%M:%S")
@@ -830,7 +836,9 @@ class CWaterMonitor(HassBase):
                    self.police_notify(" water is on when you not at home {} litters".format(d_water))
 
             if d_water > self.args["max_burst"] :
-                self.police_notify(" WARNING total water {} is high in a single burst".format(d_water))
+                msg = " WARNING total water {} is high in a single burst".format(d_water)
+                self.police_notify(msg)
+                self.alert_sms (msg)
                 self.burst_was_reported =True
                 self.call_alarm(ALARM_WATER_ISSUES)
 
@@ -881,7 +889,10 @@ class CWaterMonitor(HassBase):
               self.do_water_timeout()
 
         if self.ticks > (self.args["watchdog_duration_min"]*60/CWaterMonitor.TIME_INTERVAL):
-            self.police_notify("ERORR running for more than {} min ".format(self.args["watchdog_duration_min"]) )
+            msg = "ERORR running for more than {} min ".format(self.args["watchdog_duration_min"])
+            self.police_notify(msg)
+            self.alert_sms (msg)
+            self.alert_tts (msg)
             self.call_alarm(ALARM_WATER_ISSUES)
 
         self.run_in(self.water_timer, CWaterMonitor.TIME_INTERVAL)
@@ -980,7 +991,7 @@ class CCube(hass.Hass):
 
 
 
-class CMiiButton(hass.Hass):
+class CMiiButton(HassBase):
     """ magic button mii """
     #input: 
     #output: 

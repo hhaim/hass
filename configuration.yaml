@@ -115,6 +115,21 @@ notify:
     api_key: !secret telegram_api_key
     chat_id: !secret telegram_chat_id
 
+  - platform: clicksend
+    name: ClickSend
+    username: !secret clicksend_user
+    api_key: !secret clicksend_api
+    recipient: !secret clicksend_phone
+    sender: !secret clicksend_sener
+
+  - platform: clicksend_tts
+    name: clicksend_tts
+    username: !secret clicksend_user
+    api_key: !secret clicksend_api
+    recipient: !secret clicksend_phone
+    caller: !secret clicksend_sener
+
+
 panel_iframe:
   configurator:
     title: Configurator
