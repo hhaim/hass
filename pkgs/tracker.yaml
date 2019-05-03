@@ -64,6 +64,19 @@ device_tracker:
      disable_input: input_boolean.disable_ap_c7
 
 
+#dummy 
+variable:
+      tracker_neta: 
+        value: "not_home"
+        restore: true
+        attributes:
+           friendly_name: 'Neta'
+           unit_of_measurement: ""
+           icon: mdi:human-child 
+
+input_boolean:
+  tracker_neta_enabled:
+    name: neta_at_home
 
 group: 
 
@@ -77,5 +90,10 @@ group:
        - device_tracker.rivi_phone
        - device_tracker.sony_ps
        - device_tracker.tv
+       - device_tracker.tv_wifi
+       - device_tracker.daniel_phone1
+       - device_tracker.daniel_phone2
+       - variable.tracker_neta
+
 
 

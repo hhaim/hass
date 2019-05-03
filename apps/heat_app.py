@@ -217,6 +217,38 @@ class HassBase(hass.Hass):
         else:
             return False
 
+    def read_ent_as_float(self,name,def_val=0.0):
+        res=def_val;
+        try:
+          val=self.get_state(name)
+          if val is not None:
+               res=float(val)
+        except ValueError:
+          pass;
+        return(res)
+
+    def remove_var_prefix (self,entity):
+        a = entity.split(".")
+        assert(len(a)==2)
+        assert(a[0]=='variable')
+        return (a[1])
+        
+    def var_set (self,entity,val):
+       var = self.remove_var_prefix(entity) 
+       self.call_service('variable/set_variable', variable=var,value=val)
+       
+    def var_inc (self,entity,value):
+       val = self.read_ent_as_float(entity)
+       val += value
+       var = self.remove_var_prefix(entity) 
+       self.call_service('variable/set_variable', variable=var,value="{:.1f}".format(val))
+
+    def var_dec (self,entity,value):
+       val = self.read_ent_as_float(entity)
+       val -= value
+       var = self.remove_var_prefix(entity) 
+       self.call_service('variable/set_variable', variable=var,value="{:.1f}".format(val))
+
 
 
 class AlarmNotification(HassBase):
@@ -528,6 +560,8 @@ class HomeButtonClick(HassBase):
 class AlarmNotificationHighPriorty(HassBase):
 
     def initialize(self):
+      return 
+      # need to fix this
       self.external_alarms =['alarm14','alarm15']
       for device_id in self.external_alarms:
            self.listen_state(self.do_state_change, 'binary_sensor.{0}'.format(device_id))
@@ -572,7 +606,7 @@ class CBoilerAutomation(HassBase):
     TIME_INTERVAL = 60
     WATCHDOG_MIN  = (120*2)
     WATCHDOG_TICKS = (WATCHDOG_MIN*60)/TIME_INTERVAL
-    WATCHDOG_MAX_TEMP = 85.0
+    WATCHDOG_MAX_TEMP = 100.0
     
 
     def initialize(self):
@@ -619,7 +653,7 @@ class CBoilerAutomation(HassBase):
                     msg = 'Boiler is ON {:.1f}'.format(self.temp)
                 else:
                     msg = 'Boiler is ON by user {:.1f}'.format(self.temp)
-                self.my_notify(msg);
+                self.log(msg);
             else:
                 if new == 'off':
                     self.update_bolier_stop()
@@ -657,7 +691,7 @@ class CBoilerAutomation(HassBase):
                         delta_temp,
                         eff_c_hours)
                     
-        self.my_notify(msg);
+        self.log(msg);
         self.set_state(self.args["sensor_eff_power"],state = "{:.1f}".format(eff_c_hours))
 
 
@@ -1086,6 +1120,7 @@ class CWBIrrigation(HassBase):
           return True
        else:
           return False
+
                   
     def read_water_sensor (self):
        if self.is_water_sensor_defined():
@@ -1096,16 +1131,13 @@ class CWBIrrigation(HassBase):
     def reset_queue (self,tap):
        self.call_service('wb_irrigation/set_value', entity_id=tap["queue_sensor"],value="0.0")
     
-    
     def inc_sensor (self,sensor,val):
-        input = self.get_state(sensor)
-        if not isinstance(input, float):
-           input = 0.0
-        input += val
-        self.set_state(sensor,state = "{:.1f}".format(input))
+        self.var_inc (sensor,val)
 
     def start_tap (self,tap,duration_sec,desc,clear_queue):
-        msg = "irrigation time tap {} {} {} min".format(tap["name"],desc,int(duration_sec/60.0))
+        duration_min = int(duration_sec/60.0)
+        msg = "irrigation time tap {} {} {} min".format(tap["name"],desc,duration_min)
+        self.var_inc (tap["time_sensor"],duration_min)
         if "tap_open" in self.args["notify"]:
            self.my_notify(msg)
 
@@ -1130,7 +1162,8 @@ class CWBIrrigation(HassBase):
         if queue > 0.0:
            self.log(" irrigation nothing to do queue: {} ".format(queue))
            return;
-        duration_min = tap["m_week_duration_min"]
+
+        duration_min = self.read_ent_as_float(tap["m_week_duration_min"])
         
         irrigation_time_min =  (-queue) *  duration_min / self.max_ev_week
         if irrigation_time_min < 2.0:
@@ -1138,12 +1171,44 @@ class CWBIrrigation(HassBase):
            return; 
 
         if irrigation_time_min > duration_min:
-           self.log(" ERROR irrigation time is high {} min ".format(irrigation_time_min))
+           self.my_notify(" ERROR irrigation time is high {} min ".format(irrigation_time_min))
            irrigation_time_min = duration_min
 
         self.start_tap(tap, irrigation_time_min * 60, "timer",True)
             
+
+
+class CTrackerNeta(HassBase):
+    """ enable/disable dummy tracker """
+    #input: 
+    #output: 
+    def initialize(self):
+        self.tracker="variable.tracker_neta"
+        self.listen_state(self.do_button_change, 'input_boolean.tracker_neta_enabled')
+        self.handle = None
+
+    def get_timer_time (self):
+        return 60*60*8
+
+    def do_turn_off(self):
+        self.handle=None
+        self.var_set(self.tracker,"not_home")
+
+    def do_turn_on(self):
+        self.var_set(self.tracker,"home")
+
+    def do_button_change (self,entity, attribute, old, new, kwargs):
+        if new == "on":
+            self.do_turn_on()
+            sec = self.get_timer_time();
+            self.handle = self.run_in(self._cb_event, sec)
+        else:
+            self.do_turn_off()
+            if self.handle: 
+               self.cancel_timer(self.handle)
          
+    def _cb_event(self,kargs):
+        self.do_turn_off()
 
 
 

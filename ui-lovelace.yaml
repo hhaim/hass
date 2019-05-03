@@ -32,6 +32,11 @@ views:
            - device_tracker.rivi_phone
            - device_tracker.sony_ps
            - device_tracker.tv
+           - device_tracker.tv_wifi
+           - device_tracker.daniel_phone1
+           - device_tracker.daniel_phone2
+           - variable.tracker_neta
+
 
         state_filter:
           - 'home'
@@ -72,6 +77,9 @@ views:
           - switch.tv
           - switch.ac1
           - switch.ac2
+          - input_boolean.tracker_neta_enabled
+          - media_player.main
+
 
       - type: entity-filter
         entities:
@@ -238,6 +246,44 @@ views:
           - switch.alarm_s0
           - switch.alarm_s1
 
+  - title: Alarm-All
+    id: alarm
+    background: radial-gradient(crimson, skyblue)
+    theme: dark-mode
+    cards:
+      - type: entities
+        title: all 
+        show_header_toggle: true
+        entities:
+            - binary_sensor.alarm0
+            - binary_sensor.alarm1
+            - binary_sensor.alarm2
+            - binary_sensor.alarm3
+            - binary_sensor.alarm4
+            - binary_sensor.alarm5
+            - binary_sensor.alarm6
+            - binary_sensor.alarm7
+            - binary_sensor.alarm8
+            - binary_sensor.alarm14
+            - binary_sensor.alarm15
+            - binary_sensor.alarm16
+            - binary_sensor.smoke_sensor_158d00024e008a
+            - binary_sensor.smoke_sensor_158d000287ae79
+            - binary_sensor.water_leak_sensor_158d000256cd9d
+            - binary_sensor.water_leak_sensor_158d00023385f2
+            - binary_sensor.water_leak_sensor_158d000256ce72
+            - binary_sensor.water_leak_sensor_158d000256ce93
+            - binary_sensor.water_leak_sensor_158d000256cede
+            - binary_sensor.water_leak_sensor_158d00027049bb
+            - binary_sensor.motion_sensor_158d0002b48209     
+            - binary_sensor.motion_sensor_158d0002b75328     
+            - binary_sensor.motion_sensor_158d0002b75423     
+            - binary_sensor.motion_sensor_158d0002b7d400     
+            - binary_sensor.motion_sensor_158d0002b7d548     
+            - binary_sensor.motion_sensor_158d0002b7f8b4     
+            - binary_sensor.motion_sensor_158d0002b85a33     
+            - binary_sensor.motion_sensor_158d0002c7165a     
+
   - title: Boiler
     id: boiler
     background: radial-gradient(crimson, skyblue)
@@ -279,13 +325,17 @@ views:
           - entity: sensor.wb_irrigation_rain
             name: Rain
           - entity: sensor.wbi_p1_hours
-            name: hours
+            name: p1_hours
           - entity: sensor.wbi_p2_hours
-            name: hours
+            name: p2_hours
           - entity: variable.wbi_water_p1
-            name: l
+            name: p1_l
           - entity: variable.wbi_water_p2
-            name: l
+            name: p2_l
+          - entity: variable.wbi_last_duration_p1
+            name: p1_d
+          - entity: variable.wbi_last_duration_p2
+            name: p2_d
 
       - type: entities
         entities:
@@ -294,6 +344,11 @@ views:
           - input_number.wbi_p1_duration
           - input_number.wbi_p2_duration
           - input_boolean.wbi_enabled
+
+      - type: entities
+        entities:
+          - input_number.wbi_week_p1_duration
+          - input_number.wbi_week_p2_duration
 
       - type: history-graph
         title: graph 
