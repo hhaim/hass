@@ -185,15 +185,29 @@ WBI works the same as your old system it just reduce the time when it it fits (e
 
 *Example*: 
 
-[options="header",cols="1,1,6"]
+
+.Without wbi
+[options="header",cols="1,1,1,1,1,6"]
 |=======================================
 | Day  | old value |evaporation (-) | rain Ev (+) | new value      | desc
 |0     | 0   | -200 | +500 | +300|  rain of ~5mm total
 |1     | +300| -200| 0 | +100|no rain , no irrigation 
 |2     | +100|-200| 0 | -100   | can irrigate
 |3     | -100|-200| 0 | -300   | can irrigate 
-|4     | -300|-200| 0 | -500   | can irrigate -- schedule calculate the time and zero -->0
+|4*    | -300|-100| 0 | 0   | can irrigate -- scheduled calculate the time
 |=======================================
+
+.Without wbi
+[options="header",cols="1,1,1,1,1,6"]
+|=======================================
+| Day  | old value |evaporation (-) | rain Ev (+) | new value      | desc
+|0     | 0   | -300 | 0 | -300|  rain of ~5mm total
+|1     | -300| -300| 0 | -600|no rain , no irrigation 
+|2     | -600|-300| 0 | -900   | can irrigate
+|3     | -900|-300| 0 | -1200   | can irrigate 
+|4*    | -1200|-300| 0 | 0   | can irrigate -- scheduled calculate the time
+|=======================================
+
 
 As you can see this simple model can tune the irrigation time dynamically base on the weather actual data (again, no forcast needed)
 The feedback/calculation is slow and done per day 
