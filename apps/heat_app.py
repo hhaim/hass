@@ -1166,7 +1166,7 @@ class CWBIrrigation(HassBase):
         duration_min = self.read_ent_as_float(tap["m_week_duration_min"])
         
         irrigation_time_min =  (-queue) *  duration_min / self.max_ev_week
-        if irrigation_time_min < 2.0:
+        if irrigation_time_min < 0.2:
            self.log(" irrigation  queue is small  {} ".format(queue))
            return; 
 
