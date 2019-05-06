@@ -724,6 +724,10 @@ class CBoilerAutomation(HassBase):
         
     def watchdog(self):
         #WD each min
+        if self.sabbath:
+            if self.is_turn_on():
+               self.force_power_enable(False)
+           
         if self.temp > CBoilerAutomation.WATCHDOG_MAX_TEMP:
             r = self.policer.add_event()
             if r[0]:
@@ -761,13 +765,19 @@ class CBoilerAutomation(HassBase):
         self.temp = self.get_float("temp",60.0)
         low = self.get_float("input_temp_min",30.0)
         high  = self.get_float("input_temp_max",40.0)
+
+        uv=0.0;
+        if "input_uv" in self.args:
+           uv = self.get_float("input_uv",0.0)
+           
         #self.log(" boiler c:{} m:{} x:{} ".format(self.temp,low,high));
 
         if self.watchdog():
             return; # somthing wrong 
 
         if self.temp < low:
-            self.start();
+            if uv < 2.0:
+               self.start();
         else:
             if self.temp > high:
                 self.stop();

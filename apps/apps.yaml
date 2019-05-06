@@ -167,6 +167,8 @@ boiler_automation:
   input_temp_max:   input_number.boiler_temp_max
   sensor_eff_power: variable.boiler_eff_power0
   sensor_eff_solar:  variable.boiler_eff_solar0
+  input_uv:  sensor.dark_sky_uv_index
+
 
 
 
