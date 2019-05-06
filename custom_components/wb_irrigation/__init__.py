@@ -36,7 +36,7 @@ import copy
 
 from homeassistant.components.binary_sensor import DEVICE_CLASSES_SCHEMA
 from homeassistant.const import (
-    CONF_UNIT_OF_MEASUREMENT,CONF_API_KEY, CONF_LATITUDE, CONF_LONGITUDE,CONF_DEVICES, CONF_BINARY_SENSORS, CONF_SWITCHES, CONF_HOST, CONF_PORT,
+    CONF_UNIT_OF_MEASUREMENT,CONF_API_KEY, CONF_LATITUDE, CONF_ELEVATION,CONF_LONGITUDE,CONF_DEVICES, CONF_BINARY_SENSORS, CONF_SWITCHES, CONF_HOST, CONF_PORT,
     CONF_ID, CONF_NAME, CONF_TYPE, CONF_PIN, CONF_ZONE, 
     ATTR_ENTITY_ID, ATTR_STATE, STATE_ON)
 from homeassistant.helpers import discovery
@@ -53,6 +53,7 @@ TYPE_RAIN        = 'rain'
 TYPE_RAIN_DAY    = 'rain_day'
 TYPE_EV_DAY      = 'ev_day'
 TYPE_EV_RAIN_BUCKET = 'bucket'
+TYPE_EV_FAO56_DAY = 'fao56' #FAO-56 Penman-Monteith based on Mark Richards
 
 DEFAULT_NAME = 'wb_irrigation'
 CONF_TAPS = "taps"
@@ -87,6 +88,7 @@ CONFIG_SCHEMA = vol.Schema(
            vol.Required(CONF_NAME): cv.string,
            vol.Optional(CONF_LATITUDE): cv.latitude,
            vol.Optional(CONF_LONGITUDE): cv.longitude,
+           vol.Optional(CONF_ELEVATION): vol.Coerce(int),
            vol.Optional(CONF_DEBUG,default=False): cv.boolean,
            vol.Required(CONF_RAIN_FACTOR): vol.Coerce(float),
            vol.Required(CONF_MAX_EV): vol.Coerce(float),
@@ -137,6 +139,12 @@ async def async_setup(hass, config):
     cfg2[CONF_UNIT_OF_MEASUREMENT] = "ev"
     cfg2[CONF_TYPE] = TYPE_EV_DAY
     cfgs.append(cfg2);
+
+    cfg3 = copy.deepcopy(cfg)
+    cfg3[CONF_NAME] = fix_name(cfg,TYPE_EV_FAO56_DAY)
+    cfg3[CONF_UNIT_OF_MEASUREMENT] = "ev"
+    cfg3[CONF_TYPE] = TYPE_EV_FAO56_DAY
+    cfgs.append(cfg3);
 
     #add devices 
     for dev in cfg.get(CONF_TAPS):

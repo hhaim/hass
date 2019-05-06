@@ -21,6 +21,7 @@ wb_irrigation:
   debug: true
   longitude: !secret accurate_longitude
   latitude: !secret accurate_latitude
+  elevation: !secret accurate_elevation
   taps: 
     - name: p1
     - name: p2

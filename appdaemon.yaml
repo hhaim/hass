@@ -1,9 +1,9 @@
 
 appdaemon:
   time_zone: Asia/Jerusalem
-  latitude: 32.0806
-  longitude: 34.8142
-  elevation: 43
+  latitude: !secret accurate_latitude
+  longitude: !secret accurate_longitude
+  elevation: !secret accurate_elevation
   threads: 1
   plugins:
     HASS:

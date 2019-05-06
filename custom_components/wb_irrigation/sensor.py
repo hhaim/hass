@@ -14,12 +14,12 @@ import logging
 import json
 import re
 import requests 
+from ..wb_irrigation.pyeto import convert,fao
 
-from datetime import timedelta
+from datetime import timedelta,datetime
 from typing import Optional
-
 import voluptuous as vol
-from ..wb_irrigation import (TYPE_RAIN,TYPE_RAIN_DAY,TYPE_EV_DAY,TYPE_EV_RAIN_BUCKET,CONF_RAIN_FACTOR,CONF_TAPS,CONF_MAX_EV,CONF_MIN_EV,CONF_DEBUG)
+from ..wb_irrigation import (TYPE_EV_FAO56_DAY,TYPE_RAIN,TYPE_RAIN_DAY,TYPE_EV_DAY,TYPE_EV_RAIN_BUCKET,CONF_RAIN_FACTOR,CONF_TAPS,CONF_MAX_EV,CONF_MIN_EV,CONF_DEBUG)
 from homeassistant.core import callback
 from homeassistant.components import sensor
 from homeassistant.components.sensor import DEVICE_CLASSES_SCHEMA
@@ -28,7 +28,7 @@ from homeassistant.helpers.event import async_track_utc_time_change
 
 from homeassistant.const import (
     CONF_NAME, CONF_TYPE,CONF_UNIT_OF_MEASUREMENT,CONF_ICON,
-    CONF_API_KEY, CONF_LATITUDE, CONF_LONGITUDE, CONF_MODE, 
+    CONF_API_KEY, CONF_ELEVATION,CONF_LATITUDE, CONF_LONGITUDE,CONF_LATITUDE, CONF_MODE, 
     STATE_UNKNOWN, TEMP_CELSIUS)
 
 from homeassistant.helpers.entity import Entity
@@ -65,6 +65,47 @@ async def _async_setup_entity(hass: HomeAssistantType, config: ConfigType,
 
 OWM_URL = "https://api.openweathermap.org/data/2.5/weather?units=metric&lat={}&lon={}&appid={}"
 
+
+def  estimate_fao56(day_of_year,
+                  temperature_celsius,
+                  elevation,
+                  latitude,
+                  rh,
+                  wind_m_s,
+                  atmos_pres):
+
+           sha = pyeto.sunset_hour_angle(pyeto.deg2rad(latitude), pyeto.sol_dec(day_of_year))
+           
+           daylight_hours =  pyeto.daylight_hours(sha)
+           
+           sunshine_hours = 0.8 *daylight_hours;
+           
+           ird = pyeto.inv_rel_dist_earth_sun(day_of_year)
+           
+           et_rad = pyeto.et_rad(pyeto.deg2rad(latitude), pyeto.sol_dec(day_of_year), sha, ird)
+      
+           sol_rad = pyeto.sol_rad_from_sun_hours(daylight_hours,sunshine_hours,et_rad)
+
+           net_in_sol_rad = pyeto.net_in_sol_rad(sol_rad=sol_rad,albedo=0.23)
+
+           cs_rad = pyeto.cs_rad(elevation, et_rad)
+
+           avp = pyeto.avp_from_rhmin_rhmax(pyeto.svp_from_t(temperature_celsius-1),pyeto.svp_from_t(temperature_celsius),rh,rh)
+            
+           net_out_lw_rad = pyeto.net_out_lw_rad(temperature_celsius-1, temperature_celsius, sol_rad, cs_rad, avp)
+
+           eto = pyeto.fao56_penman_monteith(
+                net_rad = pyeto.net_rad(net_in_sol_rad, net_out_lw_rad),
+                t=convert.celsius2kelvin(temperature_celsius),
+                ws=wind_m_s,
+                svp=pyeto.svp_from_t(temperature_celsius),
+                avp=pyeto.avp_from_rhmin_rhmax(pyeto.svp_from_t(temperature_celsius-1),pyeto.svp_from_t(temperature_celsius),rh,rh),
+                delta_svp=pyeto.delta_svp(temperature_celsius),
+                psy=pyeto.psy_const(atmos_pres)
+            )
+           return eto 
+
+
 class WeatherIrrigarion(RestoreEntity):
     """"""
     def __init__(self, hass, conf):
@@ -76,6 +117,7 @@ class WeatherIrrigarion(RestoreEntity):
         self._type = conf.get(CONF_TYPE)
         self._rain_factor = conf.get(CONF_RAIN_FACTOR)
         self._lat = conf.get(CONF_LATITUDE)
+        self._elevation  = conf.get(CONF_ELEVATION)
         self._debug = conf.get(CONF_DEBUG)
         self._lon = conf.get(CONF_LONGITUDE)
         self._api = conf.get(CONF_API_KEY)
@@ -109,6 +151,7 @@ class WeatherIrrigarion(RestoreEntity):
         self._min_temp = 50;
         self._min_max_updated = False
         self._ev = 180
+        self._fao56 = 0
 
     def get_data (self):
         url=OWM_URL.format(self._lat,self._lon,self._api)
@@ -124,6 +167,9 @@ class WeatherIrrigarion(RestoreEntity):
 
 
     async def _async_update_last_day(self,time=None):
+
+        if self._type == TYPE_EV_FAO56_DAY:
+            self._state = round(self._fao56,1)
 
         if self._type == TYPE_EV_DAY:
             self._state = self._ev
@@ -170,10 +216,12 @@ class WeatherIrrigarion(RestoreEntity):
 
 
         tmean = None
+        day_time = False
             
         if "main" in d:
            dt=d['dt']
            if ((dt > d['sys']['sunrise']) and (dt < d['sys']['sunset']) ):
+             day_time = True
              tmax = d['main']['temp_max']
              tmin = d['main']['temp_min']
              if tmax > self._max_temp:
@@ -211,8 +259,10 @@ class WeatherIrrigarion(RestoreEntity):
         ev = None; 
         if tmean and hours:
            ev = round(hours * (0.46 * tmean + 8.13),0)
-            
 
+        if self._type == TYPE_EV_FAO56_DAY:
+            if day_time: # to do fix this, need factor of time 
+               self._fao56 += self.calc_fao56(d)
         if self._type == TYPE_RAIN:
             self._state = rain_mm
         if self._type == TYPE_RAIN_DAY:
@@ -228,6 +278,24 @@ class WeatherIrrigarion(RestoreEntity):
 
         self.async_schedule_update_ha_state()     
 
+    def calc_fao56 (self,owm_d):
+           day_of_year = datetime.now().timetuple().tm_yday
+           t = owm_d['main']['temp']
+           rh =owm_d['main']['humidity']
+           ws = owm_d['wind']['speed']
+           atmos_pres = owm_d['main']['pressure']
+
+           # multiply it by 2 to norm it to 300ev a day 
+           fao56 =  2 * estimate_fao56(day_of_year,
+                                   t,
+                                   self._elevation,
+                                   self._lat,
+                                   rh,
+                                   ws,
+                                   atmos_pres);
+           return fao56
+
+       
     @property
     def should_poll(self):
        """No polling needed."""
@@ -256,6 +324,8 @@ class WeatherIrrigarion(RestoreEntity):
            return { 'rain_total' :  round(self._rain_mm,1) }
         elif self._type == TYPE_EV_DAY:
            return { 'ev' :  round(self._ev,1) }
+        elif self._type == TYPE_EV_FAO56_DAY:
+           return { 'fao56' :  round(self._fao56,1) }
         else:
            return {}
 
