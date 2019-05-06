@@ -185,7 +185,7 @@ WBI works the same as your old system it just reduce the time when it it fits (e
 
 *Example*: 
 
-[options="header",cols="1,1,3"]
+[options="header",cols="1,1,6"]
 |=======================================
 | Day  | old value |evaporation (-) | rain Ev (+) | new value      | desc
 |0     | 0   | -200 | +500 | +300|  rain of ~5mm total
