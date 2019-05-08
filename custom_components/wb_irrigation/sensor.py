@@ -14,8 +14,8 @@ import logging
 import json
 import re
 import requests 
+from ..wb_irrigation import pyeto
 from ..wb_irrigation.pyeto import convert,fao
-
 from datetime import timedelta,datetime
 from typing import Optional
 import voluptuous as vol
@@ -128,6 +128,7 @@ class WeatherIrrigarion(RestoreEntity):
             self._state = 500.0
         self.reset_data ()
 
+      
         async_track_utc_time_change(
             hass, self._async_update_last_day,
              hour=23, minute=58,second=0)
@@ -135,7 +136,6 @@ class WeatherIrrigarion(RestoreEntity):
         async_track_utc_time_change(
             hass, self._async_update_every_hour,
               minute=0,second=0)
-              
 
 
     async def async_added_to_hass(self):
@@ -204,7 +204,20 @@ class WeatherIrrigarion(RestoreEntity):
         _LOGGER.warning(" can't findany key in {}".format(code))
         return 10.0 
 
-
+    def get_fao56_factor (self,owm_d):
+             d =  owm_d
+             dt=d['dt']
+             factor = 0.0
+             if dt > d['sys']['sunrise']:
+                 if dt < d['sys']['sunset']:
+                    factor = min(float(dt - d['sys']['sunrise'])/3600.0,1.0)
+             else:
+                 if dt > d['sys']['sunset']:
+                     factor = (dt - d['sys']['sunrise'])/3600.0
+                     if factor < 1.0:
+                        factor = 1.0 - factor
+             return factor           
+    
     async def _async_update_every_hour(self,time=None):
         """Fetch the  status from URL"""
         d=  self.get_data()
@@ -261,8 +274,10 @@ class WeatherIrrigarion(RestoreEntity):
            ev = round(hours * (0.46 * tmean + 8.13),0)
 
         if self._type == TYPE_EV_FAO56_DAY:
-            if day_time: # to do fix this, need factor of time 
-               self._fao56 += self.calc_fao56(d)
+             f = self.get_fao56_factor (d)
+             if f > 0.0:
+               self._fao56 += f * self.calc_fao56(d)
+
         if self._type == TYPE_RAIN:
             self._state = rain_mm
         if self._type == TYPE_RAIN_DAY:
@@ -293,6 +308,7 @@ class WeatherIrrigarion(RestoreEntity):
                                    rh,
                                    ws,
                                    atmos_pres);
+
            return fao56
 
        

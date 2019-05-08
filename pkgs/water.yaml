@@ -51,7 +51,7 @@ sensor:
     unit_of_measurement: 'l'
     icon: mdi:water-pump
     expire_after: 300
-    value_template: "{{ (80600 + 37950 + (value/1.21))|int }}"
+    value_template: "{{ (80600 + 37950 + 3341 + (value/1.21))|int }}"
     
 
 
