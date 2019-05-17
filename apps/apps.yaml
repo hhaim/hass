@@ -198,7 +198,10 @@ water_monitor:
   watchdog_duration_min: 50
   watchdog_leakage_ticks: 3
   max_day: 2000
-  max_burst: 600
+  max_burst_l0: 400
+  max_burst_l1: 600
+  taps_switchs: [ switch.wbi_p1, switch.wbi_p2] # when one of them is enabled move to burstl1
+  
 
 tv_lights:
   module: heat_app
@@ -232,7 +235,7 @@ wb_irrigation:
        manual_duration: input_number.wbi_p1_duration
        queue_sensor: sensor.wb_irrigation_p1 
        water_sensor: variable.wbi_water_p1
-       time_sensor: wbi_last_duration_p1
+       time_sensor: variable.wbi_last_duration_p1
        
      - name: p2
        days: [1,3,5]

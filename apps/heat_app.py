@@ -848,6 +848,13 @@ class CWaterMonitor(HassBase):
         self.police_notify(msg);
 
 
+    def is_taps_opened (self):
+        taps = self.args['taps_switchs']
+        for tap in taps:
+            if self.get_state(tap)=="on":
+                return True
+        return False
+
     def get_water_counter(self):
           try:
             res=int(self.get_state(self.args['sensor_water_total']))
@@ -879,8 +886,14 @@ class CWaterMonitor(HassBase):
                 if d_water>50:
                    self.police_notify(" water is on when you not at home {} litters".format(d_water))
 
-            if d_water > self.args["max_burst"] :
-                msg = " WARNING total water {} is high in a single burst".format(d_water)
+            max_burst = 0.0
+            if self.is_taps_opened():
+                max_burst = self.args["max_burst_l1"]
+            else:
+                max_burst = self.args["max_burst_l0"]
+
+            if d_water > max_burst :
+                msg = " WARNING total water {} is high in a single burst {} ".format(d_water,max_burst)
                 self.police_notify(msg)
                 self.alert_sms (msg)
                 self.burst_was_reported =True
