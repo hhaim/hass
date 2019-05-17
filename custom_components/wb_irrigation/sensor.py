@@ -19,7 +19,7 @@ from ..wb_irrigation.pyeto import convert,fao
 from datetime import timedelta,datetime
 from typing import Optional
 import voluptuous as vol
-from ..wb_irrigation import (TYPE_EV_FAO56_DAY,TYPE_RAIN,TYPE_RAIN_DAY,TYPE_EV_DAY,TYPE_EV_RAIN_BUCKET,CONF_RAIN_FACTOR,CONF_TAPS,CONF_MAX_EV,CONF_MIN_EV,CONF_DEBUG)
+from ..wb_irrigation import (TYPE_EV_FAO56_DAY,TYPE_RAIN,TYPE_RAIN_DAY,TYPE_EV_DAY,TYPE_EV_RAIN_BUCKET,CONF_RAIN_FACTOR,CONF_TAPS,CONF_MAX_EV,CONF_MIN_EV,CONF_DEBUG,CONF_FAO56_SENSOR)
 from homeassistant.core import callback
 from homeassistant.components import sensor
 from homeassistant.components.sensor import DEVICE_CLASSES_SCHEMA
@@ -126,16 +126,28 @@ class WeatherIrrigarion(RestoreEntity):
         self._state = 0.0
         if self._type == TYPE_EV_RAIN_BUCKET:
             self._state = 500.0
+            self._sensor_id = conf.get(CONF_FAO56_SENSOR)
+            
+
         self.reset_data ()
 
-      
-        async_track_utc_time_change(
-            hass, self._async_update_last_day,
-             hour=23, minute=58,second=0)
+        
 
+      
+        if self._type == TYPE_EV_FAO56_DAY:
+           # should be updated before so bucker sensors
+           async_track_utc_time_change(
+               hass, self._async_update_last_day,
+                hour = 23, minute = 50, second = 0)
+        else:
+           async_track_utc_time_change(
+              hass, self._async_update_last_day,
+               hour = 23, minute = 58, second = 0)
+
+        #
         async_track_utc_time_change(
             hass, self._async_update_every_hour,
-              minute=0,second=0)
+              minute = 0, second = 0)
 
 
     async def async_added_to_hass(self):
@@ -178,7 +190,14 @@ class WeatherIrrigarion(RestoreEntity):
             # first time
             if not isinstance(self._state, float):
                 self._state = 500.0
-            self._state += (-self._ev) + (self._rain_mm * self._rain_factor)
+
+            # read fao56 sensor 
+            ev = 0
+            ev_state = self.hass.states.get(self._sensor_id)
+            if ev_state :
+                 ev = float(ev_state.state)
+
+            self._state += (-ev) + (self._rain_mm * self._rain_factor)
             if self._state > self._max_ev:
                self._state = self._max_ev
             if self._state < self._min_ev:
@@ -220,13 +239,13 @@ class WeatherIrrigarion(RestoreEntity):
     
     async def _async_update_every_hour(self,time=None):
         """Fetch the  status from URL"""
-        d=  self.get_data()
+
+        d =  self.get_data()
         if d is None:
             return;
 
         if self._debug and self._type == TYPE_RAIN:
             _LOGGER.error(" wbi_raw_data {} ".format(d))
-
 
         tmean = None
         day_time = False

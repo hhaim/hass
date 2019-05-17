@@ -61,6 +61,7 @@ CONF_RAIN_FACTOR ="rain_factor"
 CONF_MAX_EV = "max_ev"
 CONF_MIN_EV = "min_ev"
 CONF_DEBUG = "debug"
+CONF_FAO56_SENSOR = "fao56"
 
 DATA_KEY = 'wb_irrigation.devices'
 
@@ -152,6 +153,7 @@ async def async_setup(hass, config):
        c[CONF_NAME] = fix_name(cfg,dev.get(CONF_NAME))
        c[CONF_UNIT_OF_MEASUREMENT] = "ev"
        c[CONF_TYPE] = TYPE_EV_RAIN_BUCKET
+       c[CONF_FAO56_SENSOR] = "sensor."+fix_name(cfg,TYPE_EV_FAO56_DAY)
        cfgs.append(c);
 
 
