@@ -14,11 +14,11 @@ homeassistant:
 # calculation factors based on rain and evaporation model
 wb_irrigation:
   api_key: !secret openweathermap_key
-  rain_factor: 120
-  max_ev: 3750 
+  rain_factor: 90
+  max_ev: 3000 
   min_ev: -1500.0
   name: "wb_irrigation"
-  debug: true
+  debug: false
   longitude: !secret accurate_longitude
   latitude: !secret accurate_latitude
   elevation: !secret accurate_elevation
