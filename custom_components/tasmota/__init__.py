@@ -81,8 +81,10 @@ async def async_setup(hass, config):
         hass.data[DOMAIN] = {
         }
 
-    for device in cfg.get(CONF_DEVICES):
-        ConfiguredDevice(hass, device).save_data()
+    devices = cfg.get(CONF_DEVICES)
+    if devices is not None:
+       for device in devices:
+          ConfiguredDevice(hass, device).save_data()
 
     return True
 

@@ -202,6 +202,7 @@ class MqttTasmotaCounter(MqttAvailability,  RestoreEntity):
             # set new value 
             self._old_value = new_counter
             self._valid_ref = True
+            self.async_schedule_update_ha_state()
 
 
     def update_state_value (self):
@@ -249,6 +250,7 @@ class MqttTasmotaCounter(MqttAvailability,  RestoreEntity):
            self._uptime_sec = uptime_sec
         else:
             self._uptime_sec = uptime_sec
+        self.async_schedule_update_ha_state()
         
 
     async def load_state_from_recorder (self):
