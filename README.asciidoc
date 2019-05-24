@@ -28,7 +28,7 @@ the beginning of this page**
 
 === Main components 
 
-1. Home water consumption/leakage detection.  
+1. Home water consumption/leakage detection. see https://github.com/hhaim/hass/wiki/Monitor-water-consumption-and-more-with-Home-Assistant[wiki]
 ** Tasmota + Wemo d1  
 ** Sensor link:https://www.revaho.nl/wp-content/uploads/Ch_11_Water_meters.pdf[water sensor ev 1 litter] 
 2. Air Conditioner automation  (Electra /Israel) 
@@ -38,12 +38,12 @@ the beginning of this page**
 ** Could scale with gpio/cheaper 
 ** It uses Tasmota firmware
 4. Media automation
-5. Israel Boiler -- keep the water always hot in specific temperature. 
+5. Israel Boiler -- keep the water always hot in specific temperature. see https://github.com/hhaim/hass/wiki/Smart-solar-water-heating-using-Home-Assistant[wiki]
 ** Tasmota +Sonoff TH16 + DS18b20 raw chip inside the mechanical termostat of the Boiler
 6. Light -- turn them automaticly using PIR
 ** Tasmota + WemoD1 mini
 7. Cameras -- BlueIris as DVR + PIR using Object detection Yolo3
-8. Weather based Irrigation 
+8. Weather based Irrigation see link:https://github.com/hhaim/hass/wiki/Weather-based-irrigation[wiki]
 ** Tasmota +Sonoff 4CH Pro
 ** 48vAC Power  
 ** Taps to control the taps 
