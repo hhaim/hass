@@ -62,6 +62,7 @@ CONF_MAX_EV = "max_ev"
 CONF_MIN_EV = "min_ev"
 CONF_DEBUG = "debug"
 CONF_FAO56_SENSOR = "fao56"
+CONF_RAIN_SENSOR = "rain"
 
 DATA_KEY = 'wb_irrigation.devices'
 
@@ -135,11 +136,12 @@ async def async_setup(hass, config):
     cfg1[CONF_TYPE] = TYPE_RAIN_DAY
     cfgs.append(cfg1);
 
-    cfg2 = copy.deepcopy(cfg)
-    cfg2[CONF_NAME] = fix_name(cfg,TYPE_EV_DAY)
-    cfg2[CONF_UNIT_OF_MEASUREMENT] = "ev"
-    cfg2[CONF_TYPE] = TYPE_EV_DAY
-    cfgs.append(cfg2);
+    # FAO56 is better 
+    #cfg2 = copy.deepcopy(cfg)
+    #cfg2[CONF_NAME] = fix_name(cfg,TYPE_EV_DAY)
+    #cfg2[CONF_UNIT_OF_MEASUREMENT] = "ev"
+    #cfg2[CONF_TYPE] = TYPE_EV_DAY
+    #cfgs.append(cfg2);
 
     cfg3 = copy.deepcopy(cfg)
     cfg3[CONF_NAME] = fix_name(cfg,TYPE_EV_FAO56_DAY)
@@ -154,6 +156,8 @@ async def async_setup(hass, config):
        c[CONF_UNIT_OF_MEASUREMENT] = "ev"
        c[CONF_TYPE] = TYPE_EV_RAIN_BUCKET
        c[CONF_FAO56_SENSOR] = "sensor."+fix_name(cfg,TYPE_EV_FAO56_DAY)
+       c[CONF_RAIN_SENSOR] = "sensor."+fix_name(cfg,TYPE_RAIN_DAY)
+
        cfgs.append(c);
 
 

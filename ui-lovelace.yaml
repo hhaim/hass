@@ -339,7 +339,6 @@ views:
 
       - type: entities
         entities:
-          - sensor.wb_irrigation_ev_day
           - sensor.wb_irrigation_rain_day
           - sensor.wb_irrigation_fao56
           - input_number.wbi_p1_duration
@@ -355,7 +354,7 @@ views:
         title: graph 
         hours_to_show : 168
         entities:
-          - sensor.wb_irrigation_ev_day
+          - sensor.wb_irrigation_fao56
           - sensor.wb_irrigation_rain
           - sensor.wb_irrigation_rain_day
           - sensor.wb_irrigation_p1

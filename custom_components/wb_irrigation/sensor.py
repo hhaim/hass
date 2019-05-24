@@ -19,7 +19,7 @@ from ..wb_irrigation.pyeto import convert,fao
 from datetime import timedelta,datetime
 from typing import Optional
 import voluptuous as vol
-from ..wb_irrigation import (TYPE_EV_FAO56_DAY,TYPE_RAIN,TYPE_RAIN_DAY,TYPE_EV_DAY,TYPE_EV_RAIN_BUCKET,CONF_RAIN_FACTOR,CONF_TAPS,CONF_MAX_EV,CONF_MIN_EV,CONF_DEBUG,CONF_FAO56_SENSOR)
+from ..wb_irrigation import (TYPE_EV_FAO56_DAY,TYPE_RAIN,TYPE_RAIN_DAY,TYPE_EV_DAY,TYPE_EV_RAIN_BUCKET,CONF_RAIN_FACTOR,CONF_TAPS,CONF_MAX_EV,CONF_MIN_EV,CONF_DEBUG,CONF_FAO56_SENSOR,CONF_RAIN_SENSOR)
 from homeassistant.core import callback
 from homeassistant.components import sensor
 from homeassistant.components.sensor import DEVICE_CLASSES_SCHEMA
@@ -46,12 +46,10 @@ DATA_KEY = 'wb_irrigation.devices'
 async def async_setup_platform(hass: HomeAssistantType, config: ConfigType,
                                async_add_entities, discovery_info=None):
 
-
     if discovery_info:
         obj=WeatherIrrigarion(hass,discovery_info)
         async_add_entities([obj])
         hass.data[DATA_KEY].append(obj)
-
 
 
 
@@ -67,12 +65,13 @@ OWM_URL = "https://api.openweathermap.org/data/2.5/weather?units=metric&lat={}&l
 
 
 def  estimate_fao56(day_of_year,
-                  temperature_celsius,
-                  elevation,
-                  latitude,
-                  rh,
-                  wind_m_s,
-                  atmos_pres):
+                    temperature_celsius,
+                    elevation,
+                    latitude,
+                    rh,
+                    wind_m_s,
+                    atmos_pres):
+           """ Estimate fao56 from weather """
 
            sha = pyeto.sunset_hour_angle(pyeto.deg2rad(latitude), pyeto.sol_dec(day_of_year))
            
@@ -101,8 +100,7 @@ def  estimate_fao56(day_of_year,
                 svp=pyeto.svp_from_t(temperature_celsius),
                 avp=pyeto.avp_from_rhmin_rhmax(pyeto.svp_from_t(temperature_celsius-1),pyeto.svp_from_t(temperature_celsius),rh,rh),
                 delta_svp=pyeto.delta_svp(temperature_celsius),
-                psy=pyeto.psy_const(atmos_pres)
-            )
+                psy=pyeto.psy_const(atmos_pres))
            return eto 
 
 
@@ -127,27 +125,21 @@ class WeatherIrrigarion(RestoreEntity):
         if self._type == TYPE_EV_RAIN_BUCKET:
             self._state = 500.0
             self._sensor_id = conf.get(CONF_FAO56_SENSOR)
-            
-
+            self._rain_sensor_id = conf.get(CONF_RAIN_SENSOR) 
         self.reset_data ()
 
-        
+        sync_min = 58
+        if self._type in (TYPE_EV_FAO56_DAY,TYPE_RAIN_DAY) :
+            sync_min = 50
 
-      
-        if self._type == TYPE_EV_FAO56_DAY:
-           # should be updated before so bucker sensors
-           async_track_utc_time_change(
-               hass, self._async_update_last_day,
-                hour = 23, minute = 50, second = 0)
-        else:
-           async_track_utc_time_change(
-              hass, self._async_update_last_day,
-               hour = 23, minute = 58, second = 0)
-
-        #
         async_track_utc_time_change(
-            hass, self._async_update_every_hour,
-              minute = 0, second = 0)
+               hass, self._async_update_last_day,
+                hour = 23, minute = sync_min, second = 0)
+
+        if (self._type != TYPE_EV_RAIN_BUCKET):
+          async_track_utc_time_change(
+              hass, self._async_update_every_hour,
+                minute = 0, second = 0)
 
 
     async def async_added_to_hass(self):
@@ -156,12 +148,22 @@ class WeatherIrrigarion(RestoreEntity):
        state = await self.async_get_last_state()
        if state is not None:
            self._state = float(state.state)
+           _LOGGER.info("wbi async_added_to_hass %s",str(state.attributes)) 
+           for attr, var, t in (('rain_total','_rain_mm',float),
+                                ('ev','_ev',float),
+                                ('fao56','_fao56',float)):
+               if attr in state.attributes:
+                   try:
+                     setattr(self, var, t(state.attributes[attr]))
+                   except Exception as e:
+                     _LOGGER.info("converting %s to %s ",state.attributes[attr],var)
+
+        
 
     def reset_data (self):
         self._rain_mm =0
         self._max_temp = -50;
         self._min_temp = 50;
-        self._min_max_updated = False
         self._ev = 180
         self._fao56 = 0
 
@@ -193,11 +195,17 @@ class WeatherIrrigarion(RestoreEntity):
 
             # read fao56 sensor 
             ev = 0
+            rain_mm = 0
+
             ev_state = self.hass.states.get(self._sensor_id)
             if ev_state :
                  ev = float(ev_state.state)
 
-            self._state += (-ev) + (self._rain_mm * self._rain_factor)
+            rain_state = self.hass.states.get(self._rain_sensor_id)
+            if rain_state :
+                 rain_mm = float(rain_state.state)
+
+            self._state += (-ev) + (rain_mm * self._rain_factor)
             if self._state > self._max_ev:
                self._state = self._max_ev
             if self._state < self._min_ev:
@@ -240,36 +248,18 @@ class WeatherIrrigarion(RestoreEntity):
     async def _async_update_every_hour(self,time=None):
         """Fetch the  status from URL"""
 
-        d =  self.get_data()
+        d = self.get_data()
         if d is None:
             return;
+
+        if d['cod'] != 200:
+            _LOGGER.error(" Invalid response from OWM {} ".format(d))
+            return
 
         if self._debug and self._type == TYPE_RAIN:
             _LOGGER.error(" wbi_raw_data {} ".format(d))
 
-        tmean = None
-        day_time = False
-            
-        if "main" in d:
-           dt=d['dt']
-           if ((dt > d['sys']['sunrise']) and (dt < d['sys']['sunset']) ):
-             day_time = True
-             tmax = d['main']['temp_max']
-             tmin = d['main']['temp_min']
-             if tmax > self._max_temp:
-                self._max_temp = tmax
-             if tmin < self._min_temp:
-                self._min_temp = tmin
-             self._min_max_updated = True
-        
-        else:
-           _LOGGER.warning(" can't find main in {}".format(d))
-
-        if self._min_max_updated:
-           tmean = (self._max_temp + self._min_temp)/2
-
-        hours = (d["sys"]["sunset"] - d["sys"]["sunrise"]) /3600.0
-
+        # estimate rain
         rain_mm = 0
         if "rain" in d:
             # accurate 
@@ -288,10 +278,6 @@ class WeatherIrrigarion(RestoreEntity):
             # not acurate, in case of snow 
             rain_mm = rain_mm + 50
 
-        ev = None; 
-        if tmean and hours:
-           ev = round(hours * (0.46 * tmean + 8.13),0)
-
         if self._type == TYPE_EV_FAO56_DAY:
              f = self.get_fao56_factor (d)
              if f > 0.0:
@@ -302,13 +288,6 @@ class WeatherIrrigarion(RestoreEntity):
         if self._type == TYPE_RAIN_DAY:
             self._rain_mm += rain_mm
             self._state = self._rain_mm
-        if self._type == TYPE_EV_DAY:
-            if ev:
-               self._ev = ev
-        if self._type == TYPE_EV_RAIN_BUCKET:
-            if ev:
-               self._ev = ev
-            self._rain_mm += rain_mm
 
         self.async_schedule_update_ha_state()     
 
