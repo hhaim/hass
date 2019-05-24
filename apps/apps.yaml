@@ -199,7 +199,7 @@ water_monitor:
   watchdog_leakage_ticks: 3
   max_day: 2000
   max_burst_l0: 400
-  max_burst_l1: 600
+  max_burst_l1: 800
   taps_switchs: [ switch.wbi_p1, switch.wbi_p2] # when one of them is enabled move to burstl1
   
 

@@ -835,6 +835,7 @@ class CWaterMonitor(HassBase):
         self.start_water_count = None
         self.ticks =0
         self.wd =0
+        self.switch_cnt=0;
         self.burst_was_reported =False
         self.run_at_sunset(self.notify_water_usage,  offset=-(0))
         self.listen_event(self.home_cb, "at_home")
@@ -887,10 +888,16 @@ class CWaterMonitor(HassBase):
                    self.police_notify(" water is on when you not at home {} litters".format(d_water))
 
             max_burst = 0.0
+            
             if self.is_taps_opened():
+                self.switch_cnt = 5;
                 max_burst = self.args["max_burst_l1"]
             else:
-                max_burst = self.args["max_burst_l0"]
+                if self.switch_cnt > 0 :
+                    self.switch_cnt -= 1;
+                    max_burst = self.args["max_burst_l1"]
+                else:
+                   max_burst = self.args["max_burst_l0"]
 
             if d_water > max_burst :
                 msg = " WARNING total water {} is high in a single burst {} ".format(d_water,max_burst)
