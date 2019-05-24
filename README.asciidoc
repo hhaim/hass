@@ -100,7 +100,7 @@ Define a switch in a simpler way. It just works
 
 See discussion here link:https://github.com/home-assistant/home-assistant/issues/18703[18703]
 
-[source,python]
+[source,yaml]
 -------------------
   switch:
     - platform: tasmota
@@ -119,7 +119,7 @@ Define 16/8 binary sensors based on MCP230xx chipset in a simple way.
 This chip has two mqtt async responses(interrupt and status) and it is tedious to define all of them.
 
 
-[source,python]
+[source,yaml]
 -------------------
  tasmota:
    devices:
@@ -140,7 +140,7 @@ This chip has two mqtt async responses(interrupt and status) and it is tedious t
 
 Aggregate /accumulate using events the time something is working (e.g. time TV is on)  per day/week/month. No need to query the database which is a *slow* operation 
 
-[source,python]
+[source,yaml]
 -------------------
  sensor:
    - platform: accumulator
@@ -213,7 +213,7 @@ As you can see this simple model can tune the irrigation time dynamically base o
 The feedback/calculation is slow and done per day 
 
 .Sample of compoenent 
-[source,python]
+[source,yaml]
 -------------------
 
 wb_irrigation:
@@ -266,7 +266,7 @@ A/C Type: Electra with SonOff 4ch for enable/disable, connected to CLK input
 
 Keep the A/C at specific temperator, at specific days of the week 
 
-[source,python]
+[source,yaml]
 -------------------
  heater_ac1:
    module: heat_app
@@ -282,7 +282,7 @@ Keep the A/C at specific temperator, at specific days of the week
 
 ==== CBoilerAutomation app
 
-[source,python]
+[source,yaml]
 -------------------
  boiler_automation:
    module: heat_app
@@ -319,12 +319,14 @@ SetOption36 20
 
 ==== CWaterMonitor app
 
+see link:https://github.com/hhaim/hass/wiki/Monitor-water-consumption-and-more-with-Home-Assistant[wiki] for a full example 
+
 Monitor the water consumption, notify in case of irregularity like leakage, high bursts, not at home etc 
 
 Water meter: link:https://arad.co.il/assets/M-August-2017.pdf[pulse every 1 liter, ev output] 
 iot: wemo d1,tasmota, counter  
 
-[source,python]
+[source,yaml]
 -------------------
 
 water_monitor:
@@ -350,6 +352,8 @@ Turn on light based by PIR sensor
 
 ==== Weather base irrigation
 
+see link:https://github.com/hhaim/hass/wiki/Weather-based-irrigation[wiki] for a full example 
+
 The app is responsible to to turn on the taps in specific schedule. +
 The total time is calculated from the weather component (*wb_irrigation* see below). +
 In case the tap state is changed to ON (manually) the time is taken from the input and weather queue is not updated.+ 
@@ -359,7 +363,7 @@ See here for switch and sensor defenition for this app to work link:pkgs/irrigat
 The app is located here link:apps/heat_app.py[CWBIrrigation].+
 
 .Irrigation configuration 
-[source,python]
+[source,yaml]
 -------------------
 # irrigation app
 wb_irrigation:
