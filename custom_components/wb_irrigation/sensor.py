@@ -289,6 +289,7 @@ class WeatherIrrigarion(RestoreEntity):
             self._rain_mm += rain_mm
             self._state = self._rain_mm
 
+        self._state = round(self._state,1)
         self.async_schedule_update_ha_state()     
 
     def calc_fao56 (self,owm_d):

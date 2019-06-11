@@ -1171,10 +1171,14 @@ class CWBIrrigation(HassBase):
         if "tap_open" in self.args["notify"]:
            self.my_notify(msg)
 
-        assert(tap["handle"] is None)
+        if tap["handle"]:
+           self.cancel_timer(tap["handle"])
+           tap["handle"] = None
+
         tap["handle"] = self.run_in(self.time_cb_event_stop, 
                         duration_sec, 
                         tap=tap,clear_queue=clear_queue)
+
         tap["start"] = self.read_water_sensor ()
         self.turn_on(tap["switch"])
     
