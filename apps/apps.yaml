@@ -14,10 +14,10 @@ heater_ac1:
   module: heat_app
   class: HeatApp
   schedule:
-       - { mode: a, start: { t: "17:10:00", d: 6}, end: { t: "17:11:00", d: 6} }
-       - { mode: a, start: { t: "17:15:20", d: 6}, end: { t: "23:30:40", d: 6} }
+       - { mode: a, start: { t: "18:10:00", d: 6}, end: { t: "18:11:00", d: 6} }
+       - { mode: a, start: { t: "18:15:20", d: 6}, end: { t: "23:30:40", d: 6} }
        - { mode: a, start: { t: "08:00:00", d: 7}, end: { t: "13:30:00", d: 7} }
-       - { mode: a, start: { t: "15:30:00", d: 7}, end: { t: "19:30:00", d: 7} }
+       - { mode: a, start: { t: "16:30:00", d: 7}, end: { t: "19:30:00", d: 7} }
 
        #- { mode: a, start: { t: "19:30:20", d: 1}, end: { t: "23:30:40", d: 1} }
        #- { mode: a, start: { t: "10:30:00", d: 2}, end: { t: "13:30:00", d: 2} }
@@ -34,7 +34,7 @@ heater_ac1:
      enable : input_boolean.heat_app_enable
      modes :
         a : 
-          cool: { min_o: 27.9, min_i: 27.3, max_i: 29.5}
+          cool: { min_o: 25.9, min_i: 26.3, max_i: 27.9}
           heat: { min_o: 10.0, min_i: 19.7, max_i: 21.0} 
 
 
@@ -43,7 +43,8 @@ heater_ac_up:
   module: heat_app
   class: HeatApp
   schedule:
-       - { mode: a, start: { t: "17:15:00", d: 6}, end: { t: "17:15:00", d: 6} }
+       - { mode: a, start: { t: "18:15:00", d: 6}, end: { t: "18:16:00", d: 6} }
+       - { mode: a, start: { t: "23:20:00", d: 6}, end: { t: "23:21:00", d: 6} }
        - { mode: a, start: { t: "23:30:00", d: 6}, end: { t: "08:00:00", d: 7} }
        - { mode: b, start: { t: "13:00:00", d: 7}, end: { t: "17:00:00", d: 7} }
 
@@ -60,10 +61,10 @@ heater_ac_up:
      enable : input_boolean.heat_app_enable
      modes :
         a : 
-          cool: { min_o: 27.3, min_i: 27.3, max_i: 31.1} 
+          cool: { min_o: 27.3, min_i: 27.3, max_i: 29.1} 
           heat: { min_o: 10.0, min_i: 14.9, max_i: 18.5} 
         b : 
-          cool: { min_o: 27.9, min_i: 27.3, max_i: 29.5} 
+          cool: { min_o: 25.9, min_i: 26.3, max_i: 27.9} 
           heat: { min_o: 10.0, min_i: 17.0, max_i: 18.5} 
 
 
