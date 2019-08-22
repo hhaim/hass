@@ -155,9 +155,9 @@ class HeaterSensor:
             if (it > self.c_max_i):
                 self.turn_on()
                 self.state = HeaterSensor.WAIT_FOR_COOL
-            #if self.is_turn_on ():
-            #   if ot > self.c_max:
-            #      self.state = HeaterSensor.WAIT_FOR_COOL
+            else:
+                if self.is_turn_on (): # it was turn on by user 
+                    self.state = HeaterSensor.WAIT_FOR_COOL
         else:
             if self.state == HeaterSensor.WAIT_FOR_COOL:
                 if ot < self.c_min_o:

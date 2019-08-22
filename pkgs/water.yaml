@@ -42,7 +42,7 @@ sensor:
     unit_of_measurement: 'l'
     icon: mdi:water-pump
     expire_after: 300
-    value_template: "{{ (37950 + (value/1.20))|int }}"
+    value_template: "{{ (37950 + (value/1.05))|int }}"
 
   - platform: tasmota
     name: water_total_external_norm
@@ -51,7 +51,7 @@ sensor:
     unit_of_measurement: 'l'
     icon: mdi:water-pump
     expire_after: 300
-    value_template: "{{ (198900 + (value/1.20))|int }}"
+    value_template: "{{ (198900 + (value/1.05))|int }}"
     
 
 

@@ -872,6 +872,21 @@ class CWaterMonitor(HassBase):
 
     def do_water_flow (self,new_counter):
         self.cur_water_counter = new_counter
+
+        taps_opened = False
+        max_burst = self.args["max_burst_l0"]
+
+        if self.is_taps_opened():
+            self.switch_cnt = 5;
+            taps_opened = True
+        else:
+            if self.switch_cnt > 0 :
+                self.switch_cnt -= 1;
+                taps_opened = True
+
+        if taps_opened:
+            max_burst = self.args["max_burst_l1"]
+
         self.wd = 1;
         if self.state == 'off':
             self.state = 'on'
@@ -883,22 +898,10 @@ class CWaterMonitor(HassBase):
         else:
             #self.police_notify("->water ON new count {}".format(self.cur_water_counter))
             d_water = self.cur_water_counter - self.start_water_count
-            if not self.at_home:
+            if (not self.at_home) and (not taps_opened):
                 if d_water>50:
                    self.police_notify(" water is on when you not at home {} litters".format(d_water))
-
-            max_burst = 0.0
             
-            if self.is_taps_opened():
-                self.switch_cnt = 5;
-                max_burst = self.args["max_burst_l1"]
-            else:
-                if self.switch_cnt > 0 :
-                    self.switch_cnt -= 1;
-                    max_burst = self.args["max_burst_l1"]
-                else:
-                   max_burst = self.args["max_burst_l0"]
-
             if d_water > max_burst :
                 msg = " WARNING total water {} is high in a single burst {} ".format(d_water,max_burst)
                 self.police_notify(msg)
