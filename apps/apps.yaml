@@ -52,6 +52,7 @@ heater_ac_up:
        - { mode: c, start: { t: "00:00:10", d: 3}, end: { t: "07:00:00", d: 3} }
        - { mode: c, start: { t: "00:00:10", d: 4}, end: { t: "07:00:00", d: 4} }
        - { mode: c, start: { t: "00:00:10", d: 5}, end: { t: "07:00:00", d: 5} }
+       - { mode: c, start: { t: "00:00:10", d: 6}, end: { t: "07:00:00", d: 6} }
 
        #- { mode: a, start: { t: "23:30:00", d: 1}, end: { t: "08:00:00", d: 2} }
        #- { mode: b, start: { t: "13:00:00", d: 2}, end: { t: "17:00:00", d: 2} }
@@ -69,7 +70,7 @@ heater_ac_up:
           cool: { min_o: 27.3, min_i: 27.3, max_i: 29.1} 
           heat: { min_o: 10.0, min_i: 14.9, max_i: 18.5} 
         b : 
-          cool: { min_o: 25.9, min_i: 26.3, max_i: 27.9} 
+          cool: { min_o: 32.9, min_i: 27.3, max_i: 29.2} 
           heat: { min_o: 10.0, min_i: 17.0, max_i: 18.5} 
         c : 
           cool: { min_o: 33.5, min_i: 28.2, max_i: 29.5} 
