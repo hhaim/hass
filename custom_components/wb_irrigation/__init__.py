@@ -63,6 +63,7 @@ CONF_MIN_EV = "min_ev"
 CONF_DEBUG = "debug"
 CONF_FAO56_SENSOR = "fao56"
 CONF_RAIN_SENSOR = "rain"
+CONF_EXTERNAL_SENSOR_RAIN_1h ="external_rain_1h"
 
 DATA_KEY = 'wb_irrigation.devices'
 
@@ -92,6 +93,7 @@ CONFIG_SCHEMA = vol.Schema(
            vol.Optional(CONF_LONGITUDE): cv.longitude,
            vol.Optional(CONF_ELEVATION): vol.Coerce(int),
            vol.Optional(CONF_DEBUG,default=False): cv.boolean,
+           vol.Optional(CONF_EXTERNAL_SENSOR_RAIN_1h):cv.string,
            vol.Required(CONF_RAIN_FACTOR): vol.Coerce(float),
            vol.Required(CONF_MAX_EV): vol.Coerce(float),
            vol.Required(CONF_MIN_EV): vol.Coerce(float),

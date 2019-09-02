@@ -19,7 +19,7 @@ from ..wb_irrigation.pyeto import convert,fao
 from datetime import timedelta,datetime
 from typing import Optional
 import voluptuous as vol
-from ..wb_irrigation import (TYPE_EV_FAO56_DAY,TYPE_RAIN,TYPE_RAIN_DAY,TYPE_EV_DAY,TYPE_EV_RAIN_BUCKET,CONF_RAIN_FACTOR,CONF_TAPS,CONF_MAX_EV,CONF_MIN_EV,CONF_DEBUG,CONF_FAO56_SENSOR,CONF_RAIN_SENSOR)
+from ..wb_irrigation import (TYPE_EV_FAO56_DAY,TYPE_RAIN,TYPE_RAIN_DAY,TYPE_EV_DAY,TYPE_EV_RAIN_BUCKET,CONF_RAIN_FACTOR,CONF_TAPS,CONF_MAX_EV,CONF_MIN_EV,CONF_DEBUG,CONF_FAO56_SENSOR,CONF_RAIN_SENSOR,CONF_EXTERNAL_SENSOR_RAIN_1h)
 from homeassistant.core import callback
 from homeassistant.components import sensor
 from homeassistant.components.sensor import DEVICE_CLASSES_SCHEMA
@@ -126,6 +126,10 @@ class WeatherIrrigarion(RestoreEntity):
             self._state = 500.0
             self._sensor_id = conf.get(CONF_FAO56_SENSOR)
             self._rain_sensor_id = conf.get(CONF_RAIN_SENSOR) 
+        
+        if self._type in (TYPE_RAIN,TYPE_RAIN_DAY) :
+            self._sensor_id = conf.get(CONF_EXTERNAL_SENSOR_RAIN_1h)
+    
         self.reset_data ()
 
         sync_min = 58
@@ -278,6 +282,12 @@ class WeatherIrrigarion(RestoreEntity):
             # not acurate, in case of snow 
             rain_mm = rain_mm + 50
 
+        if self._type in (TYPE_RAIN,TYPE_RAIN_DAY) :
+            if self._sensor_id:
+                rain_state = self.hass.states.get(self._sensor_id)
+                if rain_state :
+                   rain_mm = float(rain_state.state)
+                
         if self._type == TYPE_EV_FAO56_DAY:
              f = self.get_fao56_factor (d)
              if f > 0.0:
