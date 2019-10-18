@@ -5,12 +5,10 @@ homeassistant:
       icon: mdi:television-classic
 
 
-
 switch:
   - platform: tasmota
     name: TV
-    stopic: p0
-
+    stopic: pow0
 
 sensor:
 

@@ -137,7 +137,6 @@ views:
         show_header_toggle: true
         entities:
            - group.cpu
-           - switch.power0
            - input_boolean.simple_switch0
            - input_boolean.disable_ap_c7
            - input_boolean.gateway_sound_enable
