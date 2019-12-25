@@ -14,7 +14,8 @@ homeassistant:
   # Customization file
   auth_providers:
       - type: homeassistant
-      #- type: legacy_api_password
+      - type: legacy_api_password
+        api_password: !secret http_password
   customize: !include customize.yaml
 
   packages: !include_dir_named pkgs
@@ -49,12 +50,12 @@ mqtt:
 
 http:
   # Secrets are defined in the file secrets.yaml
-  api_password: !secret http_password
+  #api_password: !secret http_password
   # Uncomment this if you are using SSL/TLS, running in Docker container, etc.
   # base_url: example.duckdns.org:8123
-  trusted_networks:
-        - 127.0.0.1
-        - 10.0.0.0/24
+  #trusted_networks:
+  #      - 127.0.0.1
+  #      - 10.0.0.0/24
 
 # Checks for available updates
 # Note: This component will send some information about your system to
