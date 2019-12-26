@@ -55,8 +55,8 @@ Used for defining Tasmota sensors/switch/binary sensors
 
 ==== Sync to version 
 
-1. Home Assistant: *87.1* 
-2. AppDaemon: *3.0.2* 
+1. Home Assistant: *0.103.3* 
+2. AppDaemon: *3.0.3* 
 
 ==== How to install custom components into your setup 
 
