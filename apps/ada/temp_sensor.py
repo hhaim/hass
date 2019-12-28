@@ -171,16 +171,22 @@ class HeaterSensor:
     def do_heat (self,it,ot):
         # the states
         if self.state == HeaterSensor.WAIT_FOR_HEAT:
-            if (it < self.c_min_i):
-                self.turn_on()
-                self.state = HeaterSensor.WAIT_FOR_COOL
+            # the state should be turn off 
+            if self.is_turn_on (): # by user 
+                self.state = HeaterSensor.WAIT_FOR_COOL 
+            else:    
+                if (it < self.c_min_i):
+                    self.turn_on()
+                    self.state = HeaterSensor.WAIT_FOR_COOL
         else:
             if self.state == HeaterSensor.WAIT_FOR_COOL:
-                if ot > self.c_min_o:
-                    if it > self.c_max_i:
+                    if not self.is_turn_on () : # by user 
                         self.state = HeaterSensor.WAIT_FOR_HEAT
-                        self.notify ("LOW STATE ")
-                        self.turn_off()
+                    else:    
+                        if it > self.c_max_i:
+                            self.state = HeaterSensor.WAIT_FOR_HEAT
+                            self.notify ("LOW STATE ")
+                            self.turn_off()
             else:
                 assert(0); # not possible 
 
