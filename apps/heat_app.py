@@ -1075,6 +1075,7 @@ class CWBIrrigation(HassBase):
     #output: 
     def initialize(self):
         self.log("start irrigation app");
+        self.h ={}
         self.init_all_taps()
           
 
@@ -1087,11 +1088,13 @@ class CWBIrrigation(HassBase):
              self.turn_off(tap["switch"])
              self.register_call_backs(tap)
              self.listen_state(self.do_button_change,tap["switch"],tap=tap)
-             tap["handle"] = None
+             self.h[tap["name"]] = None
 
     def do_button_change (self,entity, attribute, old, new, kwargs):
         tap = kwargs['tap']
-        if tap["handle"] is None:
+        h = self.h[tap["name"]] 
+
+        if h is None:
            # manual start 
             if new == "on":
                 duration_sec = float(self.get_state(tap["manual_duration"]))*60.0
@@ -1146,7 +1149,7 @@ class CWBIrrigation(HassBase):
                          
         if kwargs['clear_queue']:
            self.reset_queue (tap)
-        tap["handle"] = None    
+        self.h[tap["name"]] = None   
 
     def is_water_sensor_defined (self):
        if "water_sensor" in self.args:
@@ -1174,11 +1177,13 @@ class CWBIrrigation(HassBase):
         if "tap_open" in self.args["notify"]:
            self.my_notify(msg)
 
-        if tap["handle"]:
-           self.cancel_timer(tap["handle"])
-           tap["handle"] = None
+        h = self.h[tap["name"]] 
 
-        tap["handle"] = self.run_in(self.time_cb_event_stop, 
+        if h:
+           self.cancel_timer(h)
+           self.h[tap["name"]] = None 
+
+        self.h[tap["name"]] = self.run_in(self.time_cb_event_stop, 
                         duration_sec, 
                         tap=tap,clear_queue=clear_queue)
 
