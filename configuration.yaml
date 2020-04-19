@@ -102,6 +102,16 @@ duckdns:
   domain: !secret duckdns_domain 
   access_token: !secret duckdns_tocken
 
+# Example configuration.yaml entry
+speedtestdotnet:
+  scan_interval:
+    minutes: 60
+  monitored_conditions:
+    - ping
+    - download
+    - upload
+
+
 # Text to speech
 tts:
   - platform: google
