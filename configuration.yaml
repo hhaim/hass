@@ -98,6 +98,9 @@ lovelace:
 sensor:
   - platform: uptime
 
+duckdns:
+  domain: !secret duckdns_domain 
+  access_token: !secret duckdns_tocken
 
 # Text to speech
 tts:
