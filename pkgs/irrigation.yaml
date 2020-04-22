@@ -109,7 +109,19 @@ variable:
            friendly_name: 'last duration pump 1'
            unit_of_measurement: "min"
 
-    
+      wbi_schedule_p1:
+        value: 0
+        restore: true
+        attributes:
+           friendly_name: 'P1 Schedule'
+
+      wbi_schedule_p2:
+        value: 0
+        restore: true
+        attributes:
+           friendly_name: 'P2 Schedule'
+
+
 sensor:
 
   - platform: accumulator
@@ -124,4 +136,77 @@ sensor:
     state_on: 'on'
     state_off: 'off'
 
+    #alternative to accumulator above
+  - platform: history_stats
+    name: wbi_p1_history_today
+    entity_id: switch.wbi_p1
+    state: 'on'
+    type: time
+    start: '{{ now().replace(hour=0, minute=0, second=0) }}'
+    end: '{{ now() }}'
+  - platform: history_stats
+    name: wbi_p1_history_yesterday
+    entity_id: switch.wbi_p1
+    state: 'on'
+    type: time
+    end: '{{ now().replace(hour=0, minute=0, second=0) }}'
+    duration:
+      hours: 24
+  - platform: history_stats
+    name: wbi_p1_history_week
+    entity_id: switch.wbi_p1
+    state: 'on'
+    type: time
+    start: '{{ as_timestamp( now().replace(hour=0, minute=0, second=0) ) - now().weekday() * 86400 }}'
+    end: '{{ now() }}'
+  - platform: history_stats
+    name: wbi_p1_history_month
+    entity_id: switch.wbi_p1
+    state: 'on'
+    type: time
+    start: '{{ now().replace(day=1).replace(hour=0).replace(minute=0).replace(second=0) }}'
+    end: '{{ now() }}'
+  - platform: history_stats
+    name: wbi_p1_history_year
+    entity_id: switch.wbi_p1
+    state: 'on'
+    type: time
+    start: '{{ now().replace(month=1).replace(day=1).replace(hour=0).replace(minute=0).replace(second=0) }}'
+    end: '{{ now() }}'
 
+  - platform: history_stats
+    name: wbi_p2_history_today
+    entity_id: switch.wbi_p2
+    state: 'on'
+    type: time
+    start: '{{ now().replace(hour=0, minute=0, second=0) }}'
+    end: '{{ now() }}'
+  - platform: history_stats
+    name: wbi_p2_history_yesterday
+    entity_id: switch.wbi_p2
+    state: 'on'
+    type: time
+    end: '{{ now().replace(hour=0, minute=0, second=0) }}'
+    duration:
+      hours: 24
+  - platform: history_stats
+    name: wbi_p2_history_week
+    entity_id: switch.wbi_p2
+    state: 'on'
+    type: time
+    start: '{{ as_timestamp( now().replace(hour=0, minute=0, second=0) ) - now().weekday() * 86400 }}'
+    end: '{{ now() }}'
+  - platform: history_stats
+    name: wbi_p2_history_month
+    entity_id: switch.wbi_p2
+    state: 'on'
+    type: time
+    start: '{{ now().replace(day=1).replace(hour=0).replace(minute=0).replace(second=0) }}'
+    end: '{{ now() }}'
+  - platform: history_stats
+    name: wbi_p2_history_year
+    entity_id: switch.wbi_p2
+    state: 'on'
+    type: time
+    start: '{{ now().replace(month=1).replace(day=1).replace(hour=0).replace(minute=0).replace(second=0) }}'
+    end: '{{ now() }}'

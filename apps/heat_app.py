@@ -1118,10 +1118,30 @@ class CWBIrrigation(HassBase):
             days.append(ada.schedule.day_of_week(day))
         days=str(days)[1:-1].replace("'", "").replace(" ","")    
         self.log("irrigation init {} {} {} ".format(tap["name"],days,start_time))
+        self.var_set(tap["tap_schedule"],(days,start_time)) # tap_schedule: variable.wbi_schedule_pX -> fill with a schedule in order to show it in UI
         self.run_daily(self.time_cb_event, 
             start_time, 
             constrain_days = days,
             tap=tap)
+        #run next irrigation duration calcs hourly in order to show it in UI 
+        checktime = datetime.time(0, 0, 0)
+        self.run_hourly(self.calc_next_duration, 
+            checktime, 
+            tap=tap)
+
+    #set manual_duration via service to make it visible in UI
+    def set_manual_duration(self,tap,val):
+       self.call_service('input_number/set_value', entity_id=tap["manual_duration"],value=val)
+
+    #calculate next irrigation duration without runninr irrigation, just calculate
+    def calc_next_duration(self,kwargs):
+        tap = kwargs['tap']
+        queue = float(self.get_state(tap["queue_sensor"]))
+        duration_min = self.read_ent_as_float(tap["m_week_duration_min"])
+        irrigation_time_min = int((-queue) *  duration_min / self.max_ev_week)
+        if irrigation_time_min < 0: irrigation_time_min = 0
+        # self.log("Next irrigation planned duration: tap {},{} min".format(tap["name"],irrigation_time_min))  # log if you wish to see in in the log
+        self.set_manual_duration(tap, irrigation_time_min)
 
     def time_cb_event_stop_verify(self,kwargs):
         tap = kwargs['tap']
@@ -1173,6 +1193,7 @@ class CWBIrrigation(HassBase):
     def start_tap (self,tap,duration_sec,desc,clear_queue):
         duration_min = int(duration_sec/60.0)
         msg = "irrigation time tap {} {} {} min".format(tap["name"],desc,duration_min)
+        self.log("irrigation time tap {} {} {} min".format(tap["name"],desc,duration_min)) #logging irrigation time just in case you are courious ;-)
         self.var_inc (tap["time_sensor"],duration_min)
         if "tap_open" in self.args["notify"]:
            self.my_notify(msg)
@@ -1214,6 +1235,7 @@ class CWBIrrigation(HassBase):
 
         if irrigation_time_min > duration_min:
            self.my_notify(" ERROR irrigation time is high {} min ".format(irrigation_time_min))
+           self.log(" ERROR irrigation time is high {} min ".format(irrigation_time_min)) #logging error 
            irrigation_time_min = duration_min
 
         self.start_tap(tap, irrigation_time_min * 60, "timer",True)
