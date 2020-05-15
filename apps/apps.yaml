@@ -28,7 +28,7 @@ heater_ac1:
        #- { mode: a, start: { t: "16:30:00", d: 3}, end: { t: "23:30:00", d: 3} }
        
   heater:
-     mode: heat  #heat # cool 
+     mode: cool  #heat #cool  
      switch: switch.ac1
      sensor_inside :  variable.heat_index0
      sensor_outside : variable.heat_index_outside0
@@ -64,7 +64,7 @@ heater_ac_up:
        #- { mode: b, start: { t: "13:00:00", d: 3}, end: { t: "17:00:00", d: 3} }
        
   heater:
-     mode: heat #heat # cool 
+     mode: cool #heat #cool 
      switch: switch.ac2
      sensor_inside :  variable.heat_index1
      sensor_outside : variable.heat_index_outside0
