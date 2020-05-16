@@ -35,10 +35,10 @@ heater_ac1:
      enable : input_boolean.heat_app_enable
      modes :
         a : 
-          cool: { min_o: 32.9, min_i: 27.1, max_i: 27.9}
+          cool: { min_o: 32.9, min_i: 25.3, max_i: 26.5}
           heat: { min_o: 10.0, min_i: 19.7, max_i: 21.0} 
         b : 
-          cool: { min_o: 34.0, min_i: 28.3, max_i: 29.5}
+          cool: { min_o: 34.0, min_i: 25.3, max_i: 26.5}
           heat: { min_o: 10.0, min_i: 19.7, max_i: 21.0} 
 
 
@@ -77,7 +77,7 @@ heater_ac_up:
           cool: { min_o: 37.9, min_i: 27.3, max_i: 29.2} 
           heat: { min_o: 10.0, min_i: 17.0, max_i: 18.5} 
         c : 
-          cool: { min_o: 37.5, min_i: 28.8, max_i: 29.9} 
+          cool: { min_o: 37.5, min_i: 26.8, max_i: 27.9} 
           heat: { min_o: 10.0, min_i: 14.9, max_i: 18.5} 
 
 
