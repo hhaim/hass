@@ -57,6 +57,9 @@ views:
           - entity: variable.heat_index1
             name: Up
             icon: mdi:oil-temperature
+          - entity: variable.heat_index2
+            name: Base
+            icon: mdi:oil-temperature
           - entity: variable.heat_index_outside0
             name: Outside
             icon: mdi:oil-temperature
@@ -77,6 +80,7 @@ views:
           - switch.tv
           - switch.ac1
           - switch.ac2
+          - switch.ac3
           - input_boolean.tracker_neta_enabled
           - media_player.main
 
@@ -108,13 +112,16 @@ views:
         entities:
           - variable.heat_index0
           - variable.heat_index1
+          - variable.heat_index2
           - variable.heat_index_outside0
           - switch.ac1
           - switch.ac2
+          - switch.ac3
       - type: entities
         title: Automation
         entities:
           - input_boolean.heat_app_enable
+          - input_boolean.heat_app_enable_base
           - input_boolean.heat_timer_0
           - input_number.heat_timer_time
       - type: history-graph
@@ -123,9 +130,11 @@ views:
         entities:
           - variable.heat_index0
           - variable.heat_index1
+          - variable.heat_index2
           - variable.heat_index_outside0
           - switch.ac1
           - switch.ac2
+          - switch.ac3
 
   - title: Debug
     id: debug

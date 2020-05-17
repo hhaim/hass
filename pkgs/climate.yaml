@@ -14,6 +14,13 @@ variable:
           friendly_name: 'Heat Index second floor'
           unit_of_measurement: "C"
 
+      heat_index2:
+        value: 0
+        restore: true
+        attributes:
+          friendly_name: 'Heat Index basement floor'
+          unit_of_measurement: "C"
+
       heat_index_outside0:
         value: 0
         restore: true
@@ -40,13 +47,25 @@ sensor:
   - platform: mqtt
     name: "temp1"
     state_topic: "tele/temp0/SENSOR"
-    value_template: "{{ value_json['AM2301'].Temperature }}"
+    value_template: "{{ value_json['SI7021'].Temperature }}"
     unit_of_measurement: "C"
 
   - platform: mqtt
     name: "hum1"
     state_topic: "tele/temp0/SENSOR"
-    value_template: "{{ value_json['AM2301'].Humidity }}"
+    value_template: "{{ value_json['SI7021'].Humidity }}"
+    unit_of_measurement: "%"
+
+  - platform: mqtt
+    name: "temp2"
+    state_topic: "tele/temp2/SENSOR"
+    value_template: "{{ value_json['SI7021'].Temperature }}"
+    unit_of_measurement: "C"
+
+  - platform: mqtt
+    name: "hum2"
+    state_topic: "tele/temp2/SENSOR"
+    value_template: "{{ value_json['SI7021'].Humidity }}"
     unit_of_measurement: "%"
 
   - platform: darksky

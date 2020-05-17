@@ -6,12 +6,20 @@ homeassistant:
       friendly_name: Start Automation 
       icon: mdi:air-conditioner
 
+    input_boolean.heat_app_enable_base:
+      friendly_name: Start Automation Basement
+      icon: mdi:air-conditioner
+
     switch.ac1:
       friendly_name: A/C-Down
       icon: mdi:air-conditioner
 
     switch.ac2:
       friendly_name: A/C-Up
+      icon: mdi:air-conditioner
+
+    switch.ac3:
+      friendly_name: A/C-Base
       icon: mdi:air-conditioner
 
 group: 
@@ -21,9 +29,11 @@ group:
     entities:
        - variable.heat_index0
        - variable.heat_index1
+       - variable.heat_index2
        - variable.heat_index_outside0
        - switch.ac1
        - switch.ac2
+       - switch.ac3
        - switch.tv
        - media_player.main
        - media_player.kodi
@@ -42,9 +52,10 @@ group:
 input_boolean:
   heat_app_enable:
     name: Enable AC/1 Heater
+  heat_app_enable_base:
+    name: Enable AC/Base Heater
   heat_timer_0:
     name: Enable timer for heat
-
 
 input_number:
   heat_timer_time:
@@ -65,6 +76,11 @@ switch:
     index: '1'
     stopic: s1
 
+  # basement 
+  - platform: tasmota
+    name: ac3  
+    index: '1'
+    stopic: temp2
 
 sensor:
 
@@ -80,6 +96,11 @@ sensor:
     state_on: 'on'
     state_off: 'off'
 
+  - platform: accumulator
+    name: ac3_hours
+    entity_id: switch.ac3
+    state_on: 'on'
+    state_off: 'off'
 
 
 
