@@ -79,7 +79,6 @@ switch:
   # basement 
   - platform: tasmota
     name: ac3  
-    index: '1'
     stopic: temp2
 
 sensor:
