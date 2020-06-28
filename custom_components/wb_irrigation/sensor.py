@@ -10,6 +10,7 @@ sensors for
 the rain_mm is based on actual information from openweathermap and in some cases estimate (in case there is no information)
 
 """
+import asyncio
 import logging
 import json
 import re
@@ -121,6 +122,7 @@ class WeatherIrrigarion(RestoreEntity):
         self._api = conf.get(CONF_API_KEY)
         self._max_ev = conf.get(CONF_MAX_EV)
         self._min_ev = conf.get(CONF_MIN_EV)
+        self._update_lock = asyncio.Lock()
         self._state = 0.0
         if self._type == TYPE_EV_RAIN_BUCKET:
             self._state = 500.0
@@ -182,6 +184,7 @@ class WeatherIrrigarion(RestoreEntity):
            _LOGGER.warning("Failed to get OWM URL {}".format(r.text))
            pass 
         return d;
+
 
 
     async def _async_update_last_day(self,time=None):
@@ -250,6 +253,12 @@ class WeatherIrrigarion(RestoreEntity):
              return factor           
     
     async def _async_update_every_hour(self,time=None):
+        async with self._update_lock:
+            await self.hass.async_add_executor_job(self._update_every_hour)
+            self.async_schedule_update_ha_state()     
+
+
+    def _update_every_hour(self):
         """Fetch the  status from URL"""
 
         d = self.get_data()
@@ -300,7 +309,6 @@ class WeatherIrrigarion(RestoreEntity):
             self._state = self._rain_mm
 
         self._state = round(self._state,1)
-        self.async_schedule_update_ha_state()     
 
     def calc_fao56 (self,owm_d):
            day_of_year = datetime.now().timetuple().tm_yday
