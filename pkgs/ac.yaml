@@ -11,16 +11,24 @@ homeassistant:
       icon: mdi:air-conditioner
 
     switch.ac1:
-      friendly_name: A/C-Down
+      friendly_name: S-A/C-Down 
       icon: mdi:air-conditioner
 
     switch.ac2:
-      friendly_name: A/C-Up
+      friendly_name: S-A/C-Up 
       icon: mdi:air-conditioner
 
     switch.ac3:
       friendly_name: A/C-Base
       icon: mdi:air-conditioner
+
+    input_boolean.ac1_input:  
+      icon: mdi:air-conditioner
+      friendly_name: A/C-Down 
+
+    input_boolean.ac2_input:  
+      icon: mdi:air-conditioner
+      friendly_name: A/C-Up 
 
 group: 
 
@@ -31,9 +39,10 @@ group:
        - variable.heat_index1
        - variable.heat_index2
        - variable.heat_index_outside0
+       - input_boolean.ac1_input
+       - input_boolean.ac2_input
        - switch.ac1
        - switch.ac2
-       - switch.ac3
        - switch.tv
        - media_player.main
        - media_player.kodi
@@ -56,6 +65,10 @@ input_boolean:
     name: Enable AC/Base Heater
   heat_timer_0:
     name: Enable timer for heat
+  ac1_input:  
+    name: A/C-Down
+  ac2_input:  
+    name: A/C-Up
 
 input_number:
   heat_timer_time:

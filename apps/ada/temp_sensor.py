@@ -101,9 +101,15 @@ class HeaterSensor:
         self.c_min_i=None # min_in temperator to start 
 
         self.state = HeaterSensor.DISABLED
+        
         self.sensor_inisde_handle=None
         self.sensor_outside_handle=None
         self.ad.listen_state(self.do_button, self.cfg["enable"])
+        self.ad.listen_state(self.do_input, self.cfg["input"])
+        self.user_input = self.ad.get_state(self.cfg["input"])
+        if self.user_input == "on":
+            self.do_input(None, None, "off", "on",None)
+
 
     def is_enabled (self):
         s=self.ad.get_state(self.cfg["enable"]);
@@ -125,30 +131,64 @@ class HeaterSensor:
     def get_temp_outside (self):
         return self.get_float("sensor_outside",-1.0)
 
+    def disable_state(self):
+        if self.sensor_inisde_handle:
+            self.ad.cancel_listen_state(self.sensor_inisde_handle)
+            self.sensor_inisde_handle=None
+
+        if self.sensor_outside_handle:
+            self.ad.cancel_listen_state(self.sensor_outside_handle)
+            self.sensor_outside_handle=None
+
     def set_process(self,enable):
         if enable:
             if self.is_enabled():
+              self.disable_state()
               self.state = HeaterSensor.WAIT_FOR_HEAT
               self.sensor_inisde_handle = self.ad.listen_state(self.do_check_temperator, self.cfg["sensor_inside"])
               self.sensor_outside_handle= self.ad.listen_state(self.do_check_temperator, self.cfg["sensor_outside"])
               self.do_check_temperator(None, None, None, None,None)
         else:
-            if self.sensor_inisde_handle:
-               self.ad.cancel_listen_state(self.sensor_inisde_handle)
-               self.sensor_inisde_handle=None
-
-            if self.sensor_outside_handle:
-               self.ad.cancel_listen_state(self.sensor_outside_handle)
-               self.sensor_outside_handle=None
-
+            self.disable_state()
             self.state = HeaterSensor.DISABLED
             self.turn_off()
 
+    def turn_off_input(self):
+        sw=self.cfg["input"];
+        self.ad.turn_off(sw)
 
     def do_button(self,entity, attribute, old, new, kwargs):
         msg="turn on by user" if new=="on" else "turn off by user"
         self.notify (msg)
 
+    def do_input(self,entity, attribute, old, new, kwargs):
+        msg="input changed by user" if new=="on" else "turn off by user"
+        self.notify (msg)
+        if new=="on":
+            # off->on
+            if self.state == HeaterSensor.DISABLED:
+                if self.is_enabled():
+                    mode=self.cfg["mode"]
+                    t=self.cfg["modes"][self.cfg["default"]][mode]
+                    self.ad.log(t)
+                    self.c_min_i=t["min_i"]
+                    self.c_max_i=t["max_i"]
+                    self.c_min_o=t["min_o"]
+                    self.ad.log(" start process" +str(t));
+                    self.set_process(True)
+                else:    
+                    self.turn_on()
+        else:
+            # on->off 
+            if self.is_enabled():
+                if self.state != HeaterSensor.DISABLED:
+                    self.c_min_i=None
+                    self.c_max_i=None
+                    self.c_min_o=None
+                    self.ad.log(" stop process");
+                    self.set_process(False)
+            else:
+                    self.turn_off()
 
     def do_cool (self,it,ot):
         if self.state == HeaterSensor.WAIT_FOR_HEAT:
@@ -226,7 +266,7 @@ class HeaterSensor:
         sw=self.cfg["switch"];
         state='on' if self.is_turn_on() else 'off'
         t=datetime.datetime.now().strftime("%H:%M:%S")
-        self.ad.notify("{0} Heater {1}, sw:{2}, current_state:{3}, in:{4}, out:{5}, min_o:{6}, min:{7},max:{8} ".format(t,msg,sw,state,it,ot,self.c_min_o,self.c_min_i,self.c_max_i))
+        self.ad.log("{0} Heater {1}, sw:{2}, current_state:{3}, in:{4}, out:{5}, min_o:{6}, min:{7},max:{8} ".format(t,msg,sw,state,it,ot,self.c_min_o,self.c_min_i,self.c_max_i))
 
     def turn_on (self):
         if self.is_enabled():
@@ -265,6 +305,7 @@ class HeaterSensor:
             self.c_min_o=None
             self.ad.log(" stop process");
             self.set_process(False)
+            self.turn_off_input()
 
         
 

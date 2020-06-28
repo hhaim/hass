@@ -37,7 +37,6 @@ views:
            - device_tracker.daniel_phone2
            - variable.tracker_neta
 
-
         state_filter:
           - 'home'
         card:
@@ -78,9 +77,8 @@ views:
         show_header_toggle: true
         entities:
           - switch.tv
-          - switch.ac1
-          - switch.ac2
-          - switch.ac3
+          - input_boolean.ac1_input
+          - input_boolean.ac2_input
           - input_boolean.tracker_neta_enabled
           - media_player.main
 
@@ -113,10 +111,9 @@ views:
           - variable.heat_index0
           - variable.heat_index1
           - variable.heat_index2
+          - input_boolean.ac1_input
+          - input_boolean.ac2_input
           - variable.heat_index_outside0
-          - switch.ac1
-          - switch.ac2
-          - switch.ac3
       - type: entities
         title: Automation
         entities:
@@ -124,6 +121,8 @@ views:
           - input_boolean.heat_app_enable_base
           - input_boolean.heat_timer_0
           - input_number.heat_timer_time
+          - switch.ac1
+          - switch.ac2
       - type: history-graph
         title: graph 
         hours_to_show : 24
@@ -134,7 +133,6 @@ views:
           - variable.heat_index_outside0
           - switch.ac1
           - switch.ac2
-          - switch.ac3
 
   - title: Debug
     id: debug
