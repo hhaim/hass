@@ -147,7 +147,6 @@ views:
         entities:
            - group.cpu
            - input_boolean.simple_switch0
-           - input_boolean.disable_ap_c7
            - input_boolean.gateway_sound_enable
            - input_number.gateway_sound_id
            - binary_sensor.cube_158d000276ed22
@@ -277,7 +276,6 @@ views:
             - binary_sensor.alarm16
             - binary_sensor.smoke_sensor_158d00024e008a
             - binary_sensor.smoke_sensor_158d000287ae79
-            - binary_sensor.water_leak_sensor_158d000256cd9d
             - binary_sensor.water_leak_sensor_158d00023385f2
             - binary_sensor.water_leak_sensor_158d000256ce72
             - binary_sensor.water_leak_sensor_158d000256ce93
@@ -307,7 +305,6 @@ views:
           - input_number.boiler_temp_max
           - sensor.boiler_total_hours
           - sensor.boiler_total_hours2
-          - sensor.stats_mean
       - type: history-graph
         title: graph 
         hours_to_show : 24
