@@ -42,7 +42,8 @@ async def async_setup_scanner(hass, config, async_see, discovery_info=None):
     qos = config[CONF_QOS]
 
     @callback
-    def async_message_received(topic, payload, qos, dev_id=None):
+    def async_message_received(msg):
+        payload = msg.payload
         """Handle received MQTT message."""
 
         try:

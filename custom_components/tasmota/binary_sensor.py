@@ -135,11 +135,13 @@ class MqttTasmotaAlarmBinarySensor(MqttAvailability, BinarySensorDevice):
         await MqttAvailability.async_added_to_hass(self)
 
         @callback
-        def result_received(topic, payload, qos):
+        def result_received(msg):
+            payload = msg.payload
             self.update_mqtt_results(payload,'MCP230XX_INT')
 
         @callback
-        def tele_received(topic, payload, qos):
+        def tele_received(msg):
+            payload = msg.payload
             self.update_mqtt_results(payload,'MCP230XX')
 
         await mqtt.async_subscribe(

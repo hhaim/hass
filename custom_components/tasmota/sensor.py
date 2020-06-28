@@ -136,11 +136,13 @@ class MqttTasmotaCounter(MqttAvailability,  RestoreEntity):
         await MqttAvailability.async_added_to_hass(self)
 
         @callback
-        def tele_received(topic, payload, qos):
+        def tele_received(msg):
+            payload = msg.payload
             self.update_mqtt_sensor(payload)
 
         @callback
-        def state_received(topic, payload, qos):
+        def state_received(msg):
+            payload = msg.payload
             self.update_mqtt_state(payload)
 
         await mqtt.async_subscribe(
