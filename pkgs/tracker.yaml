@@ -2,6 +2,8 @@
 input_boolean:
   disable_ap_c7:
     name: Disable admin 
+  tracker_neta_enabled:
+    name: neta_at_home
 
 device_tracker:
    - platform: ping
@@ -74,9 +76,6 @@ variable:
            unit_of_measurement: ""
            icon: mdi:human-child 
 
-input_boolean:
-  tracker_neta_enabled:
-    name: neta_at_home
 
 group: 
 

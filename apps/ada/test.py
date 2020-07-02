@@ -224,7 +224,9 @@ class TimeRec:
             return s
 
 def convToDateObject(s):
-    o = datetime.datetime.strptime(s, '%Y-%m-%dT%H:%M:%S%z')
+    if len(s) > 19:
+        s=s[:19]
+    o = datetime.datetime.strptime(s, '%Y-%m-%dT%H:%M:%S')
     return o
 
 
@@ -311,19 +313,22 @@ class CalandarDb:
 
 
 def test3 ():
-    #c = CalandarDb()
-    #c.set_cord(32.26,34.905)
-    #c.set_tz("Asia/Jerusalem")
-    #c.load()
-    #c.save_to_file("c.data")
-    c1 = CalandarDb()
-    c1.load_from_file("c.data")
-    c1._dump()
+    c = CalandarDb()
+    c.set_cord(32.26,34.905)
+    c.set_tz("Asia/Jerusalem")
+    c.load()
+    c.save_to_file("c.data")
+    #c1 = CalandarDb()
+    #c1.load_from_file("c.data")
+    c._dump()
     #61 : [2021-02-05 : 2021-02-06] n,                     1 day, 1:19:00 
-    c1._update_list(convToDateObject("2021-02-06T18:07:00+02:00"))
+    now = datetime.datetime.now()
+    print(now)
+    #now1 = convToDateObject("2021-02-06T18:07:00+02:00")
+    c._update_list(now)
     print("========\n")
-    print(" state {} \n".format(c1.state))
-    c1._dump()
+    print(" state {} \n".format(c.state))
+    c._dump()
 
 
 
@@ -387,20 +392,30 @@ def test4():
 #   print(temp.calc_heat_index_celsius(16.0+f, 70.0),16+f,)
 #main()
 def test():
-    s="2020-05-30T20:31:00+03:00"
-    o = datetime.datetime.strptime(s, '%Y-%m-%dT%H:%M:%S%z')
-    s1="2020-06-30T20:31:00+03:00"
-    o1 = datetime.datetime.strptime(s1, '%Y-%m-%dT%H:%M:%S%z')
-    d = o1 - o
-    if d > datetime.timedelta(days=1):
-        print(" hey")
-    print(d)
+    #s="2020-07-03T20:31:00+03:00"
+    s="2020-01-03T16:19:00+02:00"
+    #try 
+    if len(s)>19:
+        s=s[:19]
+    print(s)    
+    o = datetime.datetime.strptime(s, '%Y-%m-%dT%H:%M:%S')
+    #o = datetime.datetime.strptime(s, '%Y-%m-%dT%H:%M:%S')
+    #except 
+
+    #print(o)
+    #print(o.strftime("%a - %H:%M"))
+    #s1="2020-06-30T20:31:00+03:00"
+    #o1 = datetime.datetime.strptime(s1, '%Y-%m-%dT%H:%M:%S%z')
+    #d = o1 - o
+    #if d > datetime.timedelta(days=1):
+    #    print(" hey")
+    #print(d)
 
     #print('Date:', o.date().year)
     #print('Time:', o.time())
     #print(o.weekday())
 
-test()
-#test3()
+#test()
+test3()
 #main()
 #print("sd")

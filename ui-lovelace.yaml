@@ -5,6 +5,9 @@
 #    type: js
 #  - url: /local/my-webfont.css
 #    type: css
+resources:
+  - url: /local/multiple-entity-row.js?v=3.2.0
+    type: module
 
 # Optional background for all views. Check https://developer.mozilla.org/en-US/docs/Web/CSS/background for more examples.
 background: center / cover no-repeat url("/background.png") fixed
@@ -73,9 +76,14 @@ views:
           - entity: sensor.wb_irrigation_rain
             name: Rain
 
+
       - type: entities
         show_header_toggle: true
         entities:
+          - entity: hebcal.hebcal
+            type: custom:multiple-entity-row
+            secondary_info: 
+               attribute: start_format
           - switch.tv
           - input_boolean.ac1_input
           - input_boolean.ac2_input
@@ -362,4 +370,6 @@ views:
           - sensor.wb_irrigation_rain_day
           - sensor.wb_irrigation_p1
           - sensor.wb_irrigation_p2
+
+
 

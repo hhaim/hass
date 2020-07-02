@@ -1,8 +1,8 @@
 {
-    "domain": "hebcal",
-    "name": "hebcal",
-    "documentation": "https://github.com/hhaim/hass",
-    "codeowners": ["hhaim"],
-    "quality_scale": "external"
+  "domain": "hebcal",
+  "name": "hebcal",
+  "documentation": "",
+  "requirements": [],
+  "dependencies": [],
+  "codeowners": []
 }
-  

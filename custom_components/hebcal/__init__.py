@@ -90,8 +90,11 @@ async def async_setup(hass, config):
 
 HEBCAL_URL = 'https://www.hebcal.com/hebcal/?i=on&b=28&m=50&v=1&cfg=json&maj=on&year={}&c=on&geo=pos&latitude={}&longitude={}&tzid={}'
 
+# to be compatiable with python 3.6,%z can't be used 
 def convToDateObject(s):
-    o = datetime.datetime.strptime(s, '%Y-%m-%dT%H:%M:%S%z')
+    if len(s) > 19:
+        s=s[:19]
+    o = datetime.datetime.strptime(s, '%Y-%m-%dT%H:%M:%S')
     return o
 
 class TimeRec:
@@ -178,7 +181,7 @@ class CalandarDb:
         def _update_list(self, now):
             drop = 0
             for o in self.list:
-                if now > o.e:
+                if now >= o.e:
                     drop += 1
                 elif now < o.s:
                     break
@@ -227,6 +230,7 @@ class CalandarDb:
                self.list = pickle.load(config_dictionary_file)
 
 
+STATE_ATTR_NEXT_S_EVENT_FORMAT = "start_format"
 STATE_ATTR_NEXT_S_EVENT = "start"
 STATE_ATTR_NEXT_E_EVENT = "end"
 STATE_ATTR_HELP_EVENT = "help"
@@ -237,7 +241,7 @@ EVENT_TURN_ON = "hebcal.turn_on"
 EVENT_TURN_OFF = "hebcal.pre_off"
 
 
-class HebcalSensor(RestoreEntity):
+class HebcalSensor(Entity):
 
     entity_id = ENTITY_ID
 
@@ -262,15 +266,6 @@ class HebcalSensor(RestoreEntity):
               self.hass, self._async_update_startup,
                 second=0)
 
-    async def async_added_to_hass(self):
-       # not used for now 
-       """Call when entity about to be added to Home Assistant."""
-       await super().async_added_to_hass()
-       state = await self.async_get_last_state()
-       if state is not None:
-           self._state = state.state
-           _LOGGER.info(" Hebcal async_added_to_hass %s",str(state.attributes)) 
-
 
     async def _async_update_startup(self, now):
         """Load the db from the web"""
@@ -292,10 +287,11 @@ class HebcalSensor(RestoreEntity):
         if self._debug:
            _LOGGER.error(" {} {} {} ".format(self._lat,self._lon,self._tz)) 
         db.load()
-        db._update_list(dt_util.now())
-        db._dump()
+        now = datetime.datetime.now()
+        db._update_list(now)
         self._db = db
         if self._debug:
+            db._dump()
             _LOGGER.error(" db loaded {}".format(str(db))) 
     
     def _get_d(self, full):
@@ -355,6 +351,7 @@ class HebcalSensor(RestoreEntity):
         else:
             self._db.state = STATE_OFF
             do = self._db.get_head() 
+          
             event.async_track_point_in_time(
                 self.hass, self._off_on, dt_util.now())
             event.async_track_point_in_time(
@@ -385,7 +382,9 @@ class HebcalSensor(RestoreEntity):
     def state_attributes(self):
         """Return the state attributes."""
         if self.do != None:
-            return { STATE_ATTR_NEXT_S_EVENT  : self.do.s,
+            next_format =  self.do.s.strftime("%a - %H:%M") +" "+self.do.help
+            return { STATE_ATTR_NEXT_S_EVENT_FORMAT : next_format,
+                    STATE_ATTR_NEXT_S_EVENT   : self.do.s,
                      STATE_ATTR_NEXT_E_EVENT  : self.do.e,
                      STATE_ATTR_HELP_EVENT    : self.do.help, 
                      STATE_ATTR_NORM_EVENT    : self.do.normal } 
