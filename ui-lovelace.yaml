@@ -372,4 +372,21 @@ views:
           - sensor.wb_irrigation_p2
 
 
+  - title: EventsM
+    id: EventsM
+    background: radial-gradient(crimson, skyblue)
+    theme: dark-mode
+    cards:
+      - type: entities
+        entities:
+          - input_boolean.eventm_disable
+          - input_boolean.eventm_test
+          - entity: variable.eventm_current
+            type: custom:multiple-entity-row
+            secondary_info: 
+               attribute: help
+          - entity: variable.eventm_last
+            type: custom:multiple-entity-row
+            secondary_info: 
+               attribute: help
 

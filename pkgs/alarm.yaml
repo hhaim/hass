@@ -159,6 +159,26 @@ group:
 input_boolean:
   gateway_sound_enable:
     name: Start sound
+  eventm_disable:   # disable the event manager 
+    name: Disable events
+  eventm_test:   # test the event manager 
+    name: Trigger 
+
+variable:
+
+      eventm_current: 
+        value: off
+        restore: true
+        attributes:
+           friendly_name: 'current event'
+           type: ''
+           
+      eventm_last:
+        value: off
+        restore: true
+        attributes:
+           friendly_name: 'last event'
+           type: ''
 
 
 input_number:
@@ -220,5 +240,6 @@ tasmota:
            polar: true
          - name: unknown_15
            polar: true
+
 
 

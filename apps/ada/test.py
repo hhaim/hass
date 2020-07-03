@@ -493,4 +493,18 @@ def test_schedule():
 
 
 
-test_schedule()
+#test_schedule()
+
+types ={} # types of events 
+print(types)
+types['a']=1
+if 'a' in types:
+    print("true")
+print(len(types))    
+if 'a' in types:
+    del types['a']
+print(types)
+print(len(types))    
+
+
+

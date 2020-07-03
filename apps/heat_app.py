@@ -6,6 +6,7 @@ import ada.temp_sensor
 import ada.temp
 
 HEBCAL_EVENT = "hebcal.event"
+EVENTM_EVENT = "eventm.event"
 
 ALARM_WATER_ISSUES = 23
 
@@ -197,8 +198,8 @@ class HassBase(hass.Hass):
 
     def alert_tts (self,msg):
        self.call_service('notify/clicksend_tts', message = msg)
+       self.call_service('notify/clicksend_tts2', message = msg)
     
-
     def my_notify (self,msg):
         t=datetime.datetime.now().strftime("%H:%M:%S")
         n_msg = t +' ' + msg
@@ -279,17 +280,17 @@ class AlarmNotification(HassBase):
       for device_id in range(0,17):
            self.listen_state(self.do_state_change, 'binary_sensor.alarm{0}'.format(device_id))
 
-      self.external_sensors =['smoke_sensor_158d00024e008a',
-                              'smoke_sensor_158d000287ae79',
-                              'water_leak_sensor_158d000256cd9d',
-                              'water_leak_sensor_158d00023385f2',
-                              'water_leak_sensor_158d000256ce72',
-                              'water_leak_sensor_158d000256ce93',
-                              'water_leak_sensor_158d000256cede',
-                              'water_leak_sensor_158d00027049bb']
-      for device_id in self.external_sensors:
-           self.listen_state(self.do_state_change, 'binary_sensor.{0}'.format(device_id))
-
+      self.external_sensors =[]
+      #self.external_sensors =['smoke_sensor_158d00024e008a',
+      #                        'smoke_sensor_158d000287ae79',
+      #                        'water_leak_sensor_158d000256cd9d',
+      #                        'water_leak_sensor_158d00023385f2',
+      #                        'water_leak_sensor_158d000256ce72',
+      #                        'water_leak_sensor_158d000256ce93',
+      #                        'water_leak_sensor_158d000256cede',
+      #                        'water_leak_sensor_158d00027049bb']
+      #for device_id in self.external_sensors:
+      #     self.listen_state(self.do_state_change, 'binary_sensor.{0}'.format(device_id))
 
     def do_home_change (self,entity, attribute, old, new, kwargs):
         if (old != new) and (new != self.home):
@@ -841,7 +842,8 @@ class CWaterMonitor(HassBase):
         self.ticks =0
         self.wd =0
         self.switch_cnt=0;
-        self.burst_was_reported =False
+        self.burst_was_reported = False
+        self.total_water_was_reported = False
         self.run_at_sunset(self.notify_water_usage,  offset=-(0))
         self.listen_event(self.home_cb, "at_home")
 
@@ -905,14 +907,20 @@ class CWaterMonitor(HassBase):
             d_water = self.cur_water_counter - self.start_water_count
             if (not self.at_home) and (not taps_opened):
                 if d_water>50:
-                   self.police_notify(" water is on when you not at home {} litters".format(d_water))
+                   msg = " water is on when you not at home {} litters".format(d_water)
+                   self.police_notify(msg)
+                   if not self.burst_was_reported:
+                      self.burst_was_reported = True
+                      self.fire_event(EVENTM_EVENT, state = "on", type="water", msg = msg,callmsg= msg)
             
             if d_water > max_burst :
                 msg = " WARNING total water {} is high in a single burst {} ".format(d_water,max_burst)
                 self.police_notify(msg)
-                self.alert_sms (msg)
-                self.burst_was_reported =True
-                self.call_alarm(ALARM_WATER_ISSUES)
+                if not self.burst_was_reported:
+                    self.burst_was_reported = True
+                    self.fire_event(EVENTM_EVENT, state="on", type="water", msg = msg,callmsg= msg)
+
+
 
     def set_sensor(self,name,value):
         self.set_state(self.args[name],state = "{}".format(value))
@@ -922,15 +930,23 @@ class CWaterMonitor(HassBase):
         if self.burst_was_reported:
             self.burst_was_reported = False
             self.police_notify(" WARNING water burst end")
+            self.fire_event(EVENTM_EVENT, state="off",type="water")
+        
+        if self.total_water_was_reported:
+            self.total_water_was_reported = False 
+            self.police_notify(" WARNING water burst end")
+            self.fire_event(EVENTM_EVENT, state="off",type="water-total")
+
         self.state = 'off'
         self.ticks =0
+            
         d = datetime.datetime.now() - self.start_time
         d_water = self.cur_water_counter - self.start_water_count + 1
         self.total_water += d_water
         #self.police_notify("->water STOP burst {} cur : {}".format(d_water,self.cur_water_counter))
 
         if d_water ==0:
-            self.police_notify("ERORR burst of zero litter !! not possible !")
+            self.police_notify("ERROR burst of zero litter !! not possible !")
         self.set_sensor("sensor_water_bursts",d_water)
 
         if not self.at_home:
@@ -961,11 +977,10 @@ class CWaterMonitor(HassBase):
               self.do_water_timeout()
 
         if self.ticks > (self.args["watchdog_duration_min"]*60/CWaterMonitor.TIME_INTERVAL):
-            msg = "ERORR running for more than {} min ".format(self.args["watchdog_duration_min"])
-            self.police_notify(msg)
-            self.alert_sms (msg)
-            self.alert_tts (msg)
-            self.call_alarm(ALARM_WATER_ISSUES)
+            if not self.total_water_was_reported:
+                self.total_water_was_reported = True 
+                msg = "ERROR running for more than {} min ".format(self.args["watchdog_duration_min"])
+                self.fire_event(EVENTM_EVENT, state="on", type = "water-total", msg = msg,callmsg= msg)
 
         self.run_in(self.water_timer, CWaterMonitor.TIME_INTERVAL)
 
@@ -1258,8 +1273,163 @@ class CTrackerNeta(HassBase):
         self.do_turn_off()
 
 
+EVENTM_TIMER_SEC = 20
+EVENTM_TIMERS_CNT = 2
+
+# this is an event manager 
+# listen to important events and require user - feedback to stop it
+class EventManager(HassBase):
+
+    def initialize(self):
+      self.notify("start EventManager")
+      self.listen_event(self.event_cb, EVENTM_EVENT)
+      self.listen_state(self.do_input_change, self.args['inputd'])
+      self.listen_state(self.do_trigger_change, self.args['inputt'])
+      self.state = "off"
+      self.cnt = 0
+      self.data = None
+      self.handle = None 
+      self.types ={} # types of events 
+      self.cfg_input = self.args['inputd']
+      self.cfg_vcurrent = self.args['vcurrent']
+      self.cfg_vlast = self.args['vlast']
+
+    def do_input_change (self,entity, attribute, old, new, kwargs):
+        if old != new and new == "on":
+            self.stop_alarm(True,False)
+    
+    def do_trigger_change (self,entity, attribute, old, new, kwargs):
+        if old != new:
+            if new == "on":
+               self.fire_event(EVENTM_EVENT, state="on", type="fire", msg ="fire in basement", 
+                                callmsg="fire in basement")
+            else:
+               self.fire_event(EVENTM_EVENT, state="off",type="fire")
+
+    def event_cb(self, event_name, data, kwargs):
+        if data['state'] == 'on':
+            if self.state == "on":
+                self.cnt = 0 # restart the timer
+                self.data = data # replace the data 
+                self.types[data['type']] = 1
+            else:
+                self.start_alarm(data)
+    
+        elif data['state'] == 'off':
+            if 'type' in data:
+                 if data['type'] in self.types:
+                    del self.types[data['type']] 
+                    if len(self.types)==0:
+                        self.stop_alarm(False,True)
+
+    def stop_alarm(self,byuser,byevent):
+        if self.state == "off":
+            return 
+        self.types = {}
+        self.state = "off"
+        msg = ""
+        if byuser or byevent:
+           self.stop_timer()
+           if byevent:
+              msg = "EventM stop by event {}".format(self.cnt)
+           else:   
+              msg = "EventM stop by user {}".format(self.cnt)
+        else:
+           msg = "EventM giving up {}".format(self.cnt)
+
+        self.turn_off(self.cfg_input)
+        self.cnt =0
+        self.my_notify(msg)
+        self.alert_sms (msg)
+        self.call_alarm(ALARM_WATER_ISSUES)
+        self.var_set(self.cfg_vlast,self.data['type']+":"+self.data['msg'])
+        self.var_set(self.cfg_vcurrent,"off")
+
+    def do_signal(self):
+        msg= "EventM  {} {} ".format(self.data['type'],self.data['msg'])
+        self.my_notify(msg)
+        self.alert_sms (msg)
+        self.var_set(self.cfg_vcurrent,str(self.cnt)+":"+self.data['type']+":"+self.data['msg'])
+        if "callmsg" in self.data:
+            self.alert_tts (self.data['callmsg'])
+
+    def start_alarm(self,data):
+        self.types[data['type']] = 1
+        self.cnt =0
+        self.state = "on"
+        self.data = data
+        self.do_signal()
+        self.start_timer()
+
+    def start_timer(self):
+        self.handle = self.run_in(self._cb_event, EVENTM_TIMER_SEC)
+
+    def stop_timer(self):
+        if self.handle:
+           self.cancel_timer(self.handle)
+
+    def _cb_event(self,kargs):
+        self.cnt += 1
+        if self.cnt > EVENTM_TIMERS_CNT:
+           self.stop_alarm(False,False)
+           return 
+        self.do_signal()   
+        self.start_timer()
 
 
-        
+class AlarmNotificationHigh(HassBase):
 
+    def initialize(self):
+                
+      self.notify("start High Alarm notification ")
+
+      #smoke  
+      self.smoke_external_sensors = ['smoke_sensor_158d00024e008a',
+                                     'smoke_sensor_158d000287ae79']
+
+      for device_id in self.smoke_external_sensors:
+           self.listen_state(self.do_smoke_state_change, 'binary_sensor.{0}'.format(device_id))
+
+      # water  
+      self.water_external_sensors =[
+                              'water_leak_sensor_158d000256cd9d',
+                              'water_leak_sensor_158d00023385f2',
+                              'water_leak_sensor_158d000256ce72',
+                              'water_leak_sensor_158d000256ce93',
+                              'water_leak_sensor_158d000256cede',
+                              'water_leak_sensor_158d00027049bb']
+
+      for device_id in self.water_external_sensors:
+           self.listen_state(self.do_water_state_change, 'binary_sensor.{0}'.format(device_id))
+
+      self.all = []  
+      self.all.extend(self.smoke_external_sensors)
+      self.all.extend(self.water_external_sensors)
+
+
+    def check_end(self):
+        for device_id in self.all:
+            s = 'binary_sensor.{0}'.format(device_id)
+            if self.get_state(s) == "on":
+                return True 
+        return False         
+
+    def do_water_state_change (self,entity, attribute, old, new, kwargs):
+        fn = self.friendly_name(entity)
+        if old != new:
+            if new == "on":
+               msg=" water {} triggered ".format(fn)
+               self.fire_event(EVENTM_EVENT, state="on", type=fn, msg=msg, callmsg=msg)
+            else:   
+               self.fire_event(EVENTM_EVENT, state="off", type=fn)
+
+
+    def do_smoke_state_change (self,entity, attribute, old, new, kwargs):
+        fn = self.friendly_name(entity)
+        if old != new:
+            if new == "on":
+               msg=" smoke {} triggered ".format(fn)
+               self.fire_event(EVENTM_EVENT, state="on", type=fn, msg=msg, callmsg=msg)
+            else:
+               self.fire_event(EVENTM_EVENT, state="off", type=fn)
 
