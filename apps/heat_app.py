@@ -5,6 +5,7 @@ import ada.schedule
 import ada.temp_sensor
 import ada.temp
 
+HEBCAL_EVENT = "hebcal.event"
 
 ALARM_WATER_ISSUES = 23
 
@@ -22,7 +23,7 @@ class SimpleSwitch(hass.Hass):
 class HeatApp(hass.Hass):
 
     def initialize(self):
-        self.log("start Heat App {0}".format(str(self.args)));
+        self.log("start Heat App")
         self.heater = ada.temp_sensor.HeaterSensor(self,self.args['heater']);
         self.sch = ada.schedule.Schedule(self,
                                      self.args['schedule'],
@@ -33,13 +34,13 @@ class HeatApp(hass.Hass):
 class CalcHeatIndexApp(hass.Hass):
 
     def initialize(self):
-        self.log("start Calc App {0}".format(str(self.args)));
+        self.log("start Calc App ")
         self.update_state ()
         self.listen_state(self.do_check_temperator, self.args["temp"])
         self.listen_state(self.do_check_temperator, self.args["hum"])
 
     def get_float(self,name,def_val):
-        res=def_val;
+        res = def_val
         try:
           val=self.get_state(self.args[name])
           if val is not None:
@@ -428,17 +429,17 @@ class OutdoorLampWithPir(HassBase):
 
         self.listen_state(self.do_pir_change, self.cfg_pir)
         self.handle =None
-        self.listen_event(self.sabbath_cb, "sabbath_day")
+        self.listen_event(self.sabbath_cb, HEBCAL_EVENT)
         self.is_sabbath =False
         self.turn_off(self.cfg_slamp)
 
 
     def sabbath_cb(self, event_name, data, kwargs):
-        if data['enable']=='on':
+        if data['state'] == 'pre':
             self.is_sabbath = True
             self.log('turn lamp due to friday night ');
             self.turn_lamp_on(self.cfg_sat_delay_sec)
-        else:
+        elif data['state']=='off':
             self.is_sabbath = False
 
     def  turn_lamp_on(self,time_sec):
@@ -470,13 +471,17 @@ class OutdoorLampWithPir(HassBase):
 class SabbathHandler(HassBase):
 
     def initialize(self):
-        self.listen_event(self.saturday_cb, "sabbath_day")
+        self.listen_event(self.saturday_cb, HEBCAL_EVENT)
 
     def saturday_cb(self, event_name, data, kwargs):
-        if data['enable']=='on':
+        
+        if data['state'] == 'pre':
             self.call_alarm(20)
             self.turn_on('switch.alarm_s0')
-        else:
+        elif data['state'] == 'on':
+            self.call_alarm(26)
+            self.turn_off('switch.tv')
+        elif data['state'] == 'off':
             self.call_alarm(21)
             self.turn_off('switch.alarm_s0')
 
@@ -623,7 +628,7 @@ class CBoilerAutomation(HassBase):
         self.temp = self.get_float("temp",60.0)
         self.run_in(self.check_temp, CBoilerAutomation.TIME_INTERVAL)
         self.listen_state(self.do_power_change, self.args["switch"])
-        self.listen_event(self.saturday_cb, "sabbath_day")
+        self.listen_event(self.saturday_cb, HEBCAL_EVENT)
         self.run_at_sunset(self.notify_temp,  offset=-(2*60*60))
         self.listen_state(self.do_input_change, self.args["input_automation"])
 
@@ -632,10 +637,10 @@ class CBoilerAutomation(HassBase):
         self.my_notify(msg);
 
     def saturday_cb(self, event_name, data, kwargs):
-        if data['enable']=='on':
+        if data['state'] == 'pre':
             self.sabbath = True
             self.force_power_enable(False)
-        else:
+        elif data['state'] == 'off':
             self.sabbath = False
 
     def do_input_change(self,entity, attribute, old, new, kwargs):

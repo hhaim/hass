@@ -67,9 +67,17 @@ class AppDaemonStub:
     def cancel_listen_state(self, handle):
         print(" cancel_listen_state : "+str(handle));
 
+    def run_at(self, callback, start, **kwargs):
+        print("run_at :" +"datetime :"+str(start)+" kargs"+str(kwargs))
 
     def run_daily(self, callback, start, **kwargs):
-        print("run_daily :" +"time :"+str(start)+" kargs"+str(kwargs));
+        print("run_daily :" +"time :"+str(start)+" kargs"+str(kwargs))
+
+    def listen_event(self, callback, a):
+        print("listen_event \n")
+
+    def log(self, msg):
+        print("=>log %s \n".format(msg))
 
     def get_now(self):
         return self.now
@@ -166,21 +174,6 @@ class MyApp(AppDaemonStub):
         print(" ==>on_event :"+ str(kwargs))
 
 
-def test4 ():
-    #test1 ()
-    ad=MyApp();
-    with open("_test.__yaml", 'r') as stream:
-        d=yaml.load(stream)
-        sc=d['hello_world']['schedule'];
-
-    pprint(sc);
-    tmps = temp_sensor.HeaterSensor(ad,d['hello_world']['heater']);
-    sch = schedule.Schedule(ad,sc,tmps.on_schedule_event,None)
-    print(str(sch));
-    #d=datetime.now()
-    d=datetime.datetime(2018,7,18,20,00,0)
-    ad.set_now(d)
-    sch.init ()
 
 
 import temp
@@ -391,8 +384,62 @@ def test4():
 #   f=t/10.0
 #   print(temp.calc_heat_index_celsius(16.0+f, 70.0),16+f,)
 #main()
+
+
 def test():
     #s="2020-07-03T20:31:00+03:00"
+    s="2020-05-20T17:31:00+03:00"
+    e="2020-05-22T20:31:00+03:00"
+    so =convToDateObject(s)
+    eo =convToDateObject(e)
+    l=[]
+    delta = eo - so
+    today = datetime.date.today()
+    now  = datetime.datetime.now()
+    days = delta.days  + 1
+    st = datetime.time(6, 0, 0)
+    et = datetime.time(10, 0, 0)
+
+    for d in range(days):
+        cday = today + datetime.timedelta( days = d )
+        print(" ==> day {} {} \n".format(d,cday))
+        se = datetime.datetime.combine(cday, st)
+        ee = datetime.datetime.combine(cday, et)
+        #print(" event {}  {} \n".format(se,ee))
+        if now < se:
+            print("before: {} {}  \n".format(se,ee))
+            #to = Object()
+            #to.se = se
+            #to.ee = ee
+            #l.append(to)
+        elif now < ee:
+            #to = Object()
+            #to.se = now
+            #to.ee = ee
+            #l.append(to)
+            dt = ee - now
+            if dt.total_seconds() > 60*10:
+                print("middle: {} {}  \n".format(now,ee))
+        else:
+            print("skip  \n")
+    return 
+
+
+    runtime = datetime.time(16, 0, 0)
+    today = datetime.date.today()
+    print(today)
+    print(type(today))
+    a = today + datetime.timedelta( days=1 )
+    print( a )
+
+    event = datetime.datetime.combine(today, runtime)
+    print(event)
+    print(type(event))
+    print(runtime)
+    print(type(runtime))
+    
+    return 
+
     s="2020-01-03T16:19:00+02:00"
     #try 
     if len(s)>19:
@@ -416,6 +463,34 @@ def test():
     #print(o.weekday())
 
 #test()
-test3()
+#test3()
 #main()
 #print("sd")
+
+def test_schedule():
+    #test1 ()
+    ad=MyApp();
+    with open("_test_.yaml", 'r') as stream:
+        d=yaml.load(stream)
+        sc=d['hello_world']['schedule'];
+
+    #pprint.pprint(sc)
+    #return 
+
+    tmps = temp_sensor.HeaterSensor(ad,d['hello_world']['heater']);
+    sch = schedule.Schedule(ad,sc,tmps.on_schedule_event,None)
+    print(str(sch));
+    #d=datetime.now()
+    d=datetime.datetime(2018,7,18,20,00,0)
+    ad.set_now(d)
+    sch.init ()
+    sch.saturday_cb("a", {"state" : "pre",
+                          "start" : "2020-07-03T19:19:00",
+                          "end"   : "2020-07-04T20:19:00"
+                          },None)
+    sch.saturday_cb("a", {"state" : "off"
+                          },None)
+
+
+
+test_schedule()

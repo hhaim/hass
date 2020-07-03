@@ -13,13 +13,11 @@ The json information is converted to a table of records in this format:
   -0 min
   with this information
 
-EVENT_TURN_PRE = "hebcal.pre_on"
-EVENT_TURN_ON = "hebcal.turn_on"
-
-
+EVENT_TURN_PRE = "hebcal.event"  data{"state": "pre", "start" datetime, "end" datetime} 
+EVENT_TURN_ON = "hebcal.event" data{"state": "on", "start" datetime, "end" datetime} 
 
 @ end_time there are one events triggered 
-EVENT_TURN_OFF = "hebcal.turn_off"
+EVENT_TURN_OFF = "hebcal.event" data{"state": "off"} 
 
 
 How it works:
@@ -71,6 +69,17 @@ DEFAULT_NAME = 'hebcal'
 CONF_DEBUG = "debug"
 
 
+STATE_ATTR_NEXT_S_EVENT_FORMAT = "start_format"
+STATE_ATTR_NEXT_S_EVENT = "start"
+STATE_ATTR_NEXT_E_EVENT = "end"
+STATE_ATTR_HELP_EVENT = "help"
+STATE_ATTR_NORM_EVENT = "normal"
+
+HEBCAL_EVENT = "hebcal.event"
+EVENT_STATE_PRE = "pre"
+
+
+
 # pylint: disable=no-value-for-parameter
 CONFIG_SCHEMA = vol.Schema(
     {
@@ -105,7 +114,7 @@ class TimeRec:
             self.normal = False  # is it normal friday/sat
         
         def update(self):
-            if self.s.weekday() == 4 and self.e.weekday() ==5 and len(self.help)==0:
+            if self.s.weekday() == 4 and self.e.weekday() ==5 and len(self.help) == 0:
                 self.normal = True 
 
         def __str__(self):
@@ -133,21 +142,14 @@ class CalandarDb:
             self.tz = mtz
 
         def loadExample(self):
-            self.list = []
 
             t = TimeRec()
-            t.s = convToDateObject("2020-07-01T18:04:00+03:00")
-            t.e = convToDateObject("2020-07-01T18:05:00+03:00")
+            t.s = convToDateObject("2020-07-03T11:07:00+03:00")
+            t.e = convToDateObject("2020-07-03T11:08:00+03:00")
             t.normal = True
             t.help = ""
             self.list.append(t)
 
-            t = TimeRec()
-            t.s = convToDateObject("2020-07-01T18:06:00+03:00")
-            t.e = convToDateObject("2020-07-01T18:07:00+03:00")
-            t.normal = True
-            t.help = ""
-            self.list.append(t)
 
         def get_head(self):
             return self.list[self.tindex]
@@ -169,6 +171,7 @@ class CalandarDb:
             s = self._load_year(year)
             s.extend(self._load_year(year+1))
             self._process(s)
+            #self.dump_log()
 
         def _load_year(self, year):
             url = HEBCAL_URL.format(year, self.latitude, 
@@ -215,6 +218,12 @@ class CalandarDb:
                         last = None
                         state = "s"
 
+        def dump_log(self):
+            cnt = 0            
+            for o in self.list:
+                cnt += 1
+                _LOGGER.error("Error hebcal {:02d} : {}: ".format(cnt, o))
+
         def _dump(self):
             cnt = 0            
             for o in self.list:
@@ -228,17 +237,6 @@ class CalandarDb:
         def load_from_file(self, filename):
             with open(filename, 'rb') as config_dictionary_file:
                self.list = pickle.load(config_dictionary_file)
-
-
-STATE_ATTR_NEXT_S_EVENT_FORMAT = "start_format"
-STATE_ATTR_NEXT_S_EVENT = "start"
-STATE_ATTR_NEXT_E_EVENT = "end"
-STATE_ATTR_HELP_EVENT = "help"
-STATE_ATTR_NORM_EVENT = "normal"
-
-EVENT_TURN_PRE = "hebcal.pre_on"
-EVENT_TURN_ON = "hebcal.turn_on"
-EVENT_TURN_OFF = "hebcal.pre_off"
 
 
 class HebcalSensor(Entity):
@@ -294,18 +292,20 @@ class HebcalSensor(Entity):
             db._dump()
             _LOGGER.error(" db loaded {}".format(str(db))) 
     
-    def _get_d(self, full):
+    def _get_d(self, full, state):
         d = {}
         if full:
-          d = self.state_attributes()
+            d = self.state_attributes
         d[ATTR_ENTITY_ID] = self.entity_id
+        d["state"] = state
         return d
 
     @callback
     def _pre_on(self, now):
         if self._debug:
             _LOGGER.error(" ==> pre_on  ")
-        self.hass.bus.async_fire(EVENT_TURN_PRE, self._get_d(True)) 
+        self.hass.bus.async_fire(HEBCAL_EVENT,
+                                 self._get_d(True, EVENT_STATE_PRE)) 
         self.async_schedule_update_ha_state()     
 
     @callback
@@ -313,7 +313,7 @@ class HebcalSensor(Entity):
         self._state = STATE_ON
         if self._debug:
             _LOGGER.error(" ==>  on  ")
-        self.hass.bus.async_fire(EVENT_TURN_ON, self._get_d(True)) 
+        self.hass.bus.async_fire(HEBCAL_EVENT, self._get_d(True, STATE_ON))
         self.async_schedule_update_ha_state()     
 
     @callback
@@ -321,7 +321,7 @@ class HebcalSensor(Entity):
         self._state = STATE_OFF
         if self._debug:
            _LOGGER.error(" ==>  off  ")
-        self.hass.bus.async_fire(EVENT_TURN_OFF, self._get_d(False)) 
+        self.hass.bus.async_fire(HEBCAL_EVENT, self._get_d(False, STATE_OFF))
         self._db.inc_head()
         if self._db.need_to_reread():
             self.start_loading_db()
@@ -353,10 +353,9 @@ class HebcalSensor(Entity):
             do = self._db.get_head() 
           
             event.async_track_point_in_time(
-                self.hass, self._off_on, dt_util.now())
+                self.hass, self._pre_on, dt_util.now())
             event.async_track_point_in_time(
-                self.hass, self._off_off, do.e)
-
+                self.hass, self._off, do.e)
 
     @property
     def name(self):
@@ -376,7 +375,7 @@ class HebcalSensor(Entity):
     @property
     def unit_of_measurement(self):
         """Return the unit this state is expressed in."""
-        return "sec"
+        return None
 
     @property
     def state_attributes(self):
