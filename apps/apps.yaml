@@ -17,7 +17,6 @@ heater_ac1:
        - { mode: b, start: { t: "08:00:00", d: 0}, end: { t: "10:00:00", d: 0} }  
        - { mode: a, start: { t: "10:00:01", d: 0}, end: { t: "14:45:00", d: 0} }
        - { mode: a, start: { t: "15:15:20", d: 0}, end: { t: "23:30:40", d: 0} }
-
        
   heater:
      default: a  # this is the default mode for input switch 
@@ -168,13 +167,6 @@ sabbath_manager:
   module: heat_app
   class: SabbathEvent
 
-door_lamp:
-  module: heat_app
-  class: OutdoorLampWithPir
-  switch: switch.door_lamp0
-  sensor: binary_sensor.alarm16
-  delay: 15
-  sat_delay: 240
 
 alarm_off:
   module: heat_app
@@ -219,8 +211,8 @@ boiler_automation:
   sensor_eff_solar:  variable.boiler_eff_solar0
   input_uv:  sensor.dark_sky_uv_index
 
-
-
+scheduleh: &id001
+  - { mode: b, start: { t: "16:00:00", d: 0}, end: { t: "23:55:00", d: 0} }
 
 garden_lamp:
   module: heat_app
@@ -228,7 +220,7 @@ garden_lamp:
   switch: switch.garden_lamp0
   sensor: binary_sensor.alarm15
   delay: 15
-  sat_delay: 240
+  schedule: *id001
 
 # garden lamp projectors 
 garden_lamp2:
@@ -237,7 +229,15 @@ garden_lamp2:
   switch: switch.gardenlamp1
   sensor: binary_sensor.alarm15
   delay: 15
-  sat_delay: 240
+  schedule: *id001
+
+door_lamp:
+  module: heat_app
+  class: OutdoorLampWithPir
+  switch: switch.door_lamp0
+  sensor: binary_sensor.alarm16
+  delay: 15
+  schedule: *id001
 
 water_monitor:
   module: heat_app
@@ -301,9 +301,6 @@ wb_irrigation:
 neta_tracer:
   module: heat_app
   class: CTrackerNeta
-
-
-
 
 eventm1:
   module: heat_app

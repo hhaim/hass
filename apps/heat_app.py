@@ -419,39 +419,56 @@ class OutdoorLampWithPir(HassBase):
     def initialize(self):
         self.cfg_slamp = self.args["switch"]
         self.cfg_pir   = self.args["sensor"]
+        self.listen_state(self.do_pir_change, self.cfg_pir)
+        self.handle =None
+        self.is_sabbath =False
+        self.turn_off(self.cfg_slamp)
         if "delay" in self.args:
            self.cfg_delay_sec = (self.args["delay"])*60
         else:
            self.cfg_delay_sec = 15*60
-        if "sat_delay" in self.args:
-              self.cfg_sat_delay_sec = (self.args["sat_delay"])*60
-        else:
-              self.cfg_sat_delay_sec = 4*60*60
 
-        self.listen_state(self.do_pir_change, self.cfg_pir)
-        self.handle =None
         self.listen_event(self.sabbath_cb, HEBCAL_EVENT)
-        self.is_sabbath =False
-        self.turn_off(self.cfg_slamp)
+        self.sch = ada.schedule.Schedule(self,
+                                     self.args['schedule'],
+                                     self.on_schedule_event,None)
+        self.sch.init()
 
 
     def sabbath_cb(self, event_name, data, kwargs):
         if data['state'] == 'pre':
             self.is_sabbath = True
-            self.log('turn lamp due to friday night ');
-            self.turn_lamp_on(self.cfg_sat_delay_sec)
         elif data['state']=='off':
             self.is_sabbath = False
 
-    def  turn_lamp_on(self,time_sec):
+    def on_schedule_event (self,kwargs):
+        if kwargs['state'] == "on":
+            self.log('turn lamp ')
+            self.turn_lamp_on_timer(60*20)
+        elif kwargs['state']=="off":
+            self.log('turn lamp off ')
+            self.turn_lamp_off ()
+
+    def stop_timer(self):
         if self.handle:
            self.cancel_timer(self.handle)
-        self.handle = self.run_in(self.turn_lamp_off, time_sec)
-        self.turn_on(self.cfg_slamp)
+           self.handle = None
 
-    def turn_lamp_off (self,kargs):
+    def  turn_lamp_on_timer(self,time_sec):
+        self.stop_timer()
+        self.handle = self.run_in(self.timer_turn_lamp_off, time_sec)
+ 
+    def timer_turn_lamp_off (self,kargs):
         self.turn_off(self.cfg_slamp)
-        self.handle=None
+        self.handle = None
+
+    def turn_lamp_off (self):
+         self.stop_timer()
+         self.turn_off(self.cfg_slamp)
+
+    def turn_lamp_on(self):
+        self.stop_timer()
+        self.turn_on(self.cfg_slamp)
 
     def is_lamp_on (self):
         if self.get_state(self.cfg_slamp)=="on":
@@ -460,13 +477,12 @@ class OutdoorLampWithPir(HassBase):
             return False
 
     def do_pir_change (self,entity, attribute, old, new, kwargs):
-
         if not self.are_states_valid(old, new):
             return
 
         if old != new:
             if self.sun_down() and (self.is_sabbath == False):
-                self.turn_lamp_on(self.cfg_delay_sec)
+                self.turn_lamp_on_timer(self.cfg_delay_sec)
 
 #do somthing before sabbath
 class SabbathHandler(HassBase):
@@ -485,7 +501,6 @@ class SabbathHandler(HassBase):
         elif data['state'] == 'off':
             self.call_alarm(21)
             self.turn_off('switch.alarm_s0')
-
 
 
 class GatewayRingtone(HassBase):
@@ -1274,7 +1289,7 @@ class CTrackerNeta(HassBase):
 
 
 EVENTM_TIMER_SEC = 20
-EVENTM_TIMERS_CNT = 2
+EVENTM_TIMERS_CNT = 10
 
 # this is an event manager 
 # listen to important events and require user - feedback to stop it

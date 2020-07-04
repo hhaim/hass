@@ -99,6 +99,8 @@ class HeaterSensor:
         self.c_min_o=None # min_out temperator to stop 
         self.c_max_i=None # max_in temperator to start 
         self.c_min_i=None # min_in temperator to start 
+        self.cnt = 0
+
 
         self.state = HeaterSensor.DISABLED
         
@@ -189,15 +191,37 @@ class HeaterSensor:
                     self.set_process(False)
             else:
                     self.turn_off()
+    
+    def sanity_check(self):
+        # check state and switch state are in sync with state else we need to fix this
+        # it could be the case in case of a race (we turn it off but MQTT is slow or in case user change it)
+        # we need to make sure it 4 times in the wrong place to fix it !
+        is_on = self.is_turn_on ()
+        if self.state == HeaterSensor.WAIT_FOR_HEAT:
+            if is_on :
+                self.cnt+=1
+                self.ad.log("out of sync state {} turn off {}".format(self.state,self.cnt))
+                if self.cnt > 4:
+                    self.turn_off ()
+                    self.cnt = 0
+            else:
+                self.cnt = 0  # OK
+
+        elif self.state == HeaterSensor.WAIT_FOR_COOL:
+            if is_on == False :
+                self.cnt+=1
+                self.ad.log("out of sync state {} turn on )".format(self.state,self.cnt))
+                if self.cnt > 4:
+                    self.turn_on ()
+                    self.cnt = 0
+                else:    
+                    self.cnt = 0
 
     def do_cool (self,it,ot):
         if self.state == HeaterSensor.WAIT_FOR_HEAT:
             if (it > self.c_max_i):
                 self.turn_on()
                 self.state = HeaterSensor.WAIT_FOR_COOL
-            else:
-                if self.is_turn_on (): # it was turn on by user 
-                    self.state = HeaterSensor.WAIT_FOR_COOL
         else:
             if self.state == HeaterSensor.WAIT_FOR_COOL:
                 if ot < self.c_min_o:
@@ -211,22 +235,15 @@ class HeaterSensor:
     def do_heat (self,it,ot):
         # the states
         if self.state == HeaterSensor.WAIT_FOR_HEAT:
-            # the state should be turn off 
-            if self.is_turn_on (): # by user 
-                self.state = HeaterSensor.WAIT_FOR_COOL 
-            else:    
                 if (it < self.c_min_i):
                     self.turn_on()
                     self.state = HeaterSensor.WAIT_FOR_COOL
         else:
             if self.state == HeaterSensor.WAIT_FOR_COOL:
-                    if not self.is_turn_on () : # by user 
-                        self.state = HeaterSensor.WAIT_FOR_HEAT
-                    else:    
-                        if it > self.c_max_i:
-                            self.state = HeaterSensor.WAIT_FOR_HEAT
-                            self.notify ("LOW STATE ")
-                            self.turn_off()
+                if it > self.c_max_i:
+                    self.state = HeaterSensor.WAIT_FOR_HEAT
+                    self.notify ("LOW STATE ")
+                    self.turn_off()
             else:
                 assert(0); # not possible 
 
@@ -247,6 +264,7 @@ class HeaterSensor:
 
         self.ad.log("do_check_temperator in:{0} out:{1} state:{2} min:max({3}:{4}:{5})".format(it,ot,self.state,self.c_min_o,self.c_min_i,self.c_max_i))
 
+        self.sanity_check()
         if (it>0.0) and (ot>0.0):
            if self.is_cool_mode():
               self.do_cool(it,ot)

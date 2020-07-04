@@ -164,7 +164,8 @@ class Schedule:
             elif now < ee:   
                 dt = ee - now
                 if dt.total_seconds() > 60*10:  # at least 10 minutes
-                    self.add_template_rule(rule, now, ee)
+                    new_start_time = now + datetime.timedelta(seconds=30)
+                    self.add_template_rule(rule, new_start_time, ee)
             else:
                 pass  # skip this, it is an old date
 
