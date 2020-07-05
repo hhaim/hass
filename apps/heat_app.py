@@ -444,7 +444,7 @@ class OutdoorLampWithPir(HassBase):
     def on_schedule_event (self,kwargs):
         if kwargs['state'] == "on":
             self.log('turn lamp ')
-            self.turn_lamp_on_timer(60*20)
+            self.turn_lamp_on()
         elif kwargs['state']=="off":
             self.log('turn lamp off ')
             self.turn_lamp_off ()
@@ -455,6 +455,7 @@ class OutdoorLampWithPir(HassBase):
            self.handle = None
 
     def  turn_lamp_on_timer(self,time_sec):
+        self.turn_on(self.cfg_slamp)
         self.stop_timer()
         self.handle = self.run_in(self.timer_turn_lamp_off, time_sec)
  
