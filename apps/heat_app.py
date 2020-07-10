@@ -165,7 +165,11 @@ class HassBase(hass.Hass):
     GATEWAY_ID ='light.gateway_light_7c49eb193b55'
 
     def call_alarm (self,rind_id):
-        self.call_service('xiaomi_aqara/play_ringtone', gw_mac= "7C:49:EB:19:3B:55",ringtone_id= rind_id)
+        try:
+           self.call_service('xiaomi_aqara/play_ringtone', gw_mac= "7C:49:EB:19:3B:55",ringtone_id= rind_id)
+        except Exception as e:
+            self.log(str(s))
+
 
     def retry_turn_on (self,kwargs):
         if self.cnt>10:
@@ -194,11 +198,21 @@ class HassBase(hass.Hass):
         self.call_alarm(DOORBELL)
 
     def alert_sms (self,msg):
-       self.call_service('notify/clicksend', message = msg)
+        try:
+           self.call_service('notify/clicksend', message = msg)
+        except Exception as e:
+            self.log(str(s))
 
     def alert_tts (self,msg):
-       self.call_service('notify/clicksend_tts', message = msg)
-       self.call_service('notify/clicksend_tts2', message = msg)
+        try:
+          self.call_service('notify/clicksend_tts', message = msg)
+        except Exception as e:
+            self.log(str(s))
+
+        try:
+            self.call_service('notify/clicksend_tts2', message = msg)
+        except Exception as e:
+            self.log(str(s))
     
     def my_notify (self,msg):
         t=datetime.datetime.now().strftime("%H:%M:%S")
