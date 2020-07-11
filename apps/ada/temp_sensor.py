@@ -210,7 +210,7 @@ class HeaterSensor:
         elif self.state == HeaterSensor.WAIT_FOR_COOL:
             if is_on == False :
                 self.cnt+=1
-                self.ad.log("out of sync state {} turn on )".format(self.state,self.cnt))
+                self.ad.log("out of sync state {} turn on {}".format(self.state,self.cnt))
                 if self.cnt > 4:
                     self.turn_on ()
                     self.cnt = 0
