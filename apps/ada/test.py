@@ -217,6 +217,9 @@ class TimeRec:
             return s
 
 def convToDateObject(s):
+    print(s)
+    if len(s) == 10:
+        s+="T20:00:00"
     if len(s) > 19:
         s=s[:19]
     o = datetime.datetime.strptime(s, '%Y-%m-%dT%H:%M:%S')
@@ -331,27 +334,36 @@ def test3 ():
 def test2 ():
     s = get_req()
     l=[]
+    ischanukah =False
+    ischanukahOf =False 
     #s = '{"location":{"tzid":"Asia/Jerusalem","title":"32.26, 34.905, Asia/Jerusalem","geo":"pos","longitude":"34.905","latitude":"32.26"},"longitude":"34.905","date":"2019-10-08T09:44:37-00:00","latitude":"32.26","title":"Hebcal September 2019 32.26, 34.905, Asia/Jerusalem","items":[{"title":"Candle lighting: 6:30pm","hebrew":"הדלקת נרות","category":"candles","date":"2019-09-06T18:30:00+03:00"},{"date":"2019-09-07T19:47:00+03:00","category":"havdalah","hebrew":"הבדלה - 50 דקות","title":"Havdalah (50 min): 7:47pm"},{"category":"candles","date":"2019-09-13T18:21:00+03:00","hebrew":"הדלקת נרות","title":"Candle lighting: 6:21pm"},{"title":"Havdalah (50 min): 7:38pm","hebrew":"הבדלה - 50 דקות","category":"havdalah","date":"2019-09-14T19:38:00+03:00"},{"hebrew":"הדלקת נרות","title":"Candle lighting: 6:12pm","category":"candles","date":"2019-09-20T18:12:00+03:00"},{"title":"Havdalah (50 min): 7:28pm","hebrew":"הבדלה - 50 דקות","date":"2019-09-21T19:28:00+03:00","category":"havdalah"},{"date":"2019-09-27T18:02:00+03:00","category":"candles","hebrew":"הדלקת נרות","title":"Candle lighting: 6:02pm"},{"hebrew":"הבדלה - 50 דקות","title":"Havdalah (50 min): 7:19pm","category":"havdalah","date":"2019-09-28T19:19:00+03:00"},{"hebrew":"ערב ראש השנה","title":"Erev Rosh Hashana","link":"https://www.hebcal.com/holidays/rosh-hashana","date":"2019-09-29","category":"holiday","memo":"The Jewish New Year"},{"date":"2019-09-29T18:00:00+03:00","category":"candles","hebrew":"הדלקת נרות","title":"Candle lighting: 6:00pm"},{"category":"holiday","date":"2019-09-30","memo":"The Jewish New Year","hebrew":"ראש השנה 5780","title":"Rosh Hashana 5780","link":"https://www.hebcal.com/holidays/rosh-hashana","yomtov":true},{"title":"Candle lighting: 7:16pm","hebrew":"הדלקת נרות","date":"2019-09-30T19:16:00+03:00","category":"candles"}],"link":"https://www.hebcal.com/hebcal/?i=on;b=28;m=50;v=1;maj=on;year=2019;month=9;c=on;geo=pos;latitude=32.26;longitude=34.905;tzid=Asia%2FJerusalem"}'
     #s= '{"title":"Hebcal October 2020 32.26, 34.905, Asia/Jerusalem","link":"https://www.hebcal.com/hebcal/?i=on&b=28&m=50&v=1&maj=on&year=2020&month=10&c=on&geo=pos&latitude=32.26&longitude=34.905&tzid=Asia%2FJerusalem","longitude":"34.905","items":[{"hebrew":"ערב סוכות","category":"holiday","memo":"Feast of Tabernacles","title":"Erev Sukkot","date":"2020-10-02","link":"https://www.hebcal.com/holidays/sukkot"},{"date":"2020-10-02T17:55:00+03:00","title":"Candle lighting: 5:55pm","category":"candles","hebrew":"הדלקת נרות"},{"link":"https://www.hebcal.com/holidays/sukkot","subcat":"major","title":"Sukkot I","hebrew":"סוכות יום א׳","category":"holiday","date":"2020-10-03","memo":"Feast of Tabernacles","yomtov":true},{"category":"havdalah","hebrew":"הבדלה - 50 דקות","title":"Havdalah (50 min): 7:12pm","date":"2020-10-03T19:12:00+03:00"},{"hebrew":"סוכות יום ב׳ (חול המועד)","category":"holiday","memo":"Feast of Tabernacles","title":"Sukkot II (CH''M)","date":"2020-10-04","link":"https://www.hebcal.com/holidays/sukkot","subcat":"major"},{"title":"Sukkot III (CH''M)","memo":"Feast of Tabernacles","category":"holiday","hebrew":"סוכות יום ג׳ (חול המועד)","link":"https://www.hebcal.com/holidays/sukkot","subcat":"major","date":"2020-10-05"},{"subcat":"major","link":"https://www.hebcal.com/holidays/sukkot","date":"2020-10-06","title":"Sukkot IV (CH''M)","memo":"Feast of Tabernacles","category":"holiday","hebrew":"סוכות יום ד׳ (חול המועד)"},{"date":"2020-10-07","subcat":"major","link":"https://www.hebcal.com/holidays/sukkot","category":"holiday","hebrew":"סוכות יום ה׳ (חול המועד)","title":"Sukkot V (CH''M)","memo":"Feast of Tabernacles"},{"date":"2020-10-08","subcat":"major","link":"https://www.hebcal.com/holidays/sukkot","category":"holiday","hebrew":"סוכות יום ו׳ (חול המועד)","title":"Sukkot VI (CH''M)","memo":"Feast of Tabernacles"},{"category":"holiday","hebrew":"סוכות יום ז׳ (הושענא רבה)","title":"Sukkot VII (Hoshana Raba)","memo":"Feast of Tabernacles","date":"2020-10-09","link":"https://www.hebcal.com/holidays/sukkot","subcat":"major"},{"date":"2020-10-09T17:46:00+03:00","hebrew":"הדלקת נרות","category":"candles","title":"Candle lighting: 5:46pm"},{"date":"2020-10-10","yomtov":true,"memo":"Eighth Day of Assembly","subcat":"major","link":"https://www.hebcal.com/holidays/shmini-atzeret","hebrew":"שמיני עצרת","category":"holiday","title":"Shmini Atzeret"},{"date":"2020-10-10T19:03:00+03:00","hebrew":"הבדלה - 50 דקות","category":"havdalah","title":"Havdalah (50 min): 7:03pm"},{"title":"Candle lighting: 5:38pm","hebrew":"הדלקת נרות","category":"candles","date":"2020-10-16T17:38:00+03:00"},{"date":"2020-10-17T18:55:00+03:00","hebrew":"הבדלה - 50 דקות","category":"havdalah","title":"Havdalah (50 min): 6:55pm"},{"date":"2020-10-23T17:30:00+03:00","category":"candles","hebrew":"הדלקת נרות","title":"Candle lighting: 5:30pm"},{"title":"Havdalah (50 min): 6:47pm","hebrew":"הבדלה - 50 דקות","category":"havdalah","date":"2020-10-24T18:47:00+03:00"},{"date":"2020-10-30T16:23:00+02:00","hebrew":"הדלקת נרות","category":"candles","title":"Candle lighting: 4:23pm"},{"date":"2020-10-31T17:40:00+02:00","category":"havdalah","hebrew":"הבדלה - 50 דקות","title":"Havdalah (50 min): 5:40pm"}],"date":"2020-07-01T05:43:00-00:00","latitude":"32.26","location":{"geo":"pos","latitude":"32.26","longitude":"34.905","tzid":"Asia/Jerusalem","title":"32.26, 34.905, Asia/Jerusalem"}}'
     y = json.loads(s)
     state = "s"
-    #pprint.pprint(y)
+    pprint.pprint(y)
     for o in y["items"]:
         c = o['category']
+        if c ==  "holiday":
+            if "Chanukah: 1" in o['title']:
+                ischanukah = True 
+            if "Chanukah: 8th Day" in o['title']:
+                ischanukah = False 
+
         if state == "s":
            if c == "candles" : 
                d  = convToDateObject(o['date'])
-               last = TimeRec()
-               last.s =d 
-               state = "e"
+               if not ischanukah or d.weekday() == 4:
+                    print( " =>start"+ str(d)+"\n")
+                    last = TimeRec()
+                    last.s =d 
+                    state = "e"
         elif state == "e" :
-            ischanukah = False  # there is a bug on chanuka 
             if c ==  "holiday":
                last.help = o['title']
-               if "Chanukah" in o['title']:
-                   ischanukah = True 
             if c == "havdalah" or ischanukah  : 
+               print( "before end \n")
                d  = convToDateObject(o['date'])
+               print( " =>end"+ str(d)+"\n")
                last.e = d 
                last.update()
                l.append(last)
@@ -494,10 +506,12 @@ def test_schedule():
 
 
 #test_schedule()
+test2 ()
+#now1 = convToDateObject("2021-02-06T18:07:00+02:00")
+#print(now1.weekday())
+#print(datetime.datetime.now().weekday())
+#d = now + datetime.timedelta(seconds=30)
 
-now = datetime.datetime.now()
-d = now + datetime.timedelta(seconds=30)
-
-print(now)
-print(d)
+#print(now)
+#print(d)
 

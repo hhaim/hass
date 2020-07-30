@@ -178,9 +178,7 @@ xiaomi_aqara:
          key: !secret mii_key 
 
 hebcal:
-
-
-#  debug: true          
+#  debug: true
 
 system_health:
 

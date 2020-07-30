@@ -101,6 +101,8 @@ HEBCAL_URL = 'https://www.hebcal.com/hebcal/?i=on&b=28&m=50&v=1&cfg=json&maj=on&
 
 # to be compatiable with python 3.6,%z can't be used 
 def convToDateObject(s):
+    if len(s) == 10: # in case of Hannukah bug we don't have the time so set it to high 
+        s+="T20:00:00"
     if len(s) > 19:
         s=s[:19]
     o = datetime.datetime.strptime(s, '%Y-%m-%dT%H:%M:%S')
@@ -196,20 +198,25 @@ class CalandarDb:
         def _process(self, items):
             self.list = []
             state = "s"
+            ischanukah = False
             for o in items:
                 c = o['category']
+                if c ==  "holiday":
+                    if "Chanukah: 1" in o['title']:
+                        ischanukah = True 
+                    if "Chanukah: 8th Day" in o['title']:
+                        ischanukah = False 
+
                 if state == "s":
                     if c == "candles": 
                         d = convToDateObject(o['date'])
-                        last = TimeRec()
-                        last.s = d 
-                        state = "e"
+                        if not ischanukah or d.weekday() == 4:
+                            last = TimeRec()
+                            last.s = d 
+                            state = "e"
                 elif state == "e":
-                    ischanukah = False  # there is a bug on chanuka 
                     if c == "holiday":
                         last.help = o['title']
-                        if "Chanukah" in o['title']:
-                            ischanukah = True 
                     if c == "havdalah" or ischanukah: 
                         d = convToDateObject(o['date'])
                         last.e = d 
