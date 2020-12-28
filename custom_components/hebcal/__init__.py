@@ -27,8 +27,6 @@ How it works:
 
 KISS 
 
-info: there is a bug in www.hebcal.com website with Chanukah, so there is a simple hack to fix this 
-
  hebcal:
   debug: False/True # to enable debug messages 
 
@@ -198,26 +196,20 @@ class CalandarDb:
         def _process(self, items):
             self.list = []
             state = "s"
-            ischanukah = False
             for o in items:
                 c = o['category']
-                if c ==  "holiday":
-                    if "Chanukah: 1" in o['title']:
-                        ischanukah = True 
-                    if "Chanukah: 8th Day" in o['title']:
-                        ischanukah = False 
 
                 if state == "s":
                     if c == "candles": 
                         d = convToDateObject(o['date'])
-                        if not ischanukah or d.weekday() == 4:
+                        if d.weekday() == 4:
                             last = TimeRec()
                             last.s = d 
                             state = "e"
                 elif state == "e":
                     if c == "holiday":
                         last.help = o['title']
-                    if c == "havdalah" or ischanukah: 
+                    if c == "havdalah": 
                         d = convToDateObject(o['date'])
                         last.e = d 
                         last.update()

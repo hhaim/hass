@@ -29,10 +29,10 @@ heater_ac1:
      modes :
         a : 
           cool: { min_o: 37, min_i: 25.7, max_i: 26.5}
-          heat: { min_o: 10.0, min_i: 19.7, max_i: 21.0} 
+          heat: { min_o: 10.0, min_i: 22.1, max_i: 24.0} 
         b : 
           cool: { min_o: 34.0, min_i: 27.3, max_i: 28.5}
-          heat: { min_o: 10.0, min_i: 19.7, max_i: 21.0} 
+          heat: { min_o: 10.0, min_i: 21.7, max_i: 22.0} 
 
 
  # the up floor  
@@ -66,10 +66,10 @@ heater_ac_up:
           heat: { min_o: 10.0, min_i: 14.9, max_i: 18.5} 
         b : 
           cool: { min_o: 37.9, min_i: 28.3, max_i: 30.2} 
-          heat: { min_o: 10.0, min_i: 17.0, max_i: 18.5} 
+          heat: { min_o: 10.0, min_i: 22.1, max_i: 24.1} 
         c : 
           cool: { min_o: 37.5, min_i: 30.0, max_i: 32.5} 
-          heat: { min_o: 10.0, min_i: 14.9, max_i: 18.5} 
+          heat: { min_o: 10.0, min_i: 21.7, max_i: 22.0} 
 #
 #heater_ac_base:
 #  module: heat_app
@@ -151,9 +151,10 @@ heat_timer_off:
   input_time:  input_number.heat_timer_time
   switchs : [switch.ac2,switch.ac1]
 
-track_notification:
-   module: heat_app
-   class: TrackerNotification
+# too much noise, remove this for now too many devices   
+#track_notification:
+#   module: heat_app
+#   class: TrackerNotification
 
 track_alarm:
    module: heat_app
