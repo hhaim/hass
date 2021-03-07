@@ -806,17 +806,17 @@ class CBoilerAutomation(HassBase):
         if "input_uv" in self.args:
            uv = self.get_float("input_uv",0.0)
            
-        #self.log(" boiler c:{} m:{} x:{} ".format(self.temp,low,high));
+        #self.log(" boiler c:{} m:{} x:{} ".format(self.temp,low,high))
 
         if self.watchdog():
             return; # somthing wrong 
 
         if self.temp < low:
-            if uv < 2.0:
-               self.start();
+            if uv < 5.0:
+               self.start()
         else:
             if self.temp > high:
-                self.stop();
+                self.stop()
 
     def is_turn_on (self):
         if self.get_state(self.args["switch"])=="on":
