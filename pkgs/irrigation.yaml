@@ -18,7 +18,7 @@ wb_irrigation:
   max_ev: 3000 
   min_ev: -1500.0
   name: "wb_irrigation"
-  debug: false
+  debug: true 
   longitude: !secret accurate_longitude
   latitude: !secret accurate_latitude
   elevation: !secret accurate_elevation
