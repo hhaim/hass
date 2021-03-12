@@ -182,6 +182,10 @@ hebcal:
 
 system_health:
 
+solaredge: 
+  name: hhaim
+  site_id: !secret solaredge_siteid
+  api_key: !secret solaredge_api
 
 group: !include groups.yaml
 automation: !include automations.yaml
