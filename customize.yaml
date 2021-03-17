@@ -1,3 +1,17 @@
-
-
+    sensor.se_energy_year:
+      friendly_name: yeng
+      unit_of_measurement: Kwh
+      icon: mdi:solar-power
+    sensor.se_energy_month:
+      unit_of_measurement: Kwh
+      friendly_name: meng
+      icon: mdi:solar-power
+    sensor.se_energy_day:
+      unit_of_measurement: Kwh
+      friendly_name: deng
+      icon: mdi:solar-power
+    sensor.se_energy_cur:
+      unit_of_measurement: Kwh
+      friendly_name: ceng
+      icon: mdi:solar-power
 

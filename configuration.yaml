@@ -187,6 +187,21 @@ solaredge:
   site_id: !secret solaredge_siteid
   api_key: !secret solaredge_api
 
+
+# Example configuration.yaml entry for template platform
+sensor:
+  platform: template
+  sensors:
+    se_energy_year:
+      value_template: "{{ (states('sensor.hhaim_energy_this_year') | float / 1000) | round(0) }}"
+    se_energy_month:
+      value_template: "{{ (states('sensor.hhaim_energy_this_month') | float / 1000) | round(0) }}"
+    se_energy_day:
+      value_template: "{{ (states('sensor.hhaim_energy_today') | float / 1000) | round(0) }}"
+    se_energy_cur:
+      value_template: "{{ (states('sensor.hhaim_current_power') | float / 1000) | round(0) }}"
+       
+
 group: !include groups.yaml
 automation: !include automations.yaml
 script: !include scripts.yaml

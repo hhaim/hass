@@ -65,8 +65,8 @@ views:
           - entity: variable.heat_index_outside0
             name: Outside
             icon: mdi:oil-temperature
-          - entity: sensor.uptime
-            name: uptime
+          #- entity: sensor.uptime
+          #  name: uptime
           - entity: sensor.water_total_external_norm
             name: Water 
           - entity: sensor.wb_irrigation_p1
@@ -75,7 +75,6 @@ views:
             name: Pipe2
           - entity: sensor.wb_irrigation_rain
             name: Rain
-
 
       - type: entities
         show_header_toggle: true
@@ -106,6 +105,12 @@ views:
           type: glance
           title: Camera issues
 
+      - type: glance
+        entities:
+          - entity: sensor.se_energy_cur
+          - entity: sensor.se_energy_day
+          - entity: sensor.se_energy_month
+          - entity: sensor.se_energy_year
 
   - title: A/C
     id: ac
