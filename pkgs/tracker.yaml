@@ -37,24 +37,7 @@ device_tracker:
      zname: main
      disable_input: input_boolean.disable_ap_c7
    
-   - platform: tplink_v2
-     interval_seconds: 20
-     consider_home: 400
-     host: 10.0.0.131
-     username: !secret ap_user2
-     password: !secret ap_password
-     firmware: wr900
-     zname: daniel
    
-   - platform: tplink_v2
-     interval_seconds: 20
-     consider_home: 400
-     host: 10.0.0.134
-     username: !secret ap_user1 
-     password: !secret ap_password
-     firmware: wr900
-     zname: base
-
    - platform: tplink_v2
      interval_seconds: 20
      consider_home: 400
@@ -62,8 +45,18 @@ device_tracker:
      username: !secret ap_user2 
      password: !secret ap_password
      firmware: wr940
-     zname: kitchen
+     zname: daniel 
      disable_input: input_boolean.disable_ap_c7
+
+     # huawei_ws7200  can scan all the network using arp/ipv6 so there is no need the others 
+   - platform: huawei_ws7200  
+     interval_seconds: 20
+     consider_home: 400
+     host: 10.0.0.145
+     username: !secret ap_user3
+     password: !secret ap_password3
+     firmware: ws7200
+     zname: work
 
 
 #dummy 
