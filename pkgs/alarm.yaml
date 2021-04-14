@@ -152,8 +152,16 @@ group:
 
       - switch.alarm_s0
       - switch.alarm_s1
-
-
+  room0:
+    name: room0 sensors
+    entities:
+        - binary_sensor.alarm4
+        - binary_sensor.alarm5
+        - binary_sensor.alarm6
+        - binary_sensor.motion_sensor_158d0002b48209
+        - binary_sensor.motion_sensor_158d0002b7d548
+        - binary_sensor.motion_sensor_158d0002b7f8b4
+        - binary_sensor.motion_sensor_158d0002b85a33
 
 
 input_boolean:

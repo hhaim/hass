@@ -83,7 +83,7 @@ logbook:
 #  logs:
 #    homeassistant.components.xiaomi_aqara: debug
 #    xiaomi_gateway: debug
-#
+
     
 
 # Enables a map showing the location of tracked devices

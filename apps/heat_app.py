@@ -593,6 +593,31 @@ class HomeButtonClick(HassBase):
                 self.notify(' Doorbell on  ..')
                 self.set_door_bell()
 
+class Room0ButtonClick(HassBase):
+    """ Click Button Room0 """
+    def initialize(self):
+      self.listen_event(self.change_state, "xiaomi_aqara.click")
+
+    def change_state(self, event_name, data, kwargs):
+        en = 'binary_sensor.switch_158d0001ef644c'
+        if 'entity_id' in data:
+            if data['entity_id']==en:
+                msg=" click Room 0{}   ".format(str(data))
+                self.log(msg)
+                if 'click_type' in data:
+                    ct = data['click_type']
+                    if ct == 'single':
+                        self.toggle('group.shutter_r0')
+                    elif ct == 'double':
+                        self.toggle('group.lamps_r0')
+                    elif ct == 'long_click_press':
+                        self.turn_off('group.shutter_r0')
+                        self.turn_off('group.lamps_r0')
+                    elif ct == 'hold':
+                        pass
+
+
+
 class AlarmNotificationHighPriorty(HassBase):
 
     def initialize(self):

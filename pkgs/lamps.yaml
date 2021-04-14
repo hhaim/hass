@@ -22,20 +22,10 @@ switch:
     name: r0tv
     stopic: basic4
 
-  - platform: tasmota 
-    name: shutter11
-    stopic: shutter1
-    index: '1'
-
-  - platform: tasmota
-    name: shutter12
-    stopic: shutter1
-    index: '2'
-
   - platform: tasmota
     name: shutter2
     stopic: shutter2
-    index: '1'
+    index: '2'
 
   - platform: tasmota
     name: shutter3
@@ -47,6 +37,55 @@ switch:
     stopic: shutter4
     index: '1'
 
+  - platform: tasmota
+    name: rshutter11
+    stopic: shutter1
+    index: '1'
+
+  - platform: tasmota
+    name: rshutter12
+    stopic: shutter1
+    index: '2'
+
+  - platform: template
+    switches:
+      shutter11:
+        friendly_name: shutter11
+        value_template: "{{ is_state('switch.rshutter11', 'off') }}"
+        turn_on:
+          service: switch.turn_off
+          data:
+            entity_id: switch.rshutter11
+        turn_off:
+          service: switch.turn_on
+          data:
+            entity_id: switch.rshutter11
+      shutter12:
+        friendly_name: shutter12
+        value_template: "{{ is_state('switch.rshutter12', 'off') }}"
+        turn_on:
+          service: switch.turn_off
+          data:
+            entity_id: switch.rshutter12
+        turn_off:
+          service: switch.turn_on
+          data:
+            entity_id: switch.rshutter12
+
+group: 
+  shutter_r0:
+    name: sr0
+    entities:
+        - switch.shutter11
+        - switch.shutter12
+        - switch.shutter3
+        - switch.shutter2
+        - switch.shutter4
+  lamps_r0:
+    name: lr0
+    entities:
+        - switch.r0table
+        - switch.r0tv
 
 binary_sensor: 
 

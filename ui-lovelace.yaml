@@ -59,9 +59,9 @@ views:
           - entity: variable.heat_index1
             name: Up
             icon: mdi:oil-temperature
-          - entity: variable.heat_index2
-            name: Base
-            icon: mdi:oil-temperature
+          #- entity: variable.heat_index2
+          #  name: Base
+          #  icon: mdi:oil-temperature
           - entity: variable.heat_index_outside0
             name: Outside
             icon: mdi:oil-temperature
@@ -75,27 +75,12 @@ views:
             name: Pipe2
           - entity: sensor.wb_irrigation_rain
             name: Rain
-          - entity: switch.shutter4
-            name: s1
-            icon: mdi:window-shutter
-          - entity: switch.shutter2
-            name: s2
-            icon: mdi:window-shutter
-          - entity: switch.shutter3
-            name: s3
-            icon: mdi:window-shutter
-          - entity: switch.shutter11
-            name: s4
-            icon: mdi:window-shutter
-          - entity: switch.shutter12
-            name: s5
-            icon: mdi:window-shutter
-          - entity: switch.r0tv
-            name: stv
+          - entity: group.lamps_r0
+            name: light
             icon: mdi:lightbulb
-          - entity: switch.r0table
-            name: stv
-            icon: mdi:lightbulb
+          - entity:  group.shutter_r0
+            name: shutter
+            icon: mdi:window-shutter
 
       - type: entities
         show_header_toggle: true
@@ -210,6 +195,38 @@ views:
           - sensor.input_active_power_l1
           - sensor.input_active_power_l2
           - sensor.input_active_power_l3
+
+  - title: Room0
+    id: Room0
+    background: radial-gradient(crimson, skyblue)
+    theme: dark-mode
+    cards:
+      - type: entities
+        title: Room0
+        show_header_toggle: true
+        entities:
+          - entity: switch.shutter4
+            name: s1
+            icon: mdi:window-shutter
+          - entity: switch.shutter2
+            name: s2
+            icon: mdi:window-shutter
+          - entity: switch.shutter3
+            name: s3
+            icon: mdi:window-shutter
+          - entity: switch.shutter11
+            name: s4
+            icon: mdi:window-shutter
+          - entity: switch.shutter12
+            name: s5
+            icon: mdi:window-shutter
+          - entity: switch.r0tv
+            name: stv
+            icon: mdi:lightbulb
+          - entity: switch.r0table
+            name: stv
+            icon: mdi:lightbulb
+
 
   - title: Camera
     id: cam
