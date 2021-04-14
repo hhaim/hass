@@ -14,6 +14,38 @@ switch:
     name: gardenlamp1
     stopic: basic2
 
+  - platform: tasmota
+    name: r0table
+    stopic: basic3
+
+  - platform: tasmota
+    name: r0tv
+    stopic: basic4
+
+  - platform: tasmota 
+    name: shutter11
+    stopic: shutter1
+    index: '1'
+
+  - platform: tasmota
+    name: shutter12
+    stopic: shutter1
+    index: '2'
+
+  - platform: tasmota
+    name: shutter2
+    stopic: shutter2
+    index: '1'
+
+  - platform: tasmota
+    name: shutter3
+    stopic: shutter3
+    index: '1'
+
+  - platform: tasmota
+    name: shutter4
+    stopic: shutter4
+    index: '1'
 
 
 binary_sensor: 

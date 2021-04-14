@@ -1,13 +1,13 @@
 
 
-simple_sw_power:
-  module: heat_app
-  class: SimpleSwitch
-  schedule:
-       - { mode: a, start: { t: "16:05:00", d: 0}, end: { t: "23:50:00", d: 0} }
-  switch:
-     switch: switch.ac3
-     enable: input_boolean.simple_switch0
+#simple_sw_power:
+#  module: heat_app
+#  class: SimpleSwitch
+#  schedule:
+#       - { mode: a, start: { t: "16:05:00", d: 0}, end: { t: "23:50:00", d: 0} }
+#  switch:
+#     switch: switch.ac3
+#     enable: input_boolean.simple_switch0
 
 # day ==0 means this is a template that triiger from hebcal.event and it duplicate itself from holidays event!!
 heater_ac1:
@@ -279,7 +279,7 @@ wb_irrigation:
   notify: [tap_open] 
   taps: 
      - name: p1
-       days: [2,5]  # 1-7 1 for sunday, .. 7 for saturday 
+       days: [1,2,3,4,5,6]  # 1-7 1 for sunday, .. 7 for saturday 
        stime: "05:45:00" # time to start irrigating 
        m_week_duration_min: input_number.wbi_week_p1_duration
        switch: switch.wbi_p1

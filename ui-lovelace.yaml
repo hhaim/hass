@@ -75,6 +75,27 @@ views:
             name: Pipe2
           - entity: sensor.wb_irrigation_rain
             name: Rain
+          - entity: switch.shutter4
+            name: s1
+            icon: mdi:window-shutter
+          - entity: switch.shutter2
+            name: s2
+            icon: mdi:window-shutter
+          - entity: switch.shutter3
+            name: s3
+            icon: mdi:window-shutter
+          - entity: switch.shutter11
+            name: s4
+            icon: mdi:window-shutter
+          - entity: switch.shutter12
+            name: s5
+            icon: mdi:window-shutter
+          - entity: switch.r0tv
+            name: stv
+            icon: mdi:lightbulb
+          - entity: switch.r0table
+            name: stv
+            icon: mdi:lightbulb
 
       - type: entities
         show_header_toggle: true
@@ -89,7 +110,6 @@ views:
           - input_boolean.tracker_neta_enabled
           - media_player.main
 
-
       - type: entity-filter
         entities:
           - device_tracker.cam1
@@ -98,6 +118,7 @@ views:
           - device_tracker.cam4
           - device_tracker.cam5
           - device_tracker.alarm
+          - device_tracker.solaredge
 
         state_filter:
           - 'not_home'
@@ -111,6 +132,14 @@ views:
           - entity: sensor.se_energy_day
           - entity: sensor.se_energy_month
           - entity: sensor.se_energy_year
+          - entity: sensor.input_eng_total
+            name: total
+            icon: mdi:transmission-tower
+          - entity: sensor.input_active_power_all
+            name: acive
+            icon: mdi:transmission-tower
+
+
 
   - title: A/C
     id: ac
@@ -166,6 +195,21 @@ views:
            - sensor.water_total_external
            - light.gateway_light_7c49eb193b55
            - light.light1
+           - switch.ac3 
+
+  - title: Energy
+    id: energy
+    background: radial-gradient(crimson, skyblue)
+    theme: dark-mode
+    cards:
+      - type: entities
+        title: Machine
+        show_header_toggle: true
+        entities:
+          - sensor.input_active_power_all
+          - sensor.input_active_power_l1
+          - sensor.input_active_power_l2
+          - sensor.input_active_power_l3
 
   - title: Camera
     id: cam

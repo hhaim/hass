@@ -18,9 +18,9 @@ homeassistant:
       friendly_name: S-A/C-Up 
       icon: mdi:air-conditioner
 
-    switch.ac3:
-      friendly_name: A/C-Base
-      icon: mdi:air-conditioner
+    switch.ac3:     # enable bird 
+      friendly_name: Bird
+      icon: mdi:bird
 
     input_boolean.ac1_input:  
       icon: mdi:air-conditioner
@@ -108,11 +108,6 @@ sensor:
     state_on: 'on'
     state_off: 'off'
 
-  - platform: accumulator
-    name: ac3_hours
-    entity_id: switch.ac3
-    state_on: 'on'
-    state_off: 'off'
 
 
 
