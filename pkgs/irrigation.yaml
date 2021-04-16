@@ -47,7 +47,7 @@ input_number:
   wbi_week_p1_duration:  #week total time
     name: wp1
     min: 0.0
-    max: 150
+    max: 400
     step: 0.5
     unit_of_measurement: min
     icon: mdi:timer-sand 
