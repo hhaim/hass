@@ -17,15 +17,7 @@ device_tracker:
      interval_seconds: 60
      consider_home: 400
      topic: 'network/dhcp' 
-   
-   - platform: tplink_v2
-     interval_seconds: 20
-     consider_home: 400
-     host: 10.0.0.139
-     username: !secret ap_user1 
-     password: !secret ap_password
-     firmware: base
-     zname: living
+  
    
    - platform: tplink_v2
      interval_seconds: 20
@@ -57,6 +49,26 @@ device_tracker:
      password: !secret ap_password3
      firmware: ws7200
      zname: work
+
+     # huawei_ws7200  can scan all the network using arp/ipv6 so there is no need the others 
+   - platform: huawei_ws7200  
+     interval_seconds: 20
+     consider_home: 400
+     host: 10.0.0.146
+     username: !secret ap_user3
+     password: !secret ap_password3
+     firmware: ws7200
+     zname: tv
+
+     # huawei_ws7200  can scan all the network using arp/ipv6 so there is no need the others 
+   - platform: huawei_ws7200  
+     interval_seconds: 20
+     consider_home: 400
+     host: 10.0.0.147
+     username: !secret ap_user3
+     password: !secret ap_password3
+     firmware: ws7200
+     zname: k1
 
 
 #dummy 
