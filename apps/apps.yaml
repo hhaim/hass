@@ -243,13 +243,13 @@ door_lamp:
   delay: 15
   schedule: *id001
 
-#room0:
-#  module: heat_app
-#  class: OutdoorLampWithPir
-#  switch: group.lamps_r0
-#  sensor: group.room0
-#  delay: 30
-#  schedule: *id001
+room0:
+  module: heat_app
+  class: OutdoorLampWithPir
+  switch: group.lamps_r0
+  sensor: group.room0
+  delay: 30
+  schedule: *id001
 
 water_monitor:
   module: heat_app

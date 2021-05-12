@@ -164,12 +164,29 @@ panel_iframe:
 
 influxdb:
   database: hass_db
+  exclude:
+    domains:
+      - binary_sensor
+      - device_tracker
+    entities:
+      - switch.door_lamp0
+      - switch.garden_lamp0
+      - group.room0
+      - switch.ac3
+
 
 recorder:
-  purge_keep_days: 7
+  purge_keep_days: 2
   purge_interval: 1
   db_url: !secret recorder_db_url
-
+  exclude:
+    domains:
+      - device_tracker
+    entities:
+      - group.room0
+      - switch.door_lamp0
+      - switch.garden_lamp0
+      - switch.ac3
 
 xiaomi_aqara:
   discovery_retry: 5
