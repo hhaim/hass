@@ -202,10 +202,9 @@ class CalandarDb:
                 if state == "s":
                     if c == "candles": 
                         d = convToDateObject(o['date'])
-                        if d.weekday() == 4:
-                            last = TimeRec()
-                            last.s = d 
-                            state = "e"
+                        last = TimeRec()
+                        last.s = d 
+                        state = "e"
                 elif state == "e":
                     if c == "holiday":
                         last.help = o['title']
