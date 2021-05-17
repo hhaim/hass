@@ -433,6 +433,7 @@ class OutdoorLampWithPir(HassBase):
     def initialize(self):
         self.cfg_slamp = self.args["switch"]
         self.cfg_pir   = self.args["sensor"]
+        self.auto_pir_on = True 
         self.listen_state(self.do_pir_change, self.cfg_pir)
         self.handle =None
         self.is_sabbath =False
@@ -441,6 +442,9 @@ class OutdoorLampWithPir(HassBase):
            self.cfg_delay_sec = (self.args["delay"])*60
         else:
            self.cfg_delay_sec = 15*60
+
+        if "disable_auto_on" in self.args:
+            self.auto_pir_on = not self.args["disable_auto_on"]
 
         self.listen_event(self.sabbath_cb, HEBCAL_EVENT)
         self.sch = ada.schedule.Schedule(self,
@@ -469,7 +473,8 @@ class OutdoorLampWithPir(HassBase):
            self.handle = None
 
     def  turn_lamp_on_timer(self,time_sec):
-        self.turn_on(self.cfg_slamp)
+        if self.auto_pir_on:
+           self.turn_on(self.cfg_slamp)
         self.stop_timer()
         self.handle = self.run_in(self.timer_turn_lamp_off, time_sec)
  

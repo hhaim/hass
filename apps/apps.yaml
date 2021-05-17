@@ -250,6 +250,7 @@ room0:
   sensor: group.room0
   delay: 30
   schedule: *id001
+  disable_auto_on: True
 
 water_monitor:
   module: heat_app
