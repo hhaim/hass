@@ -124,6 +124,7 @@ class Schedule:
         self.cfg = cfg
         self.on_cb = callback
         self.cb_data = cb_data
+        self.disable_startup = False 
         self.rules = []
         self.__load_yaml()
         if self.is_any_event_base_rule():  # do we have events with template?
@@ -184,7 +185,11 @@ class Schedule:
 
     def __load_yaml(self):
         for rule in self.cfg:
-            self.rules.append(Rule.load_cfg(self.ad,rule))
+            if "global_cfg" in rule:
+                if "disable_startup" in rule:
+                    self.disable_startup = rule["disable_startup"]
+            else:    
+               self.rules.append(Rule.load_cfg(self.ad,rule))
 
     def __repr__(self) -> str:
         s = "<Schedule with {} rules> \n".format(len(self.rules))
@@ -196,11 +201,12 @@ class Schedule:
 
     def init(self):
         now = self.ad.get_now()
-        rule = self.matching_rule(now)
-        if rule:
-           self._cb_event(dict(rule=rule, state="on"))
-        else:
-           self._cb_event(dict(rule=None, state="off"))
+        if self.disable_startup == False:
+            rule = self.matching_rule(now)
+            if rule:
+                self._cb_event(dict(rule=rule, state="on"))
+            else:
+                self._cb_event(dict(rule=None, state="off"))
 
         for rule in self.rules:
             if rule.is_date_rule():

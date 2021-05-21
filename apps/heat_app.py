@@ -20,6 +20,44 @@ class SimpleSwitch(hass.Hass):
                                      self.ss.on_schedule_event,None)
         self.sch.init()
 
+class ShuttersApp(hass.Hass):
+
+    def initialize(self):
+        self.log("start ShuttersApp")
+        self.shutter = self.args["switch"]
+        self.enabled = self.args["enable"]
+        self.sch = ada.schedule.Schedule(self,
+                                     self.args['schedule'],
+                                     self.on_schedule_event,None)
+        self.old_state = None
+        self.sch.init()
+
+    def on_schedule_event(self, kwargs):
+        if self.enabled:
+            if kwargs['state'] == "on":
+                if self.is_on() == False:
+                    self.old_state = False
+                    self.s_turn_on()
+                    self.log("shutter in close state")
+                else:
+                    self.old_state = None
+            elif kwargs['state'] == "off":
+                if self.old_state == False:
+                    self.old_state = None
+                    self.log("shutter in open state")
+                    self.s_turn_off()
+
+    def s_turn_on(self):
+        self.turn_on(self.shutter)
+
+    def s_turn_off(self):
+        self.turn_off(self.shutter)
+
+    def is_on(self):
+        if self.get_state(self.shutter) == "on":
+            return True
+        else:
+            return False
 
 class HeatApp(hass.Hass):
 

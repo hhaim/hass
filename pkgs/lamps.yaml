@@ -87,6 +87,11 @@ group:
         - switch.r0table
         - switch.r0tv
 
+input_boolean:
+  shutter_app_enable:
+    name: Enable Shutter App
+
+
 binary_sensor: 
 
   - platform: mqtt

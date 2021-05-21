@@ -1,5 +1,15 @@
 
 
+shutter_auto_off:
+  module: heat_app
+  class: ShuttersApp
+  switch: group.shutter_r0
+  enable: input_boolean.shutter_app_enable
+  schedule:
+       - { global_cfg: true, disable_startup: true}
+       - { mode: a, start: { t: "00:00:10", d: 0}, end: { t: "07:00:00", d: 0 } }
+
+
 #simple_sw_power:
 #  module: heat_app
 #  class: SimpleSwitch
@@ -14,7 +24,7 @@ heater_ac1:
   module: heat_app
   class: HeatApp
   schedule:
-       - { mode: b, start: { t: "08:00:00", d: 0}, end: { t: "11:00:00", d: 0} }  
+       - { mode: a, start: { t: "08:00:00", d: 0}, end: { t: "11:00:00", d: 0} }  
        - { mode: a, start: { t: "11:00:01", d: 0}, end: { t: "14:45:00", d: 0} }
        - { mode: b, start: { t: "15:15:20", d: 0}, end: { t: "23:30:40", d: 0} }
        
@@ -65,7 +75,7 @@ heater_ac_up:
           cool: { min_o: 37.3, min_i: 28.5, max_i: 29.5} 
           heat: { min_o: 10.0, min_i: 14.9, max_i: 18.5} 
         b : 
-          cool: { min_o: 37.9, min_i: 28.3, max_i: 30.2} 
+          cool: { min_o: 37.9, min_i: 25.3, max_i: 26.2} 
           heat: { min_o: 10.0, min_i: 22.1, max_i: 24.1} 
         c : 
           cool: { min_o: 37.5, min_i: 30.0, max_i: 32.5} 
