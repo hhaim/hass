@@ -203,6 +203,13 @@ boiler_timer_off:
   input_time:  input_number.boiler_timer_time
   switchs : [switch.b0]
 
+cam6_timer_off:
+  module: heat_app
+  class: SimpleTimerOff
+  input_start: switch.cam6on
+  input_time:  input_number.boiler_timer_time
+  switchs : [switch.cam6on]
+
 boiler_automation:
   module: heat_app
   class: CBoilerAutomation

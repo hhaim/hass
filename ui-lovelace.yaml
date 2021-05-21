@@ -226,6 +226,9 @@ views:
           - entity: switch.r0table
             name: stv
             icon: mdi:lightbulb
+          - entity: switch.cam6on
+            name: cam6on
+            icon: mdi:camera
 
 
   - title: Camera

@@ -27,6 +27,10 @@ group:
        - device_tracker.cam5
 
 
+switch:
+  - platform: tasmota
+    name: cam6on
+    stopic: basic7
 
 camera:
   - platform: foscam
