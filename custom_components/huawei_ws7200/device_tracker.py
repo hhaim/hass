@@ -251,7 +251,7 @@ class HuaweiWS7200:
             r = self.session.get(query, verify=False)
             devices = r.json()
             for d in devices:
-                if (d["Layer2Interface"]=="SSID1") or (d["Layer2Interface"]=="SSID5"): ## filter for wifi devices
+                if (d["Active"] == True) and ((d["Layer2Interface"]=="SSID1") or (d["Layer2Interface"]=="SSID5")): ## filter for wifi devices
                    macs.append(d["MACAddress"])
                     
             self.statusmsg = 'OK'

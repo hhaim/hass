@@ -728,8 +728,11 @@ class CBoilerAutomation(HassBase):
         self.run_in(self.check_temp, CBoilerAutomation.TIME_INTERVAL)
         self.listen_state(self.do_power_change, self.args["switch"])
         self.listen_event(self.saturday_cb, HEBCAL_EVENT)
-        self.run_at_sunset(self.notify_temp,  offset=-(2*60*60))
         self.listen_state(self.do_input_change, self.args["input_automation"])
+        try: 
+           self.run_at_sunset(self.notify_temp,  offset=-(2*60*60))
+        except Exception as e:
+           pass
 
     def notify_temp(self,kwargs):
         msg= "Boiler at {} c".format(self.get_float("temp",60.0))
@@ -942,8 +945,12 @@ class CWaterMonitor(HassBase):
         self.switch_cnt=0;
         self.burst_was_reported = False
         self.total_water_was_reported = False
-        self.run_at_sunset(self.notify_water_usage,  offset=-(0))
         self.listen_event(self.home_cb, "at_home")
+        try:
+            self.run_at_sunset(self.notify_water_usage,  offset=-(0))
+        except Exception as e:
+            pass
+
 
     def notify_water_usage(self,kwargs):
 

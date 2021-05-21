@@ -187,6 +187,20 @@ recorder:
       - switch.door_lamp0
       - switch.garden_lamp0
       - switch.ac3
+  include:
+    entities:
+      - device_tracker.hhaim_phone
+      - device_tracker.daniel_phone
+      - device_tracker.nitay_phone
+      - device_tracker.nitay_pc
+      - device_tracker.rivi_phone
+      - device_tracker.sony_ps
+      - device_tracker.tv
+      - device_tracker.tv_wifi
+      - device_tracker.daniel_phone1
+      - device_tracker.daniel_phone2
+      - variable.tracker_neta
+
 
 xiaomi_aqara:
   discovery_retry: 5
