@@ -229,10 +229,12 @@ views:
           - entity: switch.cam6on
             name: cam6on
             icon: mdi:camera
+          - entity: switch.kit7on
+            name: kit7on
+            icon: mdi:camera
           - entity: input_boolean.shutter_app_enable
             name: enable_shutter_app
             icon: mdi:window-shutter
-        
 
 
   - title: Camera

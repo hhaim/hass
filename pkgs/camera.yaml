@@ -32,6 +32,10 @@ switch:
     name: cam6on
     stopic: basic7
 
+  - platform: tasmota
+    name: kit7on
+    stopic: basic6
+
 camera:
   - platform: foscam
     ip: cam2-w.hhaim.home
