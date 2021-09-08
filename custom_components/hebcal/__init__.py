@@ -28,7 +28,14 @@ How it works:
 KISS 
 
  hebcal:
-  debug: False/True # to enable debug messages 
+  debug: False/True # to enable debug messages
+
+Power-down case:
+---------------
+
+In case of power-down and now is in the middle of the range 
+ e.g. (Start-- NOW -- End) the record is converted to  (NOW - END) this will
+ trigger the same logic as if the holidays is starting again.
 
 
 """
@@ -192,6 +199,12 @@ class CalandarDb:
                     self.state = STATE_ON
             if drop > 0:
                 self.list = self.list[drop:]
+            # in case we are in the middle of time, it means there was a power- 
+            # down in the middle of an event so 
+            # fix the start time to be now + 2 min so the system adapt to the new window 
+            if self.state == STATE_ON: 
+                self.list[0].s = now + datetime.timedelta(minutes=2)
+    
 
         def _process(self, items):
             self.list = []
@@ -330,15 +343,27 @@ class HebcalSensor(Entity):
 
     # load the timers from the database 
     def load_timers(self):
-        if self._db.state == STATE_OFF:
-            do = self._db.get_head()
-            self.do = do
-            if self._debug:
-               _LOGGER.error(" start start {} ".format(self.do)) 
-            #trigger 3 events 
-            if do.e - do.s < datetime.timedelta(days=1):
-                 _LOGGER.error(" hebcal something wrong with the record {} ".format(self.do)) 
+        do = self._db.get_head()
+        self.do = do
+        if self._debug:
+            _LOGGER.error(" start start {} ".format(self.do)) 
+        #trigger 3 events 
+        if do.e - do.s < datetime.timedelta(days=1):
+                _LOGGER.error(" hebcal something wrong with the record {} maybe a power-down ".format(self.do)) 
 
+        now = datetime.datetime.now()
+        dt = do.s - now
+        if  dt < datetime.timedelta(minutes=10):
+            _LOGGER.error(" power-down less than {}  ".format(dt)) 
+            if  dt > datetime.timedelta(minutes=0):
+                # probably a power-down 
+                event.async_track_point_in_time(
+                    self.hass, self._pre_on, do.s)
+                event.async_track_point_in_time(
+                    self.hass, self._on, do.s + timedelta(minutes=1))
+                event.async_track_point_in_time(
+                    self.hass, self._off, do.e)
+        else:    
             event.async_track_point_in_time(
                 self.hass, self._pre_on, do.s - timedelta(minutes=10))
             event.async_track_point_in_time(
@@ -346,14 +371,6 @@ class HebcalSensor(Entity):
             event.async_track_point_in_time(
                 self.hass, self._off, do.e)
     
-        else:
-            self._db.state = STATE_OFF
-            do = self._db.get_head() 
-          
-            event.async_track_point_in_time(
-                self.hass, self._pre_on, dt_util.now())
-            event.async_track_point_in_time(
-                self.hass, self._off, do.e)
 
     @property
     def name(self):
@@ -381,7 +398,7 @@ class HebcalSensor(Entity):
         if self.do != None:
             next_format =  self.do.s.strftime("%a - %H:%M") +" "+self.do.help
             return { STATE_ATTR_NEXT_S_EVENT_FORMAT : next_format,
-                    STATE_ATTR_NEXT_S_EVENT   : self.do.s,
+                     STATE_ATTR_NEXT_S_EVENT  : self.do.s,
                      STATE_ATTR_NEXT_E_EVENT  : self.do.e,
                      STATE_ATTR_HELP_EVENT    : self.do.help, 
                      STATE_ATTR_NORM_EVENT    : self.do.normal } 
