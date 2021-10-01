@@ -344,4 +344,6 @@ track_alarm:
    module: heat_app
    class: AlarmNotificationHigh
 
-  
+power_up_notification:
+  module: heat_app
+  class: PowerDownNotification

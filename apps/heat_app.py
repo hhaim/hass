@@ -7,6 +7,7 @@ import ada.temp
 
 HEBCAL_EVENT = "hebcal.event"
 EVENTM_EVENT = "eventm.event"
+TASMOTA_EVENT = "tasmota.event"
 
 ALARM_WATER_ISSUES = 23
 
@@ -391,6 +392,19 @@ class AlarmNotification(HassBase):
 def norm_dw (dweek):
     m=[2,3,4,5,6,7,1]
     return m[dweek]
+
+
+class PowerDownNotification(HassBase):
+
+    def initialize(self):
+        self.listen_event(self.event_cb, TASMOTA_EVENT)
+
+    def event_cb(self, event_name, data, kwargs):
+        if data['state'] == 'power_up':
+            eid = data['entity_id'].replace(".", " ")
+            eid = eid.replace("_", " ")
+            msg = " Power up {} ".format(eid)
+            self.my_notify(msg)
 
 
 class SabbathEvent(hass.Hass):
