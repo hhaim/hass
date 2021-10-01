@@ -5,6 +5,8 @@ simplify the way you can work with Tasmota
 import logging
 from typing import Optional
 import json
+import re
+
 
 import voluptuous as vol
 
@@ -14,7 +16,7 @@ from homeassistant.components.mqtt import (
     CONF_AVAILABILITY_TOPIC,CONF_PAYLOAD_AVAILABLE,CONF_PAYLOAD_NOT_AVAILABLE, CONF_QOS, CONF_RETAIN, MqttAvailability)
 from homeassistant.components.switch import SwitchDevice
 from homeassistant.const import (
-    CONF_NAME, CONF_PAYLOAD_OFF,
+    ATTR_ENTITY_ID,CONF_NAME, CONF_PAYLOAD_OFF,
     CONF_PAYLOAD_ON, CONF_ICON, STATE_ON)
 from homeassistant.components import mqtt, switch
 import homeassistant.helpers.config_validation as cv
@@ -36,6 +38,9 @@ CONF_SHORT_TOPIC ='stopic' # short_topic
 DEFAULT_QOS = 1
 TASMOTA_ONLINE ="Online"
 TASMOTA_OFFLINE = "Offline"
+ATTR_UPTIME = 'uptime_sec'
+TASMOTA_EVENT = "tasmota.event"
+TASMOTA_POWER_UP = "power_up"
 
 
 PLATFORM_SCHEMA = cv.PLATFORM_SCHEMA.extend({
@@ -86,6 +91,8 @@ class MqttTasmotaSwitch(MqttAvailability, SwitchDevice, RestoreEntity):
         avail_cfg[CONF_QOS] = DEFAULT_QOS
 
         MqttAvailability.__init__(self, avail_cfg)
+        self._uptime_sec = 100000000000 # uptime in seconds
+        self._valid_ref = False
         self._state = False
         self._name = config.get(CONF_NAME)
         self._icon = config.get(CONF_ICON)
@@ -101,6 +108,30 @@ class MqttTasmotaSwitch(MqttAvailability, SwitchDevice, RestoreEntity):
         self._payload_off = config.get(CONF_PAYLOAD_OFF)
         self._optimistic = False
 
+
+    def _get_d(self, state):
+        d = {}
+        d = self.state_attributes
+        d[ATTR_ENTITY_ID] = self.entity_id
+        d["state"] = state
+        return d
+
+    def update_uptime(self, uptime_sec):
+        if uptime_sec < 0:
+            return # nothing to update
+        if self._valid_ref == False:
+            self._uptime_sec = uptime_sec    
+            self._valid_ref = True 
+            return 
+        if uptime_sec < self._uptime_sec:
+           # we had a reboot, need to take a new ref
+           _LOGGER.error("switch event  JSON: {}".format( self._get_d(TASMOTA_POWER_UP)))
+           self.hass.bus.async_fire(TASMOTA_EVENT,
+                                self._get_d(TASMOTA_POWER_UP)) 
+           self._uptime_sec = uptime_sec
+        else:
+            self._uptime_sec = uptime_sec
+        self.async_schedule_update_ha_state()
 
     async def async_added_to_hass(self):
         """Subscribe to MQTT events."""
@@ -118,10 +149,23 @@ class MqttTasmotaSwitch(MqttAvailability, SwitchDevice, RestoreEntity):
              self.hass, self._state_topic, state_message_received,
              self._qos)
 
+    def _uptime_to_sec(self, uptime_str):
+        """ convert uptime string to sec """
+        m = re.match(r"(\d+)T(\d\d)\:(\d\d)\:(\d\d)", uptime_str)
+        if m:
+            return(int(m.group(4))+(int(m.group(3))*60)+int(m.group(2))*60*60+int(m.group(1))*60*60*24)
+        _LOGGER.error("Unable to parse uptime string %s", uptime_str)
+        return (-1)
 
-    def update_mqtt_results (self,payload):
+    def update_mqtt_results(self, payload):
+        UT='Uptime'
         try:
             message = json.loads(payload)
+            if UT in message:
+                uptime_str = message[UT]
+                uptime_sec = self._uptime_to_sec(uptime_str)
+                self.update_uptime(uptime_sec)
+
             if self._status_str in message:
                 val=message[self._status_str]
                 if val == self._payload_on:
@@ -171,3 +215,11 @@ class MqttTasmotaSwitch(MqttAvailability, SwitchDevice, RestoreEntity):
         mqtt.async_publish(
             self.hass, self._command_topic, self._payload_off, self._qos,
             self._retain)
+
+    @property
+    def device_state_attributes(self):
+        """Return the state attributes."""
+
+        return {
+            ATTR_UPTIME : self._uptime_sec
+        }
