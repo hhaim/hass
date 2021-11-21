@@ -18,6 +18,7 @@ wb_irrigation:
   max_ev: 3000 
   min_ev: -1500.0
   name: "wb_irrigation"
+  external_rain : "sensor.external_rain"
   #debug: true 
   longitude: !secret accurate_longitude
   latitude: !secret accurate_latitude
@@ -124,4 +125,11 @@ sensor:
     state_on: 'on'
     state_off: 'off'
 
-
+  - platform: tasmota # sensor for mm of rain, going up 
+    name: external_rain
+    stopic: water_out
+    id: 2
+    unit_of_measurement: 'mm'
+    icon: mdi:weather-rainy
+    expire_after: 300
+    value_template: "{{ (0 + (value))|int }}"

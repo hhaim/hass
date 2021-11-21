@@ -63,7 +63,7 @@ CONF_MIN_EV = "min_ev"
 CONF_DEBUG = "debug"
 CONF_FAO56_SENSOR = "fao56"
 CONF_RAIN_SENSOR = "rain"
-CONF_EXTERNAL_SENSOR_RAIN_1h ="external_rain_1h"
+CONF_EXTERNAL_SENSOR_RAIN_SENSOR ="external_rain"
 
 DATA_KEY = 'wb_irrigation.devices'
 
@@ -93,7 +93,7 @@ CONFIG_SCHEMA = vol.Schema(
            vol.Optional(CONF_LONGITUDE): cv.longitude,
            vol.Optional(CONF_ELEVATION): vol.Coerce(int),
            vol.Optional(CONF_DEBUG,default=False): cv.boolean,
-           vol.Optional(CONF_EXTERNAL_SENSOR_RAIN_1h):cv.string,
+           vol.Optional(CONF_EXTERNAL_SENSOR_RAIN_SENSOR):cv.string,
            vol.Required(CONF_RAIN_FACTOR): vol.Coerce(float),
            vol.Required(CONF_MAX_EV): vol.Coerce(float),
            vol.Required(CONF_MIN_EV): vol.Coerce(float),
@@ -129,14 +129,14 @@ async def async_setup(hass, config):
     cfg0[CONF_NAME] = fix_name(cfg,TYPE_RAIN)
     cfg0[CONF_UNIT_OF_MEASUREMENT] = "mm"
     cfg0[CONF_TYPE] = TYPE_RAIN
-    cfgs.append(cfg0);
+    cfgs.append(cfg0)
 
 
     cfg1 = copy.deepcopy(cfg)
     cfg1[CONF_NAME] = fix_name(cfg,TYPE_RAIN_DAY)
     cfg1[CONF_UNIT_OF_MEASUREMENT] = "mm"
     cfg1[CONF_TYPE] = TYPE_RAIN_DAY
-    cfgs.append(cfg1);
+    cfgs.append(cfg1)
 
     # FAO56 is better 
     #cfg2 = copy.deepcopy(cfg)
@@ -149,7 +149,7 @@ async def async_setup(hass, config):
     cfg3[CONF_NAME] = fix_name(cfg,TYPE_EV_FAO56_DAY)
     cfg3[CONF_UNIT_OF_MEASUREMENT] = "ev"
     cfg3[CONF_TYPE] = TYPE_EV_FAO56_DAY
-    cfgs.append(cfg3);
+    cfgs.append(cfg3)
 
     #add devices 
     for dev in cfg.get(CONF_TAPS):
@@ -159,8 +159,9 @@ async def async_setup(hass, config):
        c[CONF_TYPE] = TYPE_EV_RAIN_BUCKET
        c[CONF_FAO56_SENSOR] = "sensor."+fix_name(cfg,TYPE_EV_FAO56_DAY)
        c[CONF_RAIN_SENSOR] = "sensor."+fix_name(cfg,TYPE_RAIN_DAY)
+       c[CONF_EXTERNAL_SENSOR_RAIN_SENSOR] = cfg[CONF_EXTERNAL_SENSOR_RAIN_SENSOR]
 
-       cfgs.append(c);
+       cfgs.append(c)
 
 
     for c in cfgs:

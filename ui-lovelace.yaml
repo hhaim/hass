@@ -73,7 +73,7 @@ views:
             name: Pipe1
           - entity: sensor.wb_irrigation_p2
             name: Pipe2
-          - entity: sensor.wb_irrigation_rain
+          - entity: sensor.external_rain
             name: Rain
           - entity: group.lamps_r0
             name: light
@@ -408,7 +408,7 @@ views:
             name: Pipe1
           - entity: sensor.wb_irrigation_p2
             name: Pipe2
-          - entity: sensor.wb_irrigation_rain
+          - entity: sensor.external_rain
             name: Rain
           - entity: sensor.wbi_p1_hours
             name: p1_hours
@@ -425,7 +425,7 @@ views:
 
       - type: entities
         entities:
-          - sensor.wb_irrigation_rain_day
+          - sensor.external_rain
           - sensor.wb_irrigation_fao56
           - input_number.wbi_p1_duration
           - input_number.wbi_p2_duration
@@ -441,8 +441,7 @@ views:
         hours_to_show : 168
         entities:
           - sensor.wb_irrigation_fao56
-          - sensor.wb_irrigation_rain
-          - sensor.wb_irrigation_rain_day
+          - sensor.external_rain
           - sensor.wb_irrigation_p1
           - sensor.wb_irrigation_p2
 

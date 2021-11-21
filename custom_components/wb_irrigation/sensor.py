@@ -20,7 +20,7 @@ from ..wb_irrigation.pyeto import convert,fao
 from datetime import timedelta,datetime
 from typing import Optional
 import voluptuous as vol
-from ..wb_irrigation import (TYPE_EV_FAO56_DAY,TYPE_RAIN,TYPE_RAIN_DAY,TYPE_EV_DAY,TYPE_EV_RAIN_BUCKET,CONF_RAIN_FACTOR,CONF_TAPS,CONF_MAX_EV,CONF_MIN_EV,CONF_DEBUG,CONF_FAO56_SENSOR,CONF_RAIN_SENSOR,CONF_EXTERNAL_SENSOR_RAIN_1h)
+from ..wb_irrigation import (TYPE_EV_FAO56_DAY,TYPE_RAIN,TYPE_RAIN_DAY,TYPE_EV_DAY,TYPE_EV_RAIN_BUCKET,CONF_RAIN_FACTOR,CONF_TAPS,CONF_MAX_EV,CONF_MIN_EV,CONF_DEBUG,CONF_FAO56_SENSOR,CONF_RAIN_SENSOR,CONF_EXTERNAL_SENSOR_RAIN_SENSOR)
 from homeassistant.core import callback
 from homeassistant.components import sensor
 from homeassistant.components.sensor import DEVICE_CLASSES_SCHEMA
@@ -124,14 +124,18 @@ class WeatherIrrigarion(RestoreEntity):
         self._min_ev = conf.get(CONF_MIN_EV)
         self._update_lock = asyncio.Lock()
         self._state = 0.0
+        self._last_rain_mm = None
+        self._rain_sensor_inc =False # does the rain sensor is going up (external sensor)
         if self._type == TYPE_EV_RAIN_BUCKET:
             self._state = 500.0
             self._sensor_id = conf.get(CONF_FAO56_SENSOR)
-            self._rain_sensor_id = conf.get(CONF_RAIN_SENSOR) 
+            if len(conf.get(CONF_EXTERNAL_SENSOR_RAIN_SENSOR))>0:
+               self._rain_sensor_id = conf.get(CONF_EXTERNAL_SENSOR_RAIN_SENSOR) 
+               self._rain_sensor_inc = True 
+               self.init_rain_sensor()
+            else:    
+               self._rain_sensor_id = conf.get(CONF_RAIN_SENSOR) 
         
-        if self._type in (TYPE_RAIN,TYPE_RAIN_DAY) :
-            self._sensor_id = conf.get(CONF_EXTERNAL_SENSOR_RAIN_1h)
-    
         self.reset_data ()
 
         sync_min = 58
@@ -145,7 +149,7 @@ class WeatherIrrigarion(RestoreEntity):
         if (self._type != TYPE_EV_RAIN_BUCKET):
           async_track_utc_time_change(
               hass, self._async_update_every_hour,
-                minute = 0, second = 0)
+                 minute = 0, second = 0)
 
 
     async def async_added_to_hass(self):
@@ -185,6 +189,33 @@ class WeatherIrrigarion(RestoreEntity):
            pass 
         return d;
 
+    def init_rain_sensor (self):
+        if self._rain_sensor_inc == True:
+           if  self._last_rain_mm == None:
+                rain_state = self.hass.states.get(self._rain_sensor_id)
+                if rain_state :
+                    self._last_rain_mm = int(rain_state.state)
+
+
+    def read_rain_sensor (self):
+            if self._rain_sensor_inc == False:
+                rain_mm = 0.0
+                rain_state = self.hass.states.get(self._rain_sensor_id)
+                if rain_state :
+                    rain_mm = float(rain_state.state)
+                return  rain_mm
+            else:    
+                rain_state = self.hass.states.get(self._rain_sensor_id)
+                rain_mm = 0.0 # delta
+                if rain_state :
+                    new_rain_mm = int(rain_state.state)
+                    if self._last_rain_mm != None:
+                        if new_rain_mm > self._last_rain_mm:
+                            rain_mm = float(new_rain_mm - self._last_rain_mm)
+                            self._last_rain_mm = new_rain_mm
+                        else:    
+                            self._last_rain_mm = new_rain_mm
+                return rain_mm     
 
 
     async def _async_update_last_day(self,time=None):
@@ -208,9 +239,7 @@ class WeatherIrrigarion(RestoreEntity):
             if ev_state :
                  ev = float(ev_state.state)
 
-            rain_state = self.hass.states.get(self._rain_sensor_id)
-            if rain_state :
-                 rain_mm = float(rain_state.state)
+            rain_mm = self.read_rain_sensor ()
 
             self._state += (-ev) + (rain_mm * self._rain_factor)
             if self._state > self._max_ev:
@@ -260,7 +289,7 @@ class WeatherIrrigarion(RestoreEntity):
 
     def _update_every_hour(self):
         """Fetch the  status from URL"""
-
+        
         d = self.get_data()
         if d is None:
             return;
@@ -290,12 +319,6 @@ class WeatherIrrigarion(RestoreEntity):
         if "snow" in d:
             # not acurate, in case of snow 
             rain_mm = rain_mm + 50
-
-        if self._type in (TYPE_RAIN,TYPE_RAIN_DAY) :
-            if self._sensor_id:
-                rain_state = self.hass.states.get(self._sensor_id)
-                if rain_state :
-                   rain_mm = float(rain_state.state)
                 
         if self._type == TYPE_EV_FAO56_DAY:
              f = self.get_fao56_factor (d)
