@@ -1,0 +1,136 @@
+version: '3.5'
+
+# DOCKER COMPOSE COMMAND REFERENCE
+# --------------------------------------------------------------------------
+# Start    | docker-compose up -d
+# Stop     | docker-compose stop
+# Update   | docker-compose pull
+# Logs     | docker-compose logs --tail=25 -f
+# debug    : docker-compose exec inlfuxdb bash --> get into one of 
+# influxd 
+# influxd backup -db hass_db -skip-errors /mnt/nas0/hass_backup/  # specifc time every week or day 
+# influxd restore -newdb hass_db -db hass_db -datadir /var/lib/influxdb/data/hass_db/ /opt/
+
+
+services:
+  homeassistant:
+    container_name: homeassistant
+    image: "ghcr.io/home-assistant/home-assistant:2021.11"
+    depends_on:
+      - mariadb
+      - influxdb
+    volumes:
+      - ./cfg/hass:/config
+      - /etc/localtime:/etc/localtime:ro
+    restart: unless-stopped
+    privileged: true
+    network_mode: host  
+    healthcheck:
+        test: 'curl -m 90 -sLf http://localhost:8123 || date >> /config/healthcheck' #| pkill -9 python3'
+        interval: 90s
+        timeout: 60s
+        retries: 2    
+    #user: "${UID}:${GID}"
+    environment:
+      TZ: ${TZ}      
+  mariadb:
+    restart: unless-stopped
+    image: mariadb:10.6
+    user: "${UID}:${GID}"    
+    ports:
+      - "3306:3306/tcp"    
+    volumes:
+      - ./cfg/mariadb:/etc/mysql/conf.d
+      - ./store/mariadb:/var/lib/mysql # Never remove
+    environment:
+      TZ: ${TZ}      
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+
+  mosquitto:
+    container_name: mosquitto
+    image: eclipse-mosquitto:2.0.14
+    restart: unless-stopped
+    user: "${UID}:${GID}"    
+    ports:
+      - 1883:1883
+      - 9001:9001
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./cfg/mosquitto/:/mosquitto/config
+      - ./store/mosquitto/data:/mosquitto/data
+      - ./store/mosquitto/log:/mosquitto/log
+    environment:
+      TZ: ${TZ}
+
+  appdaemon:
+      container_name: appdaemon
+      #4.1.0
+      image: acockburn/appdaemon:3.0.5
+      #user: "${UID}:${GID}"
+      depends_on:
+       - homeassistant
+      volumes:
+        - /etc/localtime:/etc/localtime:ro
+        - ./cfg/hass:/conf
+      restart: always
+  influxdb:
+      container_name: influxdb
+      #image: influxdb
+      image: influxdb:1.8.10-alpine
+      #healthcheck:
+      #  test: "curl -sf http://localhost:8086/ping"
+      #  interval: 60s
+      #  timeout: 10s
+      #  retries: 5
+      user: "${UID}:${GID}"
+      environment:
+      - INFLUXDB_DB="${MYSQL_DATABASE}"
+      - INFLUXDB_ADMIN_USER="${MYSQL_USER}"
+      - INFLUXDB_ADMIN_PASSWORD="${MYSQL_PASSWORD}"
+      volumes:
+       - './store/influxdb:/var/lib/influxdb'
+       - './cfg/influxdb:/etc/influxdb'
+       - 'nas_10:/opt/'
+      ports:
+        - '8086:8086'
+      restart: always      
+
+  grafana:
+      container_name: grafana
+      #image: grafana/grafana:6.4.5
+      image: grafana/grafana:8.3.1
+      user: "${UID}:${GID}"
+      depends_on:
+        - influxdb
+      volumes:
+        - ./store/grafana:/var/lib/grafana
+      ports:
+        - '3000:3000'
+      environment:
+        #- GF_SECURITY_ALLOW_EMBEDDING=true
+        #- GF_SECURITY_COOKIE_SAMESITE=none
+        - GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME}
+        - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}        
+      restart: "no"
+
+  tasmotaadmin:
+      container_name: tasmotaadmin
+      image: raymondmm/tasmoadmin:v1.7.0
+      restart: unless-stopped
+      ports:
+        - 9000:80
+      volumes:
+        - './cfg/tasmota:/data/tasmoadmin'
+
+volumes:
+  nas_10:
+    driver: local
+    driver_opts:
+      type: nfs
+      # The IP of your NAS:
+      o: ${NAS_URL}
+      # Share path on your NAS:
+      device: ":${NAS_PATH}" 

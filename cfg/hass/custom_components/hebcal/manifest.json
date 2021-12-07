@@ -1,0 +1,9 @@
+{
+  "domain": "hebcal",
+  "name": "hebcal",
+  "documentation": "",
+  "requirements": [],
+  "dependencies": [],
+  "codeowners": [],
+  "version": "1.0.0"
+}

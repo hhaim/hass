@@ -1,0 +1,4 @@
+mosquitto.conf filter=git-crypt diff=git-crypt
+mosquitto_pass filter=git-crypt diff=git-crypt
+.gitattributes !filter !diff
+

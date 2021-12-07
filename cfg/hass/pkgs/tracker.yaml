@@ -1,0 +1,101 @@
+
+input_boolean:
+  disable_ap_c7:
+    name: Disable admin 
+  tracker_neta_enabled:
+    name: neta_at_home
+
+device_tracker:
+   - platform: ping
+     interval_seconds: 60
+     consider_home: 400
+     hosts:
+       tv           : tv.hhaim.home
+   - platform: mqtt_dnsmasq
+     interval_seconds: 60
+     consider_home: 400
+     topic: 'network/dhcp' 
+  
+   
+   - platform: tplink_v2
+     interval_seconds: 20
+     consider_home: 400
+     host: 10.0.0.138
+     username: !secret ap_user2
+     password: !secret ap_password
+     firmware: ac7
+     zname: main
+     disable_input: input_boolean.disable_ap_c7
+   
+   
+   - platform: tplink_v2
+     interval_seconds: 20
+     consider_home: 400
+     host: 10.0.0.141
+     username: !secret ap_user2 
+     password: !secret ap_password
+     firmware: wr940
+     zname: daniel 
+     disable_input: input_boolean.disable_ap_c7
+
+     # huawei_ws7200  can scan all the network using arp/ipv6 so there is no need the others 
+   - platform: huawei_ws7200  
+     interval_seconds: 20
+     consider_home: 400
+     host: 10.0.0.145
+     username: !secret ap_user3
+     password: !secret ap_password3
+     firmware: ws7200
+     zname: work
+
+     # huawei_ws7200  can scan all the network using arp/ipv6 so there is no need the others 
+   - platform: huawei_ws7200  
+     interval_seconds: 20
+     consider_home: 400
+     host: 10.0.0.146
+     username: !secret ap_user3
+     password: !secret ap_password3
+     firmware: ws7200
+     zname: tv
+
+     # huawei_ws7200  can scan all the network using arp/ipv6 so there is no need the others 
+   - platform: huawei_ws7200  
+     interval_seconds: 20
+     consider_home: 400
+     host: 10.0.0.147
+     username: !secret ap_user3
+     password: !secret ap_password3
+     firmware: ws7200
+     zname: k1
+
+
+#dummy 
+variable:
+      tracker_neta: 
+        value: "not_home"
+        restore: true
+        attributes:
+           friendly_name: 'Neta'
+           unit_of_measurement: ""
+           icon: mdi:human-child 
+
+
+group: 
+
+  device_tracker:
+    name: Tracker
+    entities:
+       - device_tracker.daniel_phone
+       - device_tracker.hhaim_phone
+       - device_tracker.nitay_phone
+       - device_tracker.nitay_pc
+       - device_tracker.rivi_phone
+       - device_tracker.sony_ps
+       - device_tracker.tv
+       - device_tracker.tv_wifi
+       - device_tracker.daniel_phone1
+       - device_tracker.daniel_phone2
+       - variable.tracker_neta
+
+
+

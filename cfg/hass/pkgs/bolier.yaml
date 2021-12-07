@@ -1,0 +1,94 @@
+homeassistant:
+  customize:
+    switch.b0:
+      friendly_name: Boiler
+      icon: mdi:shower
+    
+    sensor.btemp0:
+      friendly_name: Boiler Temperator 
+      icon: mdi:oil-temperature
+
+group: 
+
+  bolier_group:
+    name: Boiler
+    entities:
+      - sensor.btemp0
+      - switch.b0
+      - input_boolean.boiler_auto_enable
+      - input_number.boiler_timer_time
+      - input_number.boiler_temp_min
+      - input_number.boiler_temp_max
+
+  Boiler:
+    name: Boiler
+    icon: mdi:shower
+    entities:
+      - sensor.btemp0
+      - group.bolier_group
+
+
+input_boolean:
+  boiler_auto_enable:
+    name: Enable auto
+
+
+input_number:
+  boiler_timer_time:
+    name: Bolier Timer
+    min: 10
+    max: 120
+    step: 10
+  boiler_temp_min:
+    name: min-temp
+    min: 25.0
+    max: 40.0
+    step: 1.0
+  boiler_temp_max:
+    name: max-temp
+    min: 32.0
+    max: 60.0
+    step: 1.0
+
+
+switch:
+
+  - platform: mytasmota
+    name: b0
+    stopic: b0
+
+variable:
+      boiler_eff_power0:
+        value: 0
+        restore: true
+        attributes:
+          friendly_name: 'Boiler power-ef C/hour'
+          unit_of_measurement: "C"
+
+      boiler_eff_solar0:
+        value: 0
+        restore: true
+        attributes:
+          friendly_name: 'Boiler solar-ef C/hour'
+          unit_of_measurement: "C"
+
+sensor:
+
+  - platform: mqtt
+    name: "btemp0"
+    state_topic: "tele/b0/SENSOR"
+    value_template: "{{value_json['DS18B20'].Temperature }}"
+    qos: 1
+    unit_of_measurement : "C" 
+  
+  - platform: statistics
+    entity_id: sensor.btemp0
+    max_age:
+      minutes: 600
+
+
+ 
+  
+
+
+

@@ -1,0 +1,57 @@
+homeassistant:
+  customize:
+    switch.tv: 
+      friendly_name: TV
+      icon: mdi:television-classic
+
+
+switch:
+  - platform: mytasmota
+    name: TV
+    stopic: pow0
+
+
+media_player:
+  - platform: kodi
+    host: 10.0.0.50
+    username: !secret kodi_user
+    password: !secret kodi_pass
+
+  - platform: universal
+    name: main
+    commands:
+      turn_on:
+        service: mqtt.publish
+        data:
+           topic: cmnd/water/IRsend
+           payload: '{"Protocol":"NEC","Bits":32,"Data":0x10E03FC}'
+
+      turn_off:
+        service: mqtt.publish
+        data:
+           topic:  cmnd/water/IRsend
+           payload: '{"Protocol":"NEC","Bits":32,"Data":0x10EF906}'
+
+      volume_up:
+        service: mqtt.publish
+        data:
+           topic:  cmnd/water/IRsend
+           payload: '{"Protocol":"NEC","Bits":32,"Data":0x10EE31c}'
+
+      volume_down:
+        service: mqtt.publish
+        data:
+           topic:  cmnd/water/IRsend
+           payload: '{"Protocol":"NEC","Bits":32,"Data":0x10E13ec}'
+
+      volume_mute:
+        service: mqtt.publish
+        data:
+           topic:  cmnd/water/IRsend
+           payload: '{"Protocol":"NEC","Bits":32,"Data":0x10E837c}'
+      
+    attributes:
+        state: switch.tv
+
+
+

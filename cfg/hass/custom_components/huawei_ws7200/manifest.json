@@ -1,0 +1,10 @@
+{
+  "domain": "huawei_ws7200",
+  "name": "huawei_ws7200",
+  "documentation": "",
+  "requirements": [],
+  "dependencies": [],
+  "codeowners": [],
+  "version": "1.0.0"
+
+}

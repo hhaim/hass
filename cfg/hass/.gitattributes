@@ -1,0 +1,6 @@
+secrets.yaml filter=git-crypt diff=git-crypt
+known_devices.yaml filter=git-crypt diff=git-crypt
+
+
+.gitattributes !filter !diff
+

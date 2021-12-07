@@ -1,24 +1,10 @@
 
 == Home Assistant, Tasmota, AppDaemon, Custom Components 
 
-**Everything has a beginning  this is the beginning of
-the beginning of this page**
+v1.0.x is based on two docker-compose files. 
 
-
-=== Software Components
-
-1. Home Assistant  controler 
-2. Tasmota - ESP82xx
-3. AppDaemon 
-4. InfluxDB/MySQL
-5. Grafana 
-6. BlueIris 
-7. TasmotaAdmin - for OTA multi devices 
-8. Yolo3 plugin for BlueIris -- object detection reduce false alarm to zero even in night 
-9. dnsmasq 
-10. dnscrypt-proxy
-11. tinyproxy  
-12. openvpn server/phone client for remote connectivity 
+* netdc for networking (dnsmasq,wireguard,dnscrypt)
+* main: for hass component (appd,influx,Grafana..)
 
 === Hardware Components
 
@@ -53,10 +39,6 @@ the beginning of this page**
 
 Used for defining Tasmota sensors/switch/binary sensors 
 
-==== Sync to version 
-
-1. Home Assistant: *0.103.3* 
-2. AppDaemon: *3.0.3* 
 
 ==== How to install custom components into your setup 
 
@@ -70,7 +52,7 @@ See discussion here link:https://github.com/arendst/Sonoff-Tasmota/issues/4681[4
 
 [source,bash]
 -------------------
-  - platform: tasmota
+  - platform: mytasmota
     name: water_total
     stopic: water_out    
     id: 1        
@@ -103,7 +85,7 @@ See discussion here link:https://github.com/home-assistant/home-assistant/issues
 [source,yaml]
 -------------------
   switch:
-    - platform: tasmota
+    - platform: mytasmota
       name: HASS_DEVICE
       index: '1' 
       stopic: SHORT_TOPIC
@@ -136,29 +118,11 @@ This chip has two mqtt async responses(interrupt and status) and it is tedious t
            polar: true
 -------------------
 
-==== accumulator
-
-Aggregate /accumulate using events the time something is working (e.g. time TV is on)  per day/week/month. No need to query the database which is a *slow* operation 
-
-[source,yaml]
--------------------
- sensor:
-   - platform: accumulator
-     name: boiler_total_hours2
-     entity_id: switch.b0
-     state_on: 'on'
-     state_off: 'off'
--------------------
-
-
-==== tp_link various versions routers trackers
-
-Support older firmware versions (my home versions) of devices and support more than 8 connected clients to each devices (bug in hass). 
-Have a way to disable the C7 as there is only one that can be connected 
 
 
 ==== dnsmasq tracker 
 
+(does not work with docker-compose version)
 Using script to trigger tracker from link:https://jpmens.net/2013/10/21/tracking-dhcp-leases-with-dnsmasq/[tracking-dhcp] 
 use custom component to let hass known link:custom_components/device_tracker/mqtt_dnsmasq.py[mqtt_dnsmasq.py]
 to get the info from link:linux_services/dnsmasq.sh[dnsmasq.sh]
@@ -166,98 +130,7 @@ to get the info from link:linux_services/dnsmasq.sh[dnsmasq.sh]
 
 ==== Irrigation based on Weather actual data 
 
-The objective is to irrigate base on actual weather data (no forcast). 
-A simple model of leaky bucket from networking (policer) is used. 
-
-1. Rain will fill the bucket (up to maximum)
-2. Evaporation reduce the bucket - there are many models for ev 
-
-The simplet Blaney-Criddle is used here (base on mean temperature and p - hours of daylight )
-
-see link:https://en.wikipedia.org/wiki/Blaney%E2%80%93Criddle_equation[BlaneyCriddle]
-
-3. Irrigation time is based on the bucket level at the time of irrigation time. 
-
-Irrigation time = (-bucket level) * max_tap_time (min)
-
-After Irrigation the bucket is zeroed
-WBI works the same as your old system it just reduce the time when it it fits (e.g. rain, cold days etc) 
-
-*Example*: 
-
-
-.Without wbi
-[options="header",cols="1,1,1,1,1,6"]
-|=======================================
-| Day  | old value |evaporation (-) | rain Ev (+) | new value      | desc
-|0     | 0   | -200 | +500 | +300|  rain of ~5mm total
-|1     | +300| -200| 0 | +100|no rain , no irrigation 
-|2     | +100|-200| 0 | -100   | can irrigate
-|3     | -100|-200| 0 | -300   | can irrigate 
-|4*    | -300|-100| 0 | 0   | can irrigate -- scheduled calculate the time
-|=======================================
-
-.Without wbi
-[options="header",cols="1,1,1,1,1,6"]
-|=======================================
-| Day  | old value |evaporation (-) | rain Ev (+) | new value      | desc
-|0     | 0   | -300 | 0 | -300|  rain of ~5mm total
-|1     | -300| -300| 0 | -600|no rain , no irrigation 
-|2     | -600|-300| 0 | -900   | can irrigate
-|3     | -900|-300| 0 | -1200   | can irrigate 
-|4*    | -1200|-300| 0 | 0   | can irrigate -- scheduled calculate the time
-|=======================================
-
-
-As you can see this simple model can tune the irrigation time dynamically base on the weather actual data (again, no forcast needed)
-The feedback/calculation is slow and done per day 
-
-.Sample of compoenent 
-[source,yaml]
--------------------
-
-wb_irrigation:
-  api_key: !secret openweathermap_key
-  rain_factor: 120
-  max_ev: 3750 
-  min_ev: -1500.0
-  name: "wb_irrigation"
-  longitude: !secret accurate_longitude
-  latitude: !secret accurate_latitude
-  taps: 
-    - name: p1
-    - name: p2
--------------------
-
-1. api_key: a free key to  link:https://openweathermap.org/[openweathermap.org]
-2. rain_factor: ev/mm factor 
-3. max_ev: the maximum of the bucket level. if a rainy day has an evaporation of ~150 ev. 3750 means that after a good rain we can stop irrigation for ~20 days
-4. min_ev: the minimum of the bucket level. it is not possible to compensate for more than this ev
-5. longitude,latitude for accurate value for irrigation 
-6. taps names. each will have a sensor with bucket calculation 
-
-It will define a few sensors with prefix of name_xx for rain/ev/bucket for each tap
-With the above example there would be *wb_irrigation_p1* and *wb_irrigation_p2* sensors one for each tap.
-
-For the switch relay (turn on/off the water taps) Sonoff 4ch pro is used. In this example the two first channels are used 
-
-.Tasmota configuration (once)
-[source,python]
--------------------
-Rule1 on Power1#state==1 do  RuleTimer1 1800 endon on Rules#Timer=1 do power1 off endon on Power1#state==0 do  RuleTimer1 off endon
-Rule2 on Power2#state==1 do  RuleTimer2 2700 endon on Rules#Timer=2 do power2 off endon on Power2#state==0 do  RuleTimer2 off endon
-Rule1 on
-Rule2 on
-poweronstate 0
-TelePeriod 60
-SetOption36 20
--------------------
-
-The first tap is limited to 30min (if it is disconnected for some reason from the controller) and for tap 2 it is 45 min
-
-
-=== Appdaemon apps 
-
+see wiki
 
 ==== HeatApp app
 
@@ -282,114 +155,13 @@ Keep the A/C at specific temperator, at specific days of the week
 
 ==== CBoilerAutomation app
 
-[source,yaml]
--------------------
- boiler_automation:
-   module: heat_app
-   class: CBoilerAutomation
-   switch: switch.b0
-   temp: sensor.btemp0
-   input_automation: input_boolean.boiler_auto_enable
-   input_temp_min:   input_number.boiler_temp_min
-   input_temp_max:   input_number.boiler_temp_max
-   sensor_eff_power: variable.boiler_eff_power0
-   sensor_eff_solar:  variable.boiler_eff_solar0
--------------------
-
-Keep the water in the bolier always hot. calculate some efficiency metrics
-
-Input: Temperator of the water inside the bolier 
-Output: Enable/Disable the heater 
-
-.Tasmota configuration (once)
-[source,python]
--------------------
-Rule1 on Power1#state==1 do  RuleTimer1 7200 endon on Rules#Timer=1 do power off endon on Power1#state==0 do  RuleTimer1 off endon
-Rule1 on
-poweronstate 0
-TelePeriod 60
-SetOption36 20
--------------------
-
-* Rule1 The first rule make sure that if sonoff (TH16) disconnect from controler (wifi/broker is down/hass is down) the power won't stay on for more than 2 hours
-* poweronstate 0 : if sonoff reset set power to off (rules won't help here, beacuse rules trigger by change and not at boot)
-* SetOption36 20 : to disable boot loop 
-* TelePeriod 60  : set notification each 1 min
-
+see wiki
 
 ==== CWaterMonitor app
 
-see link:https://github.com/hhaim/hass/wiki/Monitor-water-consumption-and-more-with-Home-Assistant[wiki] for a full example 
-
-Monitor the water consumption, notify in case of irregularity like leakage, high bursts, not at home etc 
-
-Water meter: link:https://arad.co.il/assets/M-August-2017.pdf[pulse every 1 liter, ev output] 
-iot: wemo d1,tasmota, counter  
-
-[source,yaml]
--------------------
-
-water_monitor:
-  module: heat_app
-  class: CWaterMonitor
-  sensor_water_total: sensor.water_total
-  sensor_water_leak_detector: variable.water_leak_detector
-  sensor_water_bursts: variable.water_bursts
-  watchdog_duration_min: 50 
-  watchdog_leakage_ticks: 3
-  max_day: 2000
-  max_burst: 400
--------------------
-
-==== SimpleTimerOff
-
-Turn off a switch after timeout of x min
- 
-==== OutdoorLampWithPir app
-
-Turn on light based by PIR sensor 
-
+see wiki
 
 ==== Weather base irrigation
 
-see link:https://github.com/hhaim/hass/wiki/Weather-based-irrigation[wiki] for a full example 
-
-The app is responsible to to turn on the taps in specific schedule. +
-The total time is calculated from the weather component (*wb_irrigation* see below). +
-In case the tap state is changed to ON (manually) the time is taken from the input and weather queue is not updated.+ 
-It is possible to estimate how much littler is consumed by each tap using the global water input sensor (if exists)  
-
-See here for switch and sensor defenition for this app to work link:pkgs/irrigation.yaml[pkgs/irrigation.yaml].+
-The app is located here link:apps/heat_app.py[CWBIrrigation].+
-
-.Irrigation configuration 
-[source,yaml]
--------------------
-# irrigation app
-wb_irrigation:
-  module: heat_app
-  class: CWBIrrigation
-  m_temp_celsius: 26 #fill from here https://www.holiday-weather.com/[your location]/averages/
-  m_temp_hours: 12 #fill from here https://www.holiday-weather.com/[your location]/averages/
-  enabled: input_boolean.wbi_enabled #disable irrigation  # disable the irrigation 
-  water_sensor: sensor.water_total_external_norm # read total water  # optional to read water global sensor in litters 
-  taps: 
-     - name: p1  # the name of the tap
-       days: [1,3,5]  # 1-7 1 for sunday, .. 7 for saturday 
-       stime: "05:45:00" # time to start irrigating 
-       m_week_duration_min: 60 # weakly total time in minutes at the hottest season 
-       switch: switch.wbi_p1 # the switch for on/off - on the tap is open, off - close 
-       manual_duration: input_number.wbi_p1_duration # the time in minuts for manual on/off 
-       queue_sensor: sensor.wb_irrigation_p1   # the calculated queue/bucket sensor from wb_irrigation sensors  
-       water_sensor: variable.wbi_water_p1 # calculated from input water_sensor tht total for this tap 
-       
-     - name: p2
-       days: [2,5]
-       stime: "05:00:00"
-       m_week_duration_min: 20
-       switch: switch.wbi_p2
-       manual_duration: input_number.wbi_p2_duration
-       queue_sensor: sensor.wb_irrigation_p2
-       water_sensor: variable.wbi_water_p2
--------------------
+see wiki
 

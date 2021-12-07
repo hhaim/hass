@@ -1,0 +1,10 @@
+{
+  "domain": "mqtt_dnsmasq",
+  "name": "mqtt_dnsmasq",
+  "documentation": "",
+  "requirements": [],
+  "dependencies": ["mqtt"],
+  "codeowners": [],
+  "version": "1.0.0"
+
+}

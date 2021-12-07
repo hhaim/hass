@@ -1,0 +1,17 @@
+[Unit]
+Description=HassDocker
+Requires=snap.docker.dockerd.service
+After=snap.docker.dockerd.service
+
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=3
+WorkingDirectory=/home/hhaim/hass/
+ExecStart=/usr/local/bin/docker-compose up 
+ExecStop=/usr/local/bin/docker-compose stop
+
+[Install]
+WantedBy=multi-user.target
+

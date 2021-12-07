@@ -1,6 +1,5 @@
 readme.txt filter=git-crypt diff=git-crypt
-secrets.yaml filter=git-crypt diff=git-crypt
-known_devices.yaml filter=git-crypt diff=git-crypt
+.env       filter=git-crypt diff=git-crypt
 
 .gitattributes !filter !diff
 

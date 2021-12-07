@@ -1,0 +1,102 @@
+
+## Customize
+homeassistant:
+  customize:
+    input_boolean.heat_app_enable:
+      friendly_name: Start Automation 
+      icon: mdi:air-conditioner
+
+    input_boolean.heat_app_enable_base:
+      friendly_name: Start Automation Basement
+      icon: mdi:air-conditioner
+
+    switch.ac1:
+      friendly_name: S-A/C-Down 
+      icon: mdi:air-conditioner
+
+    switch.ac2:
+      friendly_name: S-A/C-Up 
+      icon: mdi:air-conditioner
+
+    switch.ac3:     # enable bird 
+      friendly_name: Bird
+      icon: mdi:bird
+
+    input_boolean.ac1_input:  
+      icon: mdi:air-conditioner
+      friendly_name: A/C-Down 
+
+    input_boolean.ac2_input:  
+      icon: mdi:air-conditioner
+      friendly_name: A/C-Up 
+
+group: 
+
+  air_conditioner:
+    name: Air Conditioner
+    entities:
+       - variable.heat_index0
+       - variable.heat_index1
+       - variable.heat_index2
+       - variable.heat_index_outside0
+       - input_boolean.ac1_input
+       - input_boolean.ac2_input
+       - switch.ac1
+       - switch.ac2
+       - switch.tv
+       - media_player.main
+       - media_player.kodi
+       - sensor.water_total_external_norm
+
+
+  air_conditioner_automation:
+       name: Automation
+       entities:
+         - input_boolean.heat_app_enable
+         - input_boolean.heat_timer_0
+         - input_number.heat_timer_time
+
+
+
+input_boolean:
+  heat_app_enable:
+    name: Enable AC/1 Heater
+  heat_app_enable_base:
+    name: Enable AC/Base Heater
+  heat_timer_0:
+    name: Enable timer for heat
+  ac1_input:  
+    name: A/C-Down
+  ac2_input:  
+    name: A/C-Up
+
+input_number:
+  heat_timer_time:
+    name: A/C Timer
+    min: 60
+    max: 240
+    step: 30
+
+
+switch:
+  - platform: mytasmota
+    name: ac1
+    index: '1'
+    stopic: s0
+
+  - platform: mytasmota
+    name: ac2
+    index: '1'
+    stopic: s1
+
+  # basement 
+  - platform: mytasmota
+    name: ac3  
+    stopic: temp2
+
+
+
+
+
+
+

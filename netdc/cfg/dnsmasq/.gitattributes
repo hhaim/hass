@@ -1,0 +1,6 @@
+dnsmasq.conf filter=git-crypt diff=git-crypt
+dnsmasq_hosts.conf filter=git-crypt diff=git-crypt
+dns_resolv.conf filter=git-crypt diff=git-crypt
+
+.gitattributes !filter !diff
+

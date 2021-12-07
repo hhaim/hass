@@ -1,0 +1,41 @@
+
+sensor:
+
+  - platform: systemmonitor
+    resources:
+      - type: disk_free
+        arg: /
+      - type: memory_free
+      - type: processor_use
+      - type: last_boot
+
+
+fastdotcom:
+
+
+group: 
+
+  cpu:
+    name: Cpu
+    entities:
+       - sensor.disk_free
+       - sensor.energy_total
+       - sensor.energy_yesterday
+       - sensor.fast_com_download
+       - sensor.memory_free
+       - sensor.processor_use
+
+  Debug:
+    name: Debug
+    entities:
+       - group.cpu
+       - input_boolean.simple_switch0
+       - input_boolean.disable_ap_c7
+       - input_boolean.gateway_sound_enable
+       - input_number.gateway_sound_id
+       - binary_sensor.cube_158d000276ed22
+       - sensor.water_total
+       - sensor.water_total_external
+       - light.gateway_light_7c49eb193b55
+       - light.light1
+

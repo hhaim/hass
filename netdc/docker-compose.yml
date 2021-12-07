@@ -1,0 +1,88 @@
+version: '3.5'
+
+# network dnsmasq,
+# DOCKER COMPOSE COMMAND REFERENCE
+# --------------------------------------------------------------------------
+# Start    | docker-compose up -d
+# Stop     | docker-compose stop
+# Update   | docker-compose pull
+# Logs     | docker-compose logs --tail=25 -f
+# debug    : docker-compose exec inlfuxdb bash --> get into one of 
+# issues: dnsmasq does not use dhcp database to return local hosts (fixed), not sure why. without docker it works fine
+# 
+
+
+services:
+  dnsmasq:
+    container_name: dnsmasq
+    image: 4km3/dnsmasq:2.85-r2
+    volumes:
+    - ./cfg/dnsmasq/dnsmasq.conf:/etc/dnsmasq.conf
+    - ./cfg/dnsmasq/dns_resolv.conf:/etc/dns_resolv.conf
+    - ./cfg/dnsmasq/dnsmasq_hosts.conf:/etc/dnsmasq_hosts.conf
+    - ./store/dnsmasq:/var/lib/misc
+    restart: unless-stopped
+    network_mode: host  
+    #user: "${UID}:${GID}"
+    environment:
+      TZ: ${TZ}      
+    cap_add:
+      - NET_ADMIN    
+      - NET_RAW
+    #command: "-K -d --log-dhcp --domain=hhaim.home" # for debug
+  wireguard:
+    container_name: wireguard
+    image: ghcr.io/linuxserver/wireguard:1.0.20210914
+    restart: unless-stopped
+    environment:
+    - PUID=${UID}
+    - PGID=${GID}
+    - TZ=${TZ}
+    - SERVERURL=${EXT_DNS}
+    - SERVERPORT=51820
+    - PEERS=iphone,laptop1,pho1
+    - PEERDNS=auto
+    - ALLOWEDIPS=10.13.13.0/24,10.0.0.0/24
+    ports:
+    - "51820:51820/udp"
+    volumes:
+    - ./cfg/wireguard:/config
+    - /lib/modules:/lib/modules:ro
+    cap_add:
+    - NET_ADMIN
+    - SYS_MODULE
+    sysctls:
+    - net.ipv4.conf.all.src_valid_mark=1
+
+  # for debug 
+  #simple-web:
+  #  depends_on:
+  #  - wireguard  
+  #  container_name: simple-web
+  #  image: yeasy/simple-web:latest
+  #  restart: unless-stopped
+  #  environment:
+  #  - PUID=${UID}
+  #  - PGID=${GID}
+  #  ports:
+  #  - "9999:80/tcp"
+
+  dnscrypt:
+    image: melchor9000/dnscrypt-proxy:2.1.1
+    user: "${UID}:${GID}"
+    environment:
+      TZ: ${TZ}      
+    ports:
+    - "5353:5353/udp"
+    restart: always
+    volumes:
+    - ./cfg/dnscrypt-proxy:/etc/dnscrypt-proxy
+
+#network_mode: service:wireguard
+#    networks:
+#      - backbone
+
+#networks:
+#  backbone:
+#    driver: bridge
+

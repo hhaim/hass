@@ -1,0 +1,28 @@
+
+appdaemon:
+  time_zone: Asia/Jerusalem
+  latitude: !secret accurate_latitude
+  longitude: !secret accurate_longitude
+  elevation: !secret accurate_elevation
+  threads: 1
+  #pin_apps: true 
+  plugins:
+    HASS:
+      type: hass
+      ha_url: !secret appd_ha_url 
+      token: !secret api_token
+      namespace: default
+
+#http:
+#  url: http://10.0.0.44:8888
+
+#api:
+#log:
+#  accessfile: STDOUT
+#  errorfile: STDERR
+#  logfile: STDOUT
+#  log_generations: 3
+#  log_size: 1000000
+
+ 
+  

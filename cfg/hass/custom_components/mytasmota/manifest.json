@@ -1,0 +1,10 @@
+{
+  "domain": "mytasmota",
+  "name": "mytasmota",
+  "documentation": "",
+  "requirements": [],
+  "dependencies": ["mqtt"],
+  "codeowners": [],
+  "version": "1.0.0"
+
+}
