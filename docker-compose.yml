@@ -10,6 +10,9 @@ version: '3.5'
 # influxd 
 # influxd backup -db hass_db -skip-errors /mnt/nas0/hass_backup/  # specifc time every week or day 
 # influxd restore -newdb hass_db -db hass_db -datadir /var/lib/influxdb/data/hass_db/ /opt/
+# sudo systemctl stop dhass # to start debug session 
+# sudo systemctl start dhass 
+# ./b --help for sync and common commands
 
 
 services:

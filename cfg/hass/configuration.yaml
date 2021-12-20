@@ -222,7 +222,7 @@ sensor:
       se_energy_day:
         value_template: "{{ (states('sensor.solaredge_energy_today') | float / 1000) | round(0) }}"
       se_energy_cur:
-        value_template: "{{ (states('sensor.hhaim_current_power') | float / 1000) | round(0) }}"
+        value_template: "{{ (states('sensor.solaredge_current_power') | float / 1000) | round(0) }}"
        
 
 automation: !include automations.yaml
