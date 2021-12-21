@@ -85,7 +85,7 @@ class CalcHeatIndexApp(hass.Hass):
           val=self.get_state(self.args[name])
           if val is not None:
                res=float(val)
-        except ValueError:
+        except (ValueError,TypeError):
           pass;
         return(res)
               
@@ -278,7 +278,7 @@ class HassBase(hass.Hass):
           val=self.get_state(name)
           if val is not None:
                res=float(val)
-        except ValueError:
+        except (ValueError,TypeError):
           pass;
         return(res)
 
@@ -837,7 +837,7 @@ class CBoilerAutomation(HassBase):
         res=def_val;
         try:
           res=float(self.get_state(self.args[name]))
-        except ValueError:
+        except (ValueError,TypeError):
           pass;
         return(res)
 
@@ -986,14 +986,14 @@ class CWaterMonitor(HassBase):
           try:
             res=int(self.get_state(self.args['sensor_water_total']))
             return (res);
-          except ValueError:
+          except (ValueError,TypeError):
             return (-1)
 
     def is_int (self,value):
         try:
           res=int(value)
           return True
-        except ValueError:
+        except (ValueError,TypeError):
           return False
 
     def do_water_flow (self,new_counter):
