@@ -4,7 +4,8 @@ appdaemon:
   latitude: !secret accurate_latitude
   longitude: !secret accurate_longitude
   elevation: !secret accurate_elevation
-  threads: 1
+  total_threads: 1
+  #threads: 1
   #pin_apps: true 
   plugins:
     HASS:

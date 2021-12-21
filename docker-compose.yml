@@ -22,6 +22,7 @@ services:
     depends_on:
       - mariadb
       - influxdb
+      - mosquitto
     volumes:
       - ./cfg/hass:/config
       - /etc/localtime:/etc/localtime:ro
@@ -70,8 +71,8 @@ services:
 
   appdaemon:
       container_name: appdaemon
-      #4.1.0
-      image: acockburn/appdaemon:3.0.5
+      #3.0.5
+      image: acockburn/appdaemon:4.1.0
       #user: "${UID}:${GID}"
       depends_on:
        - homeassistant
