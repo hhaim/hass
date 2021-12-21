@@ -1552,3 +1552,74 @@ class AlarmNotificationHigh(HassBase):
             else:
                self.fire_event(EVENTM_EVENT, state="off", type=fn)
 
+
+
+class LightApp(HassBase):
+
+    def initialize(self):
+        self.log("start LightApp")
+        self.light = self.args["light"]
+        self.switch = self.args["switch"]
+        self.timer_handle = None
+        self.sch = ada.schedule.Schedule(self,
+                                     self.args['schedule'],
+                                     self.on_schedule_event,None)
+        self.sch.init()
+
+
+    def _cb_event(self,kargs):
+        self.timer_handle = None
+        self.restart_timer()
+
+    def tick(self):
+        light = self.read_light_lux()
+        if self.is_on():
+            if light > 800:
+                self.s_turn_off()
+                self.log("turn off the light");
+        else:
+            if light < 500:
+                self.log("turn on the light");
+                self.s_turn_on()
+
+    def restart_timer(self):
+        self.tick()
+        if self.timer_handle==None:
+            self.handle = self.run_in(self._cb_event, 30*60)
+
+    def stop_timer(self):
+        if self.timer_handle:
+            self.cancel_timer(self.timer_handle)
+
+    def on_schedule_event(self, kwargs):
+        if self.enabled:
+            if kwargs['state'] == "on":
+                self.restart_timer()
+            elif kwargs['state'] == "off":
+                self.stop_timer()
+
+    def is_int (self,value):
+        try:
+          res=int(value)
+          return True
+        except (ValueError,TypeError):
+          return False
+
+    def read_light_lux(self):
+        light = self.get_state(self.light)
+        if self.is_int(light):
+            return int(light)
+        else:
+            return 1000    
+
+    def s_turn_on(self):
+        self.turn_on(self.switch)
+
+    def s_turn_off(self):
+        self.turn_off(self.switch)
+
+    def is_on(self):
+        if self.get_state(self.switch) == "on":
+            return True
+        else:
+            return False

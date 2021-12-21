@@ -347,3 +347,13 @@ track_alarm:
 power_up_notification:
   module: heat_app
   class: PowerDownNotification
+
+
+light_automation:
+  module: heat_app
+  class: LightApp
+  switch: group.lamps_r0
+  light: sensor.illumination_158d0002b75423
+  schedule:
+       - { global_cfg: true, disable_startup: true}
+       - { mode: a, start: { t: "00:08:30", d: 0}, end: { t: "015:30:00", d: 0 } }
