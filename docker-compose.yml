@@ -71,8 +71,8 @@ services:
 
   appdaemon:
       container_name: appdaemon
-      #3.0.5
-      image: acockburn/appdaemon:4.1.0
+      #4.1.0
+      image: acockburn/appdaemon:3.0.5
       #user: "${UID}:${GID}"
       depends_on:
        - homeassistant

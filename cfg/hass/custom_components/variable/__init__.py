@@ -160,7 +160,7 @@ class Variable(RestoreEntity):
                 # restore state
                 self._value = state.state
                 # restore value
-                self._attributes = state.attributes
+                #self._attributes = state.attributes
 
     @property
     def should_poll(self):
