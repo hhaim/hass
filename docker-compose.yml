@@ -80,6 +80,9 @@ services:
         - /etc/localtime:/etc/localtime:ro
         - ./cfg/hass:/conf
       restart: always
+      environment:
+        TZ: ${TZ}      
+
   influxdb:
       container_name: influxdb
       #image: influxdb
@@ -94,6 +97,8 @@ services:
       - INFLUXDB_DB="${MYSQL_DATABASE}"
       - INFLUXDB_ADMIN_USER="${MYSQL_USER}"
       - INFLUXDB_ADMIN_PASSWORD="${MYSQL_PASSWORD}"
+      - TZ=${TZ}      
+
       volumes:
        - './store/influxdb:/var/lib/influxdb'
        - './cfg/influxdb:/etc/influxdb'
@@ -118,6 +123,7 @@ services:
         #- GF_SECURITY_COOKIE_SAMESITE=none
         - GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME}
         - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}        
+        - TZ=${TZ}      
       restart: "no"
 
   tasmotaadmin:

@@ -144,14 +144,15 @@ class SimpleTimerOff(hass.Hass):
                self.turn_off(sw)
 
     def do_button_change (self,entity, attribute, old, new, kwargs):
-        if new == "on":
+        if (new == "on") and (self.handle == None):
             self.log("start timer for {0} minutes for {1} switch ".format(self.get_timer_time(),self.args["switchs"]) );
             sec= self.get_timer_time()*60;
             self.handle = self.run_in(self._cb_event, sec)
         else:
-            if self.handle: 
-               self.log("stop timer ");
+            if (new == "off") and (self.handle != None): 
+               self.log("stop timer ")
                self.cancel_timer(self.handle)
+               self.handle = None
 
     def _cb_event(self,kargs):
         self.do_turn_off()
@@ -587,8 +588,9 @@ class GatewayRingtone(HassBase):
 
 
     def do_button_change (self,entity, attribute, old, new, kwargs):
-        if new == "on":
-            self.call_alarm (self.get_ringtone ())
+        if old != new:
+            if new == "on":
+                self.call_alarm (self.get_ringtone ())
 
 
 
@@ -1149,11 +1151,12 @@ class CFollowState(hass.Hass):
             self.turn_off(self.args["output"])
 
     def do_state_change (self,entity, attribute, old, new, kwargs):
-        if new == "on":
-            self.turn_on(self.args["output"])
-        else:
-            if new == 'off':
-                self.turn_off(self.args["output"])
+        if old != new:
+            if new == "on":
+                self.turn_on(self.args["output"])
+            else:
+                if new == 'off':
+                    self.turn_off(self.args["output"])
 
 
 class CCube(hass.Hass):
@@ -1232,21 +1235,21 @@ class CWBIrrigation(HassBase):
     def do_button_change (self,entity, attribute, old, new, kwargs):
         tap = kwargs['tap']
         h = self.h[tap["name"]] 
-
-        if h is None:
-           # manual start 
-            if new == "on":
-                duration_sec = float(self.get_state(tap["manual_duration"]))*60.0
-                self.log("turn on by user {} {} min ".format(tap["name"],int(duration_sec/60.0)))
-                self.start_tap(tap, int(duration_sec) , "manual",False)
-        else:
-            if new == "off":
-              # tuen off by user 
-              self.log("turn off by user {} ".format(tap["name"]))
-              kwargs={}
-              kwargs['tap']=tap
-              kwargs['clear_queue']=False
-              self.time_cb_event_stop(kwargs)
+        if old != new: 
+            if h is None:
+            # manual start 
+                if new == "on":
+                    duration_sec = float(self.get_state(tap["manual_duration"]))*60.0
+                    self.log("turn on by user {} {} min ".format(tap["name"],int(duration_sec/60.0)))
+                    self.start_tap(tap, int(duration_sec) , "manual",False)
+            else:
+                if new == "off":
+                    # turn off by user 
+                    self.log("turn off by user {} ".format(tap["name"]))
+                    kwargs={}
+                    kwargs['tap']=tap
+                    kwargs['clear_queue']=False
+                    self.time_cb_event_stop(kwargs)
                 
 
     def register_call_backs(self,tap):
