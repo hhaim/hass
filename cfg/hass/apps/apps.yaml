@@ -235,6 +235,31 @@ boiler_automation:
 scheduleh: &id001
   - { mode: b, start: { t: "16:00:00", d: 0}, end: { t: "23:55:00", d: 0} }
 
+scheduleh: &id002
+       - { mode: a, start: { t: "17:00:00", d: 1}, end: { t: "21:00:00", d: 1} }
+       - { mode: a, start: { t: "17:00:00", d: 2}, end: { t: "21:00:00", d: 2} }
+       - { mode: a, start: { t: "17:00:00", d: 3}, end: { t: "21:00:00", d: 3} }
+       - { mode: a, start: { t: "17:00:00", d: 4}, end: { t: "21:00:00", d: 4} }
+       - { mode: a, start: { t: "17:00:00", d: 5}, end: { t: "21:00:00", d: 5} }
+       - { mode: a, start: { t: "17:00:00", d: 6}, end: { t: "21:00:00", d: 6} }
+       - { mode: a, start: { t: "17:00:00", d: 7}, end: { t: "21:00:00", d: 7} }
+
+enter_lamp:
+  module: heat_app
+  class: OutdoorLampWithPir
+  switch: switch.kit7on
+  sensor: binary_sensor.alarm16
+  delay: 60
+  schedule: *id002
+
+door_lamp:
+  module: heat_app
+  class: OutdoorLampWithPir
+  switch: switch.door_lamp0
+  sensor: binary_sensor.alarm16
+  delay: 60
+  schedule: *id002
+
 garden_lamp:
   module: heat_app
   class: OutdoorLampWithPir
@@ -252,13 +277,6 @@ garden_lamp2:
   delay: 15
   schedule: *id001
 
-door_lamp:
-  module: heat_app
-  class: OutdoorLampWithPir
-  switch: switch.door_lamp0
-  sensor: binary_sensor.alarm16
-  delay: 15
-  schedule: *id001
 
 room0:
   module: heat_app
