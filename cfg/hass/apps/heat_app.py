@@ -1595,11 +1595,10 @@ class LightApp(HassBase):
             self.cancel_timer(self.timer_handle)
 
     def on_schedule_event(self, kwargs):
-        if self.enabled:
-            if kwargs['state'] == "on":
-                self.restart_timer()
-            elif kwargs['state'] == "off":
-                self.stop_timer()
+        if kwargs['state'] == "on":
+            self.restart_timer()
+        elif kwargs['state'] == "off":
+            self.stop_timer()
 
     def is_int (self,value):
         try:
