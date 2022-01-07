@@ -487,6 +487,7 @@ class OutdoorLampWithPir(HassBase):
         self.cfg_slamp = self.args["switch"]
         self.cfg_pir   = self.args["sensor"]
         self.auto_pir_on = True 
+        self.disable_pir =False  
         self.listen_state(self.do_pir_change, self.cfg_pir)
         self.handle =None
         self.is_sabbath =False
@@ -513,12 +514,15 @@ class OutdoorLampWithPir(HassBase):
             self.is_sabbath = False
 
     def on_schedule_event (self,kwargs):
+        self.stop_timer()
         if kwargs['state'] == "on":
             self.log('turn lamp ')
             self.turn_lamp_on()
+            self.disable_pir = True 
         elif kwargs['state']=="off":
             self.log('turn lamp off ')
             self.turn_lamp_off ()
+            self.disable_pir = False 
 
     def stop_timer(self):
         if self.handle:
@@ -552,7 +556,8 @@ class OutdoorLampWithPir(HassBase):
     def do_pir_change (self,entity, attribute, old, new, kwargs):
         if not self.are_states_valid(old, new):
             return
-
+        if self.disable_pir:
+            return 
         if old != new:
             if self.sun_down() and (self.is_sabbath == False):
                 self.turn_lamp_on_timer(self.cfg_delay_sec)
