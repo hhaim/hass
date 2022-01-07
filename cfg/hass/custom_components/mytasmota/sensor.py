@@ -17,7 +17,7 @@ from ..mytasmota import (get_tasmota_avail_topic,get_tasmota_result,get_tasmota_
 from homeassistant.core import callback
 from homeassistant.components import sensor
 from homeassistant.components.mqtt.mixins import (
-    CONF_PAYLOAD_NOT_AVAILABLE, CONF_PAYLOAD_AVAILABLE,CONF_AVAILABILITY_TOPIC, 
+    CONF_PAYLOAD_NOT_AVAILABLE, CONF_PAYLOAD_AVAILABLE,CONF_AVAILABILITY_TOPIC, CONF_AVAILABILITY_MODE,AVAILABILITY_LATEST,
     MqttAvailability)
 
 from homeassistant.components.mqtt.const import (
@@ -108,7 +108,8 @@ class MqttTasmotaCounter(MqttAvailability,  RestoreEntity):
         avail_cfg={ }
         avail_cfg[CONF_PAYLOAD_AVAILABLE] = TASMOTA_ONLINE
         avail_cfg[CONF_PAYLOAD_NOT_AVAILABLE] = TASMOTA_OFFLINE 
-        avail_cfg[CONF_AVAILABILITY_TEMPLATE] = get_tasmota_avail_topic(stopic)
+        avail_cfg[CONF_AVAILABILITY_TOPIC] = get_tasmota_avail_topic(stopic)
+        avail_cfg[CONF_AVAILABILITY_MODE] = AVAILABILITY_LATEST
         avail_cfg[CONF_QOS] = DEFAULT_QOS
 
         MqttAvailability.__init__(self, avail_cfg)
