@@ -76,7 +76,7 @@ heater_ac_up:
           heat: { min_o: 10.0, min_i: 14.9, max_i: 18.5} 
         b : 
           cool: { min_o: 44.9, min_i: 28.5, max_i: 29.5} 
-          heat: { min_o: 10.0, min_i: 22.1, max_i: 24.1} 
+          heat: { min_o: 10.0, min_i: 21.1, max_i: 22.1} 
         c : 
           cool: { min_o: 44.5, min_i: 30.0, max_i: 32.5} 
           heat: { min_o: 10.0, min_i: 21.7, max_i: 22.0} 
@@ -374,4 +374,4 @@ light_automation:
   light: sensor.illumination_158d0002b75423
   schedule:
        - { global_cfg: true, disable_startup: true}
-       - { mode: a, start: { t: "00:08:30", d: 0}, end: { t: "15:30:00", d: 0 } }
+       - { mode: a, start: { t: "07:00:00", d: 0}, end: { t: "15:30:00", d: 0 } }
