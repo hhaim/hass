@@ -212,9 +212,7 @@ class WeatherIrrigarion(RestoreEntity):
                     if self._last_rain_mm != None:
                         if new_rain_mm > self._last_rain_mm:
                             rain_mm = float(new_rain_mm - self._last_rain_mm)
-                            self._last_rain_mm = new_rain_mm
-                        else:    
-                            self._last_rain_mm = new_rain_mm
+                        self._last_rain_mm = new_rain_mm
                 return rain_mm     
 
 
