@@ -205,15 +205,16 @@ class WeatherIrrigarion(RestoreEntity):
                     rain_mm = float(rain_state.state)
                 return  rain_mm
             else:    
+                self.init_rain_sensor ()
                 rain_state = self.hass.states.get(self._rain_sensor_id)
                 rain_mm = 0.0 # delta
                 if rain_state :
-                    new_rain_mm = int(rain_state.state)
+                    new_rain_mm = int(rain_state.state) 
                     if self._last_rain_mm != None:
                         if new_rain_mm > self._last_rain_mm:
                             rain_mm = float(new_rain_mm - self._last_rain_mm)
-                        self._last_rain_mm = new_rain_mm
-                return rain_mm     
+                    self._last_rain_mm = new_rain_mm
+                return rain_mm 
 
 
     async def _async_update_last_day(self,time=None):
@@ -288,6 +289,9 @@ class WeatherIrrigarion(RestoreEntity):
     def _update_every_hour(self):
         """Fetch the  status from URL"""
         
+        # make sure we have last value 
+        self.init_rain_sensor ()
+
         d = self.get_data()
         if d is None:
             return;
