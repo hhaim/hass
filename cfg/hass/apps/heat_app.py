@@ -1582,22 +1582,23 @@ class LightApp(HassBase):
     def tick(self):
         light = self.read_light_lux()
         if self.is_on():
-            if light > 800:
+            if light > 900:
                 self.s_turn_off()
                 self.log("turn off the light");
         else:
-            if light < 500:
+            if light < 700:
                 self.log("turn on the light");
                 self.s_turn_on()
 
     def restart_timer(self):
         self.tick()
         if self.timer_handle==None:
-            self.handle = self.run_in(self._cb_event, 30*60)
+            self.timer_handle = self.run_in(self._cb_event, 30*60)
 
     def stop_timer(self):
         if self.timer_handle:
             self.cancel_timer(self.timer_handle)
+            self.timer_handle = None 
 
     def on_schedule_event(self, kwargs):
         if kwargs['state'] == "on":
