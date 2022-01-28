@@ -39,10 +39,10 @@ heater_ac1:
      modes :
         a : 
           cool: { min_o: 44.0, min_i: 25.7, max_i: 26.5}
-          heat: { min_o: 10.0, min_i: 22.1, max_i: 24.0} 
+          heat: { min_o: 01.0, min_i: 21.0, max_i: 22.0} 
         b : 
           cool: { min_o: 44.0, min_i: 25.3, max_i: 26.5}
-          heat: { min_o: 10.0, min_i: 21.7, max_i: 22.0} 
+          heat: { min_o: 01.0, min_i: 21.0, max_i: 22.0} 
 
 
  # the up floor  
@@ -73,13 +73,13 @@ heater_ac_up:
      modes :
         a : 
           cool: { min_o: 44.3, min_i: 28.5, max_i: 29.5} 
-          heat: { min_o: 10.0, min_i: 14.9, max_i: 18.5} 
+          heat: { min_o: 01.0, min_i: 14.9, max_i: 18.5} 
         b : 
           cool: { min_o: 44.9, min_i: 28.5, max_i: 29.5} 
-          heat: { min_o: 10.0, min_i: 21.1, max_i: 22.1} 
+          heat: { min_o: 01.0, min_i: 19.5, max_i: 20.5} 
         c : 
           cool: { min_o: 44.5, min_i: 30.0, max_i: 32.5} 
-          heat: { min_o: 10.0, min_i: 21.7, max_i: 22.0} 
+          heat: { min_o: 01.0, min_i: 19.5, max_i: 20.5} 
 #
 #heater_ac_base:
 #  module: heat_app
@@ -244,6 +244,17 @@ scheduleh: &id002
        - { mode: a, start: { t: "17:00:00", d: 6}, end: { t: "21:00:00", d: 6} }
        - { mode: a, start: { t: "17:00:00", d: 7}, end: { t: "21:00:00", d: 7} }
 
+
+scheduleh: &id003
+       - { mode: a, start: { t: "01:30:00", d: 1}, end: { t: "01:32:00", d: 1} }
+       - { mode: a, start: { t: "01:30:00", d: 2}, end: { t: "01:32:00", d: 2} }
+       - { mode: a, start: { t: "01:30:00", d: 3}, end: { t: "01:32:00", d: 3} }
+       - { mode: a, start: { t: "01:30:00", d: 4}, end: { t: "01:32:00", d: 4} }
+       - { mode: a, start: { t: "01:30:00", d: 5}, end: { t: "01:32:00", d: 5} }
+       - { mode: a, start: { t: "01:30:00", d: 6}, end: { t: "01:32:00", d: 6} }
+
+
+
 enter_lamp:
   module: heat_app
   class: OutdoorLampWithPir
@@ -285,6 +296,15 @@ room0:
   sensor: group.room0
   delay: 30
   schedule: *id001
+  disable_auto_on: True
+
+acroom0off:
+  module: heat_app
+  class: OutdoorLampWithPir
+  switch: switch.ac1
+  sensor: group.room0
+  delay: 30
+  schedule: *id003
   disable_auto_on: True
 
 water_monitor:
