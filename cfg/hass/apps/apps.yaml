@@ -76,10 +76,10 @@ heater_ac_up:
           heat: { min_o: 01.0, min_i: 14.9, max_i: 18.5} 
         b : 
           cool: { min_o: 44.9, min_i: 28.5, max_i: 29.5} 
-          heat: { min_o: 01.0, min_i: 19.5, max_i: 20.5} 
+          heat: { min_o: 01.0, min_i: 19.5, max_i: 20.2} 
         c : 
           cool: { min_o: 44.5, min_i: 30.0, max_i: 32.5} 
-          heat: { min_o: 01.0, min_i: 19.5, max_i: 20.5} 
+          heat: { min_o: 01.0, min_i: 19.5, max_i: 20.2} 
 #
 #heater_ac_base:
 #  module: heat_app
@@ -246,12 +246,7 @@ scheduleh: &id002
 
 
 scheduleh: &id003
-       - { mode: a, start: { t: "01:30:00", d: 1}, end: { t: "01:32:00", d: 1} }
-       - { mode: a, start: { t: "01:30:00", d: 2}, end: { t: "01:32:00", d: 2} }
-       - { mode: a, start: { t: "01:30:00", d: 3}, end: { t: "01:32:00", d: 3} }
-       - { mode: a, start: { t: "01:30:00", d: 4}, end: { t: "01:32:00", d: 4} }
-       - { mode: a, start: { t: "01:30:00", d: 5}, end: { t: "01:32:00", d: 5} }
-       - { mode: a, start: { t: "01:30:00", d: 6}, end: { t: "01:32:00", d: 6} }
+       - { mode: a, start: { t: "01:30:00", d: 1}, end: { t: "01:31:05", d: 1} }
 
 
 
@@ -302,6 +297,15 @@ acroom0off:
   module: heat_app
   class: OutdoorLampWithPir
   switch: switch.ac1
+  sensor: group.room0
+  delay: 30
+  schedule: *id003
+  disable_auto_on: True
+
+acroom0off1:
+  module: heat_app
+  class: OutdoorLampWithPir
+  switch: input_boolean.ac1_input
   sensor: group.room0
   delay: 30
   schedule: *id003
