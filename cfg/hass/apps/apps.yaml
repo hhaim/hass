@@ -19,7 +19,7 @@ shutter_auto_off:
 #     switch: switch.ac3
 #     enable: input_boolean.simple_switch0
 
-# day ==0 means this is a template that triiger from hebcal.event and it duplicate itself from holidays event!!
+# day ==0 means this is a template that trigger from hebcal.event and it duplicate itself from holidays event!!
 heater_ac1:
   module: heat_app
   class: HeatApp
@@ -30,7 +30,7 @@ heater_ac1:
        
   heater:
      default: a  # this is the default mode for input switch 
-     mode: heat  #heat #cool  
+     mode: cool  #heat #cool  
      switch: switch.ac1
      input: input_boolean.ac1_input
      sensor_inside :  variable.heat_index0
@@ -64,7 +64,7 @@ heater_ac_up:
        
   heater:
      default: a   # this is the default mode for input switch 
-     mode: heat #heat #cool 
+     mode: cool #heat #cool 
      switch: switch.ac2
      input: input_boolean.ac2_input  # input switch to enable/disable under feedback 
      sensor_inside :  variable.heat_index1
@@ -398,4 +398,4 @@ light_automation:
   light: sensor.illumination_158d0002b75423
   schedule:
        - { global_cfg: true, disable_startup: true}
-       - { mode: a, start: { t: "07:00:00", d: 0}, end: { t: "15:30:00", d: 0 } }
+       - { mode: a, start: { t: "07:00:00", d: 0}, end: { t: "15:07:00", d: 0 } }
