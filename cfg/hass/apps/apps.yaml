@@ -50,7 +50,7 @@ heater_ac_up:
   module: heat_app
   class: HeatApp
   schedule:
-       - { mode: b, start: { t: "13:00:00", d: 0}, end: { t: "17:00:00", d: 0} }
+       - { mode: b, start: { t: "11:30:00", d: 0}, end: { t: "17:00:00", d: 0} }
        - { mode: a, start: { t: "23:20:00", d: 0}, end: { t: "23:50:00", d: 0} }
        - { mode: c, start: { t: "00:01:00", d: 0}, end: { t: "08:00:00", d: 0} }
 
@@ -72,13 +72,13 @@ heater_ac_up:
      enable : input_boolean.heat_app_enable
      modes :
         a : 
-          cool: { min_o: 44.3, min_i: 28.5, max_i: 29.5} 
+          cool: { min_o: 44.3, min_i: 26.0, max_i: 27.0} 
           heat: { min_o: 01.0, min_i: 14.9, max_i: 18.5} 
         b : 
-          cool: { min_o: 44.9, min_i: 28.5, max_i: 29.5} 
+          cool: { min_o: 44.9, min_i: 26.0, max_i: 27.0} 
           heat: { min_o: 01.0, min_i: 19.5, max_i: 20.2} 
         c : 
-          cool: { min_o: 44.5, min_i: 30.0, max_i: 32.5} 
+          cool: { min_o: 44.5, min_i: 26.0, max_i: 28.0} 
           heat: { min_o: 01.0, min_i: 19.5, max_i: 20.2} 
 #
 #heater_ac_base:
@@ -236,13 +236,13 @@ scheduleh: &id001
   - { mode: b, start: { t: "16:00:00", d: 0}, end: { t: "23:55:00", d: 0} }
 
 scheduleh: &id002
-       - { mode: a, start: { t: "17:00:00", d: 1}, end: { t: "21:00:00", d: 1} }
-       - { mode: a, start: { t: "17:00:00", d: 2}, end: { t: "21:00:00", d: 2} }
-       - { mode: a, start: { t: "17:00:00", d: 3}, end: { t: "21:00:00", d: 3} }
-       - { mode: a, start: { t: "17:00:00", d: 4}, end: { t: "21:00:00", d: 4} }
-       - { mode: a, start: { t: "17:00:00", d: 5}, end: { t: "21:00:00", d: 5} }
-       - { mode: a, start: { t: "17:00:00", d: 6}, end: { t: "21:00:00", d: 6} }
-       - { mode: a, start: { t: "17:00:00", d: 7}, end: { t: "21:00:00", d: 7} }
+       - { mode: a, start: { t: "20:00:00", d: 1}, end: { t: "22:00:00", d: 1} }
+       - { mode: a, start: { t: "20:00:00", d: 2}, end: { t: "22:00:00", d: 2} }
+       - { mode: a, start: { t: "20:00:00", d: 3}, end: { t: "22:00:00", d: 3} }
+       - { mode: a, start: { t: "20:00:00", d: 4}, end: { t: "22:00:00", d: 4} }
+       - { mode: a, start: { t: "20:00:00", d: 5}, end: { t: "22:00:00", d: 5} }
+       - { mode: a, start: { t: "20:00:00", d: 6}, end: { t: "22:00:00", d: 6} }
+       - { mode: a, start: { t: "20:00:00", d: 7}, end: { t: "22:00:00", d: 7} }
 
 
 scheduleh: &id003
