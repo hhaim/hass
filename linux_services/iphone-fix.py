@@ -36,7 +36,14 @@ def main(args=None):
         opts = parser.parse_args(args)
     convert_imgs(opts.in_dir,opts.out_dir)    
 
-    
+
+def build_cmd_orf_jpg(ifile,filename,dpath):
+    split_tup = os.path.splitext(filename)
+    dfile =os.path.join(dpath,split_tup[0]+'.jpg')
+    s= 'darktable-cli {} {}'.format(ifile,dfile)
+    print(s)
+    os.system(s)
+
 
 def build_cmd_convert_jpg(ifile,filename,dpath):
     split_tup = os.path.splitext(filename)
@@ -63,6 +70,12 @@ def process(ifile,filename,dst_path):
                 build_cmd_convert_jpg(ifile,filename,dst_path)
             elif ex == 'MOV':
                 build_cmd_convert_mov(ifile,filename,dst_path)
+            elif ex == 'ORF':
+                build_cmd_orf_jpg(ifile,filename,dst_path)
+            elif ex == 'AVI':
+                build_cmd_convert_mov(ifile,filename,dst_path)
+            elif ex == 'JPG':
+                build_cmd_orf_jpg(ifile,filename,dst_path)
     
 
 def convert_imgs(src_path,dst_path):
