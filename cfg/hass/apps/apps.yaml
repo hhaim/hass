@@ -236,13 +236,13 @@ scheduleh: &id001
   - { mode: b, start: { t: "16:00:00", d: 0}, end: { t: "23:55:00", d: 0} }
 
 scheduleh: &id002
-       - { mode: a, start: { t: "20:00:00", d: 1}, end: { t: "22:00:00", d: 1} }
-       - { mode: a, start: { t: "20:00:00", d: 2}, end: { t: "22:00:00", d: 2} }
-       - { mode: a, start: { t: "20:00:00", d: 3}, end: { t: "22:00:00", d: 3} }
-       - { mode: a, start: { t: "20:00:00", d: 4}, end: { t: "22:00:00", d: 4} }
-       - { mode: a, start: { t: "20:00:00", d: 5}, end: { t: "22:00:00", d: 5} }
-       - { mode: a, start: { t: "20:00:00", d: 6}, end: { t: "22:00:00", d: 6} }
-       - { mode: a, start: { t: "20:00:00", d: 7}, end: { t: "22:00:00", d: 7} }
+       - { mode: a, start: { t: "18:00:00", d: 1}, end: { t: "22:00:00", d: 1} }
+       - { mode: a, start: { t: "18:00:00", d: 2}, end: { t: "22:00:00", d: 2} }
+       - { mode: a, start: { t: "18:00:00", d: 3}, end: { t: "22:00:00", d: 3} }
+       - { mode: a, start: { t: "18:00:00", d: 4}, end: { t: "22:00:00", d: 4} }
+       - { mode: a, start: { t: "18:00:00", d: 5}, end: { t: "22:00:00", d: 5} }
+       - { mode: a, start: { t: "18:00:00", d: 6}, end: { t: "22:00:00", d: 6} }
+       - { mode: a, start: { t: "18:00:00", d: 7}, end: { t: "22:00:00", d: 7} }
 
 
 scheduleh: &id003
