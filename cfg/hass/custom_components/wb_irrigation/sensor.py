@@ -20,7 +20,7 @@ from ..wb_irrigation.pyeto import convert,fao
 from datetime import timedelta,datetime
 from typing import Optional
 import voluptuous as vol
-from ..wb_irrigation import (TYPE_EV_FAO56_DAY,TYPE_RAIN,TYPE_RAIN_DAY,TYPE_EV_DAY,TYPE_EV_RAIN_BUCKET,CONF_RAIN_FACTOR,CONF_TAPS,CONF_MAX_EV,CONF_MIN_EV,CONF_DEBUG,CONF_FAO56_SENSOR,CONF_RAIN_SENSOR,CONF_EXTERNAL_SENSOR_RAIN_SENSOR)
+from ..wb_irrigation import (TYPE_EV_FAO56_DAY,TYPE_RAIN,TYPE_RAIN_DAY,TYPE_EV_DAY,TYPE_EV_RAIN_BUCKET,CONF_RAIN_FACTOR,CONF_RAIN_MIN,CONF_TAPS,CONF_MAX_EV,CONF_MIN_EV,CONF_DEBUG,CONF_FAO56_SENSOR,CONF_RAIN_SENSOR,CONF_EXTERNAL_SENSOR_RAIN_SENSOR)
 from homeassistant.core import callback
 from homeassistant.components import sensor
 from homeassistant.components.sensor import DEVICE_CLASSES_SCHEMA
@@ -115,6 +115,7 @@ class WeatherIrrigarion(RestoreEntity):
         self._icon = conf.get(CONF_ICON)
         self._type = conf.get(CONF_TYPE)
         self._rain_factor = conf.get(CONF_RAIN_FACTOR)
+        self._rain_min = conf.get(CONF_RAIN_MIN)
         self._lat = conf.get(CONF_LATITUDE)
         self._elevation  = conf.get(CONF_ELEVATION)
         self._debug = conf.get(CONF_DEBUG)
@@ -239,6 +240,9 @@ class WeatherIrrigarion(RestoreEntity):
                  ev = float(ev_state.state)
 
             rain_mm = self.read_rain_sensor ()
+            if (rain_mm > 0) and (self._rain_min > 0):
+                if rain_mm < self._rain_min:
+                    rain_mm = 0
 
             self._state += (-ev) + (rain_mm * self._rain_factor)
             if self._state > self._max_ev:

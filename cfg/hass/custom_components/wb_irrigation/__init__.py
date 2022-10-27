@@ -58,6 +58,7 @@ TYPE_EV_FAO56_DAY = 'fao56' #FAO-56 Penman-Monteith based on Mark Richards
 DEFAULT_NAME = 'wb_irrigation'
 CONF_TAPS = "taps"
 CONF_RAIN_FACTOR ="rain_factor"
+CONF_RAIN_MIN ="rain_min_value" # filter values that are lower than tat for a day 
 CONF_MAX_EV = "max_ev"
 CONF_MIN_EV = "min_ev"
 CONF_DEBUG = "debug"
@@ -95,6 +96,7 @@ CONFIG_SCHEMA = vol.Schema(
            vol.Optional(CONF_DEBUG,default=False): cv.boolean,
            vol.Optional(CONF_EXTERNAL_SENSOR_RAIN_SENSOR):cv.string,
            vol.Required(CONF_RAIN_FACTOR): vol.Coerce(float),
+           vol.Required(CONF_RAIN_MIN): vol.Coerce(float),
            vol.Required(CONF_MAX_EV): vol.Coerce(float),
            vol.Required(CONF_MIN_EV): vol.Coerce(float),
            vol.Optional(CONF_TAPS): vol.All(
