@@ -68,21 +68,6 @@ sensor:
     value_template: "{{ value_json['SI7021'].Humidity }}"
     unit_of_measurement: "%"
 
-  - platform: darksky
-    api_key: !secret darksky_key
-    monitored_conditions:
-      - summary
-      - icon
-      - temperature
-      - apparent_temperature
-      - humidity
-      - wind_speed
-      - visibility
-      - precip_type
-      - precip_intensity
-      - precip_probability
-      - precip_accumulation
-      - uv_index
   
   
 

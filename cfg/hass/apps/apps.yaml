@@ -144,8 +144,8 @@ calc_sensor_inside3:
 calc_sensor_outside:
   module: heat_app
   class: CalcHeatIndexApp
-  temp :  sensor.dark_sky_temperature
-  hum  :  sensor.dark_sky_humidity
+  temp :  sensor.openweathermap_temperature
+  hum  :  sensor.openweathermap_humidity
   out  :  variable.heat_index_outside0
   
 
@@ -230,7 +230,7 @@ boiler_automation:
   input_temp_max:   input_number.boiler_temp_max
   sensor_eff_power: variable.boiler_eff_power0
   sensor_eff_solar:  variable.boiler_eff_solar0
-  input_uv:  sensor.dark_sky_uv_index
+  input_uv:  sensor.openweathermap_uv_index
 
 scheduleh: &id001
   - { mode: b, start: { t: "16:00:00", d: 0}, end: { t: "23:55:00", d: 0} }
