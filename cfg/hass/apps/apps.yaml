@@ -253,7 +253,7 @@ scheduleh: &id003
 enter_lamp:
   module: heat_app
   class: OutdoorLampWithPir
-  switch: switch.kit7on
+  switch: group.garden_i0
   sensor: binary_sensor.alarm16
   delay: 60
   schedule: *id002

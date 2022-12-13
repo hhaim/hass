@@ -3,6 +3,10 @@
 switch:
 
   - platform: mytasmota
+    name: inputlamp0
+    stopic: basic10
+
+  - platform: mytasmota
     name: door-lamp0
     stopic: basic1
 
@@ -86,6 +90,12 @@ group:
     entities:
         - switch.r0table
         - switch.r0tv
+
+  garden_i0:
+    name: gr0
+    entities:
+        - switch.kit7on
+        - switch.inputlamp0
 
 input_boolean:
   shutter_app_enable:

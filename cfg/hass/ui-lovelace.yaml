@@ -82,6 +82,9 @@ views:
           - entity:  group.shutter_r0
             name: shutter
             icon: mdi:window-shutter
+          - entity: group.garden_i0
+            name: light
+            icon: mdi:lightbulb
 
       - type: entities
         show_header_toggle: true
