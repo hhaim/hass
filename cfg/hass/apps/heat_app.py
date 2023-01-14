@@ -1569,7 +1569,7 @@ class LightApp(HassBase):
         self.light = self.args["light"]
         self.switch = self.args["switch"]
         self.timer_handle = None
-        self.restart_timer = False 
+        self.flag_restart_timer = False 
         self.sch = ada.schedule.Schedule(self,
                                      self.args['schedule'],
                                      self.on_schedule_event,None)
@@ -1594,7 +1594,7 @@ class LightApp(HassBase):
     def restart_timer(self):
         self.tick()
         if self.timer_handle==None:
-            if self.restart_timer:
+            if self.flag_restart_timer:
                 self.log(" restart timer ")
                 self.timer_handle = self.run_in(self._cb_event, 30*60)
             else:
@@ -1609,11 +1609,11 @@ class LightApp(HassBase):
     def on_schedule_event(self, kwargs):
         if kwargs['state'] == "on":
             self.log(" start timer ")
-            self.restart_timer = True 
+            self.flag_restart_timer = True 
             self.restart_timer()
         elif kwargs['state'] == "off":
             self.log(" stop timer ")
-            self.restart_timer = False 
+            self.flag_restart_timer = False 
             self.stop_timer()
 
     def is_int (self,value):
