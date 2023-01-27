@@ -72,17 +72,21 @@ services:
     user: "${UID}:${GID}"
     environment:
       TZ: ${TZ}      
-    ports:
-    - "5353:5353/udp"
+    #ports:
+    #- "5353:5353/udp"
     restart: always
     volumes:
     - ./cfg/dnscrypt-proxy:/etc/dnscrypt-proxy
+    network_mode: host  
+
+         
 
 #network_mode: service:wireguard
 #    networks:
 #      - backbone
 
 #networks:
-#  backbone:
+#  netipv6:
+#    enable_ipv6: true 
 #    driver: bridge
 

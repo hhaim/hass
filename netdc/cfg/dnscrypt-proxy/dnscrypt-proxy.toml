@@ -39,7 +39,8 @@ server_names = ['scaleway-fr', 'google', 'yandex', 'cloudflare']
 ## To listen to all IPv4 addresses, use `listen_addresses = ['0.0.0.0:53']`
 ## To listen to all IPv4+IPv6 addresses, use `listen_addresses = ['[::]:53']`
 
-listen_addresses = ['0.0.0.0:5353']
+#listen_addresses = ['0.0.0.0:5353']
+listen_addresses = ['[::]:5353']
 
 
 ## Maximum number of simultaneous client connections to accept
@@ -61,7 +62,7 @@ max_clients = 250
 ipv4_servers = true
 
 # Use servers reachable over IPv6 -- Do not enable if you don't have IPv6 connectivity
-ipv6_servers = false
+ipv6_servers = true 
 
 # Use servers implementing the DNSCrypt protocol
 dnscrypt_servers = true
