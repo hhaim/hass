@@ -12,10 +12,6 @@ switch:
 
 
 media_player:
-  - platform: kodi
-    host: 10.0.0.50
-    username: !secret kodi_user
-    password: !secret kodi_pass
 
   - platform: universal
     name: main
