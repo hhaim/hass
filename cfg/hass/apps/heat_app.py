@@ -234,31 +234,31 @@ class HassBase(hass.Hass):
            self.turn_off(HassBase.GATEWAY_ID)
 
     def set_door_bell (self):
-        self.blink_light();
+        self.blink_light()
         self.call_alarm(DOORBELL)
 
     def alert_sms (self,msg):
         try:
            self.call_service('notify/clicksend', message = msg)
         except Exception as e:
-            self.log(str(s))
+            self.log(str(msg))
 
     def alert_tts (self,msg):
         try:
           self.call_service('notify/clicksend_tts', message = msg)
         except Exception as e:
-            self.log(str(s))
+            self.log(str(msg))
 
         try:
             self.call_service('notify/clicksend_tts2', message = msg)
         except Exception as e:
-            self.log(str(s))
+            self.log(str(msg))
     
     def my_notify (self,msg):
         t=datetime.datetime.now().strftime("%H:%M:%S")
         n_msg = t +' ' + msg
-        self.log(n_msg);
-        self.notify(n_msg);
+        self.log(n_msg)
+        self.notify(n_msg)
 
 
     def is_state_valid (self,state):
