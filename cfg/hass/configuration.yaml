@@ -96,9 +96,15 @@ lovelace:
   mode: yaml
 
 
-duckdns:
-  domain: !secret duckdns_domain 
+#duckdns:
+#  domain: !secret duckdns_domain 
+#  access_token: !secret duckdns_tocken
+
+duckdns_ipv4_ipv6:
   access_token: !secret duckdns_tocken
+  domain: !secret duckdns_domain 
+  ipv4_mode: duckdns
+  ipv6_mode: nameserver
 
 # Example configuration.yaml entry
 speedtestdotnet:

@@ -1,0 +1,10 @@
+{
+    "domain": "duckdns_ipv4_ipv6",
+    "name": "Duck DNS IPV4 and IPV6",
+    "documentation": "https://github.com/lfhohmann/ha-duckdns_ipv4_ipv6#readme",
+    "issue_tracker": "https://github.com/lfhohmann/ha-duckdns_ipv4_ipv6/issues",
+    "codeowners": [
+      "@lfhohmann"
+    ],
+    "version": "1.1.1"
+  }
