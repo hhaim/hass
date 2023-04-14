@@ -215,6 +215,12 @@ influxdb:
       - group.room0
       - switch.ac3
 
+prometheus:
+  namespace: hass
+  filter:
+    include_domains:
+      - sensor
+
 # Example configuration.yaml entry for template platform
 sensor:
 

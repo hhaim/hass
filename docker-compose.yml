@@ -135,6 +135,17 @@ services:
       volumes:
         - './cfg/tasmota:/data/tasmoadmin'
 
+  agent:
+    container_name: agent
+    image: grafana/agent:v0.32.1
+    volumes:
+      - '/tmp/agent:/etc/agent/data'
+      - './cfg/agent/config:/etc/agent'
+    environment:
+      TZ: ${TZ}
+    ports:
+      - "12345:12345"
+
 volumes:
   nas_10:
     driver: local
