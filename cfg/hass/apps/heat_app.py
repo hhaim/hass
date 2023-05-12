@@ -1659,7 +1659,6 @@ class RhasspyEvents(HassBase):
             name = data['name']
             d= {'ac':'switch.ac1','shutter':'group.shutter_r0','light':'group.lamps_r0','tv':'switch.tv'}
             if name in d:
-                self.toggle_light()
                 if state:
                    self.turn_on(d[name])
                 else:   
