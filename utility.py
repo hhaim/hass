@@ -72,7 +72,7 @@ def get_dump_mq():
     return cmd
 
 def get_sync_hass():
-    cmd ='rsync -avz --exclude=".git" --exclude="netdc" --exclude="cfg/hass/known_devices.yaml" --exclude="linux_services" . {}:{} '.format(RH,REMOTE_HASS)
+    cmd ='rsync -avz --exclude=".git" --exclude="netdc" --exclude="cfg/hass/known_devices.yaml" --exclude="linux_services"  --exclude="services" . {}:{} '.format(RH,REMOTE_HASS)
     return cmd
 
 def get_sync_net():
