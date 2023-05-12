@@ -1641,3 +1641,34 @@ class LightApp(HassBase):
             return True
         else:
             return False
+
+
+
+class RhasspyEvents(HassBase):
+    """ Voice events """
+    def initialize(self):
+      self.listen_event(self.change_state, "rhasspy_ChangeShutter")
+
+    def change_state(self, event_name, data, kwargs):
+        self.log(data)
+        state = False 
+        if 'stats' in data:
+            if data['stats']=='on':
+                state = True 
+
+            name = data['name']
+            d= {'ac':'switch.ac1','shutter':'group.shutter_r0','light':'group.lamps_r0','tv':'switch.tv'}
+            if name in d:
+                self.toggle_light()
+                if state:
+                   self.turn_on(d[name])
+                else:   
+                   self.turn_off(d[name])
+            if name == 'all':
+                if state == False :
+                   self.turn_off('switch.ac1')
+                   self.turn_off('group.shutter_r0')
+                   self.turn_off('group.lamps_r0')
+                   self.turn_off('switch.tv')
+
+            
