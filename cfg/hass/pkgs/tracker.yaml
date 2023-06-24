@@ -11,10 +11,6 @@ device_tracker:
      consider_home: 400
      hosts:
        tv           : tv.hhaim.home
-   - platform: mqtt_dnsmasq
-     interval_seconds: 60
-     consider_home: 400
-     topic: 'network/dhcp' 
   
    
    - platform: tplink_v2

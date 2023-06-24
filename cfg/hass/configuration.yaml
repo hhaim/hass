@@ -29,25 +29,6 @@ frontend:
 # Enables configuration UI
 config:
 
-mqtt:
-  broker: 10.0.0.140
-  port: 1883
-  client_id: home-assistant-2
-  keepalive: 60
-  username: hhaim
-  password: !secret mqtt_password
-  protocol: 3.1
-  birth_message:
-    topic: "tele/hass1/LWT"
-    payload: "Online"
-    qos: 1
-    retain: true
-  will_message:
-    topic: "tele/hass1/LWT"
-    payload: "Offline"
-    qos: 1
-    retain: true
-
 http:
   # Secrets are defined in the file secrets.yaml
   #api_password: !secret http_password
@@ -62,7 +43,7 @@ http:
 # the developers to assist with development of Home Assistant.
 # For more information, please see:
 # https://home-assistant.io/blog/2016/10/25/explaining-the-updater/
-updater:
+#updater:
   # Optional, allows Home Assistant developers to focus on popular components.
   # include_used_components: true
 
@@ -92,9 +73,6 @@ map:
 # Track the sun
 sun:
 
-lovelace:
-  mode: yaml
-
 
 #duckdns:
 #  domain: !secret duckdns_domain 
@@ -107,13 +85,13 @@ duckdns_ipv4_ipv6:
   ipv6_mode: nameserver
 
 # Example configuration.yaml entry
-speedtestdotnet:
-  scan_interval:
-    minutes: 60
-  monitored_conditions:
-    - ping
-    - download
-    - upload
+#speedtestdotnet:
+#  scan_interval:
+#    minutes: 60
+#  monitored_conditions:
+#    - ping
+#    - download
+#    - upload
 
 
 # Text to speech
@@ -224,7 +202,6 @@ prometheus:
 # Example configuration.yaml entry for template platform
 sensor:
 
-  - platform: uptime
   - platform: template
     sensors:
       se_energy_year:
@@ -236,6 +213,13 @@ sensor:
       se_energy_cur:
         value_template: "{{ (states('sensor.solaredge_current_power') | float / 1000) | round(0) }}"
        
+lovelace:
+  ## put here
+  mode: yaml
+  resources:
+    - url: /local/multiple-entity-row.js?v=4.2.0
+      type: module
+
 
 automation: !include automations.yaml
 script: !include scripts.yaml

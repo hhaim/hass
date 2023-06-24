@@ -6,9 +6,6 @@
 #  - url: /local/my-webfont.css
 #    type: css
 
-resources:
-  - url: /local/multiple-entity-row.js?v=4.2.0
-    type: module
 
 # Optional background for all views. Check https://developer.mozilla.org/en-US/docs/Web/CSS/background for more examples.
 background: center / cover no-repeat url("/background.png") fixed
@@ -85,6 +82,8 @@ views:
           - entity: group.garden_i0
             name: light
             icon: mdi:lightbulb
+          - entity: sensor.uptime
+            name: uptime
 
       - type: entities
         show_header_toggle: true

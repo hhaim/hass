@@ -289,7 +289,7 @@ class AccumStatsSensor(RestoreEntity):
             return 0.0
         return round(val,dig)
     @property
-    def device_state_attributes(self):
+    def state_attributes(self):
         """Return the state attributes of the sensor."""
         if self.value is None:
             return {}

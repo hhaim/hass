@@ -30,45 +30,37 @@ variable:
 
 
 # Weather prediction
-sensor:
+mqtt: 
+  sensor:
+    - name: "Temperature"
+      state_topic: "tele/sonoff/SENSOR"
+      value_template: "{{ value_json['AM2301'].Temperature }}"
+      unit_of_measurement: "C"
 
-  - platform: mqtt
-    name: "Temperature"
-    state_topic: "tele/sonoff/SENSOR"
-    value_template: "{{ value_json['AM2301'].Temperature }}"
-    unit_of_measurement: "C"
+    - name: "Humidity"
+      state_topic: "tele/sonoff/SENSOR"
+      value_template: "{{ value_json['AM2301'].Humidity }}"
+      unit_of_measurement: "%"
 
-  - platform: mqtt
-    name: "Humidity"
-    state_topic: "tele/sonoff/SENSOR"
-    value_template: "{{ value_json['AM2301'].Humidity }}"
-    unit_of_measurement: "%"
+    - name: "temp1"
+      state_topic: "tele/temp0/SENSOR"
+      value_template: "{{ value_json['SI7021'].Temperature }}"
+      unit_of_measurement: "C"
 
-  - platform: mqtt
-    name: "temp1"
-    state_topic: "tele/temp0/SENSOR"
-    value_template: "{{ value_json['SI7021'].Temperature }}"
-    unit_of_measurement: "C"
+    - name: "hum1"
+      state_topic: "tele/temp0/SENSOR"
+      value_template: "{{ value_json['SI7021'].Humidity }}"
+      unit_of_measurement: "%"
 
-  - platform: mqtt
-    name: "hum1"
-    state_topic: "tele/temp0/SENSOR"
-    value_template: "{{ value_json['SI7021'].Humidity }}"
-    unit_of_measurement: "%"
+    - name: "temp2"
+      state_topic: "tele/temp2/SENSOR"
+      value_template: "{{ value_json['SI7021'].Temperature }}"
+      unit_of_measurement: "C"
 
-  - platform: mqtt
-    name: "temp2"
-    state_topic: "tele/temp2/SENSOR"
-    value_template: "{{ value_json['SI7021'].Temperature }}"
-    unit_of_measurement: "C"
-
-  - platform: mqtt
-    name: "hum2"
-    state_topic: "tele/temp2/SENSOR"
-    value_template: "{{ value_json['SI7021'].Humidity }}"
-    unit_of_measurement: "%"
-
-  
+    - name: "hum2"
+      state_topic: "tele/temp2/SENSOR"
+      value_template: "{{ value_json['SI7021'].Humidity }}"
+      unit_of_measurement: "%"
   
 
 

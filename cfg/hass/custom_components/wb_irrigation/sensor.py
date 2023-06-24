@@ -150,7 +150,7 @@ class WeatherIrrigarion(RestoreEntity):
         if (self._type != TYPE_EV_RAIN_BUCKET):
           async_track_utc_time_change(
               hass, self._async_update_every_hour,
-                 minute = 0, second = 0)
+                  minute =0, second = 0)
 
 
     async def async_added_to_hass(self):
@@ -194,8 +194,13 @@ class WeatherIrrigarion(RestoreEntity):
         if self._rain_sensor_inc == True:
            if  self._last_rain_mm == None:
                 rain_state = self.hass.states.get(self._rain_sensor_id)
-                if rain_state :
-                    self._last_rain_mm = int(rain_state.state)
+                if rain_state:
+                    try: 
+                       self._last_rain_mm = int(rain_state.state)
+                    except (ValueError,TypeError):
+                        pass
+   
+
 
 
     def read_rain_sensor (self):
@@ -331,6 +336,7 @@ class WeatherIrrigarion(RestoreEntity):
              if f > 0.0:
                self._fao56 += f * self.calc_fao56(d)
 
+
         if self._type == TYPE_RAIN:
             self._state = rain_mm
         if self._type == TYPE_RAIN_DAY:
@@ -380,7 +386,7 @@ class WeatherIrrigarion(RestoreEntity):
 
 
     @property
-    def device_state_attributes(self):
+    def state_attributes(self):
         """Return the state attributes."""
         if self._type == TYPE_RAIN_DAY:
            return { 'rain_total' :  round(self._rain_mm,1) }

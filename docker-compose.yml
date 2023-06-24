@@ -18,7 +18,7 @@ version: '3.5'
 services:
   homeassistant:
     container_name: homeassistant
-    image: "ghcr.io/home-assistant/home-assistant:2021.11"
+    image: "ghcr.io/home-assistant/home-assistant:2023.6"
     depends_on:
       - mariadb
       - influxdb
@@ -39,8 +39,8 @@ services:
       TZ: ${TZ}      
   mariadb:
     restart: unless-stopped
-    image: mariadb:10.6
-    user: "${UID}:${GID}"    
+    image: mariadb:11.0.2-jammy
+    #user: "${UID}:${GID}"    
     ports:
       - "3306:3306/tcp"    
     volumes:

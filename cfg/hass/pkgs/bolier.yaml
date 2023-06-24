@@ -72,20 +72,14 @@ variable:
           friendly_name: 'Boiler solar-ef C/hour'
           unit_of_measurement: "C"
 
-sensor:
-
-  - platform: mqtt
-    name: "btemp0"
-    state_topic: "tele/b0/SENSOR"
-    value_template: "{{value_json['DS18B20'].Temperature }}"
-    qos: 1
-    unit_of_measurement : "C" 
+mqtt: 
+   sensor:
+    - name: "btemp0"
+      state_topic: "tele/b0/SENSOR"
+      value_template: "{{value_json['DS18B20'].Temperature }}"
+      qos: 1
+      unit_of_measurement : "C" 
   
-  - platform: statistics
-    entity_id: sensor.btemp0
-    max_age:
-      minutes: 600
-
 
  
   

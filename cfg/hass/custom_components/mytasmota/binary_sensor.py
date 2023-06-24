@@ -21,7 +21,7 @@ from homeassistant.components.mqtt.mixins import (
     MqttAvailability)
 
 from homeassistant.components.mqtt.const import (
-    CONF_QOS,CONF_STATE_TOPIC
+    CONF_QOS,CONF_STATE_TOPIC,CONF_ENCODING
 )
 
 from homeassistant.components.template.const import CONF_AVAILABILITY_TEMPLATE
@@ -115,6 +115,7 @@ class MqttTasmotaAlarmBinarySensor(MqttAvailability, BinarySensorEntity):
         avail_cfg[CONF_AVAILABILITY_TOPIC] = get_tasmota_avail_topic(stopic)
         avail_cfg[CONF_AVAILABILITY_MODE] = AVAILABILITY_LATEST
         avail_cfg[CONF_QOS] = DEFAULT_QOS
+        avail_cfg[CONF_ENCODING] = "utf8"
 
         MqttAvailability.__init__(self, avail_cfg)
         self._name = config.get(CONF_NAME)

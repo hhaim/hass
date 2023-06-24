@@ -9,68 +9,61 @@ input_boolean:
 
 
 # Weather prediction
-sensor:
+mqtt: 
+  sensor:
+    - name: "Energy Yesterday"
+      state_topic: "tele/pow0/SENSOR"
+      value_template: "{{value_json['ENERGY'].Yesterday }}"
+      qos: 1
+      unit_of_measurement : "kWh" 
 
-  - platform: mqtt
-    name: "Energy Yesterday"
-    state_topic: "tele/pow0/SENSOR"
-    value_template: "{{value_json['ENERGY'].Yesterday }}"
-    qos: 1
-    unit_of_measurement : "kWh" 
+    - name: "Energy Total"
+      state_topic: "tele/pow0/SENSOR"
+      value_template: "{{value_json['ENERGY'].Total }}"
+      qos: 1
+      unit_of_measurement : "kWh" 
 
-  - platform: mqtt
-    name: "Energy Total"
-    state_topic: "tele/pow0/SENSOR"
-    value_template: "{{value_json['ENERGY'].Total }}"
-    qos: 1
-    unit_of_measurement : "kWh" 
+    - name: "input_eng_total"
+      state_topic: "tele/sdm1/SENSOR"
+      value_template: "{{ (value_json['ENERGY'].Total | float ) | round(0) }}"
+      qos: 1
+      unit_of_measurement : "kWh" 
+      availability_topic: "tele/sdm1/LWT"
+      payload_available: "Online"
+      payload_not_available: "Offline"    
 
-  - platform: mqtt
-    name: "input_eng_total"
-    state_topic: "tele/sdm1/SENSOR"
-    value_template: "{{ (value_json['ENERGY'].Total | float ) | round(0) }}"
-    qos: 1
-    unit_of_measurement : "kWh" 
-    availability_topic: "tele/sdm1/LWT"
-    payload_available: "Online"
-    payload_not_available: "Offline"    
+    - name: "input_active_power_L1"
+      state_topic: "tele/sdm1/SENSOR"
+      value_template: "{{ (value_json['ENERGY']['ActivePower'][0] | float /1000) | round(1) }}"
+      qos: 1
+      unit_of_measurement : "kW" 
+      availability_topic: "tele/sdm1/LWT"
+      payload_available: "Online"
+      payload_not_available: "Offline"    
 
-  - platform: mqtt
-    name: "input_active_power_L1"
-    state_topic: "tele/sdm1/SENSOR"
-    value_template: "{{ (value_json['ENERGY']['ActivePower'][0] | float /1000) | round(1) }}"
-    qos: 1
-    unit_of_measurement : "kW" 
-    availability_topic: "tele/sdm1/LWT"
-    payload_available: "Online"
-    payload_not_available: "Offline"    
+    - name: "input_active_power_L2"
+      state_topic: "tele/sdm1/SENSOR"
+      value_template: "{{ (value_json['ENERGY']['ActivePower'][1] | float /1000) | round(1) }}"
+      qos: 1
+      unit_of_measurement : "kW" 
+      availability_topic: "tele/sdm1/LWT"
+      payload_available: "Online"
+      payload_not_available: "Offline"    
 
-  - platform: mqtt
-    name: "input_active_power_L2"
-    state_topic: "tele/sdm1/SENSOR"
-    value_template: "{{ (value_json['ENERGY']['ActivePower'][1] | float /1000) | round(1) }}"
-    qos: 1
-    unit_of_measurement : "kW" 
-    availability_topic: "tele/sdm1/LWT"
-    payload_available: "Online"
-    payload_not_available: "Offline"    
+    - name: "input_active_power_L3"
+      state_topic: "tele/sdm1/SENSOR"
+      value_template: "{{ (value_json['ENERGY']['ActivePower'][2] | float /1000) | round(1) }}"
+      qos: 1
+      unit_of_measurement : "kW" 
+      availability_topic: "tele/sdm1/LWT"
+      payload_available: "Online"
+      payload_not_available: "Offline"    
 
-  - platform: mqtt
-    name: "input_active_power_L3"
-    state_topic: "tele/sdm1/SENSOR"
-    value_template: "{{ (value_json['ENERGY']['ActivePower'][2] | float /1000) | round(1) }}"
-    qos: 1
-    unit_of_measurement : "kW" 
-    availability_topic: "tele/sdm1/LWT"
-    payload_available: "Online"
-    payload_not_available: "Offline"    
-
-  - platform: mqtt
-    name: "input_active_power_ALL"
-    state_topic: "tele/sdm1/SENSOR"
-    value_template: "{{ ( (value_json['ENERGY']['ActivePower'][0] + value_json['ENERGY']['ActivePower'][1] +value_json['ENERGY']['ActivePower'][2]) | float /1000) | round(1) }}"
-    qos: 1
-    unit_of_measurement : "kW" 
-    availability_topic: "tele/sdm1/LWT"
-    payload_available: "Online"
-    payload_not_available: "Offline"    
+    - name: "input_active_power_ALL"
+      state_topic: "tele/sdm1/SENSOR"
+      value_template: "{{ ( (value_json['ENERGY']['ActivePower'][0] + value_json['ENERGY']['ActivePower'][1] +value_json['ENERGY']['ActivePower'][2]) | float /1000) | round(1) }}"
+      qos: 1
+      unit_of_measurement : "kW" 
+      availability_topic: "tele/sdm1/LWT"
+      payload_available: "Online"
+      payload_not_available: "Offline"    

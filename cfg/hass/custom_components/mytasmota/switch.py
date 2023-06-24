@@ -17,7 +17,7 @@ from homeassistant.components.mqtt.mixins import (
 from homeassistant.components.switch import SwitchEntity
 
 from homeassistant.components.mqtt.const import (
-    CONF_QOS,CONF_STATE_TOPIC,CONF_RETAIN
+    CONF_QOS,CONF_STATE_TOPIC,CONF_RETAIN,CONF_ENCODING
 )
 
 
@@ -99,6 +99,7 @@ class MqttTasmotaSwitch(MqttAvailability, SwitchEntity, RestoreEntity):
         avail_cfg[CONF_AVAILABILITY_TOPIC] = get_tasmota_avail_topic(stopic)
         avail_cfg[CONF_AVAILABILITY_MODE] = AVAILABILITY_LATEST
         avail_cfg[CONF_QOS] = DEFAULT_QOS
+        avail_cfg[CONF_ENCODING] = "utf8"
 
         MqttAvailability.__init__(self, avail_cfg)
         self._uptime_sec = 100000000000 # uptime in seconds
@@ -120,8 +121,9 @@ class MqttTasmotaSwitch(MqttAvailability, SwitchEntity, RestoreEntity):
 
 
     def _get_d(self, state):
-        d = {}
-        d = self.state_attributes
+        d = self.state_attributes()
+        if not d: 
+            d ={}    
         d[ATTR_ENTITY_ID] = self.entity_id
         d["state"] = state
         return d
@@ -135,7 +137,7 @@ class MqttTasmotaSwitch(MqttAvailability, SwitchEntity, RestoreEntity):
             return 
         if uptime_sec < self._uptime_sec:
            # we had a reboot, need to take a new ref
-           _LOGGER.error("switch event  JSON: {}".format( self._get_d(TASMOTA_POWER_UP)))
+           _LOGGER.error("switch event  JSON: {}".format( self._get_id(TASMOTA_POWER_UP)))
            self.hass.bus.async_fire(TASMOTA_EVENT,
                                 self._get_d(TASMOTA_POWER_UP)) 
            self._uptime_sec = uptime_sec
@@ -217,17 +219,17 @@ class MqttTasmotaSwitch(MqttAvailability, SwitchEntity, RestoreEntity):
         return self._icon
 
     async def async_turn_on(self, **kwargs):
-        mqtt.async_publish(
+        await mqtt.async_publish(
             self.hass, self._command_topic, self._payload_on, self._qos,
             self._retain)
 
     async def async_turn_off(self, **kwargs):
-        mqtt.async_publish(
+        await mqtt.async_publish(
             self.hass, self._command_topic, self._payload_off, self._qos,
             self._retain)
 
     @property
-    def device_state_attributes(self):
+    def state_attributes(self):
         """Return the state attributes."""
 
         return {

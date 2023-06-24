@@ -45,7 +45,6 @@ group:
        - switch.ac2
        - switch.tv
        - media_player.main
-       - media_player.kodi
        - sensor.water_total_external_norm
 
 
