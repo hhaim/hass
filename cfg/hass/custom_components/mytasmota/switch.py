@@ -137,7 +137,7 @@ class MqttTasmotaSwitch(MqttAvailability, SwitchEntity, RestoreEntity):
             return 
         if uptime_sec < self._uptime_sec:
            # we had a reboot, need to take a new ref
-           _LOGGER.error("switch event  JSON: {}".format( self._get_id(TASMOTA_POWER_UP)))
+           _LOGGER.error("switch event  JSON: {}".format( self._get_d(TASMOTA_POWER_UP)))
            self.hass.bus.async_fire(TASMOTA_EVENT,
                                 self._get_d(TASMOTA_POWER_UP)) 
            self._uptime_sec = uptime_sec
