@@ -121,7 +121,7 @@ class MqttTasmotaSwitch(MqttAvailability, SwitchEntity, RestoreEntity):
 
 
     def _get_d(self, state):
-        d = self.state_attributes()
+        d = self.state_attributes
         if not d: 
             d ={}    
         d[ATTR_ENTITY_ID] = self.entity_id

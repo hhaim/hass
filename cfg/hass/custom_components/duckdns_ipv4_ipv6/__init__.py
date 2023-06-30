@@ -96,11 +96,8 @@ async def async_setup(hass, config):
         )
 
     intervals = (
-        INTERVAL,
         timedelta(minutes=1),
-        timedelta(minutes=5),
-        timedelta(minutes=15),
-        timedelta(minutes=30),
+        timedelta(minutes=5)
     )
     async_track_time_interval_backoff(hass, update_domain_interval, intervals)
 
