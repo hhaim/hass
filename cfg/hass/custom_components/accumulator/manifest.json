@@ -1,0 +1,9 @@
+{
+  "domain": "accumulator",
+  "name": "accumulator",
+  "documentation": "",
+  "requirements": [],
+  "dependencies": [],
+  "codeowners": [],
+  "version": "1.0.0"
+}

@@ -11,6 +11,16 @@ switch:
     stopic: pow0
 
 
+accumulator:
+
+      tv_acc:
+        name: "tv_acc"
+        state_on: "on"
+        state_off: "off"
+        switch_id: "switch.tv"
+
+
+
 media_player:
 
   - platform: universal

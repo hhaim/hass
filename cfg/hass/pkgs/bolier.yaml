@@ -82,6 +82,13 @@ mqtt:
   
 
  
+accumulator:
+      boiler_acc:
+        name: "boiler_acc"
+        state_on: "on"
+        state_off: "off"
+        switch_id: "switch.b0"
+
   
 
 

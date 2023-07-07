@@ -97,6 +97,16 @@ group:
         - switch.kit7on
         - switch.inputlamp0
 
+accumulator:
+
+      garden1_acc:
+        name: "garden1_acc"
+        state_on: "on"
+        state_off: "off"
+        switch_id: "group.garden_i0"
+
+
+
 input_boolean:
   shutter_app_enable:
     name: Enable Shutter App

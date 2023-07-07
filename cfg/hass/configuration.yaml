@@ -192,6 +192,12 @@ influxdb:
       - switch.garden_lamp0
       - group.room0
       - switch.ac3
+  
+  include:
+    entities:
+      - binary_sensor.google
+      - binary_sensor.home
+      - binary_sensor.cloudflare
 
 prometheus:
   namespace: hass
