@@ -135,16 +135,32 @@ services:
       volumes:
         - './cfg/tasmota:/data/tasmoadmin'
 
-  agent:
-    container_name: agent
-    image: grafana/agent:v0.32.1
+  #agent:  this image is taking 20% CPU instead of 0.2% in vmagent 
+  #  container_name: agent
+  #  image: grafana/agent:v0.32.1
+  #  volumes:
+  #    - '/tmp/agent:/etc/agent/data'
+  #    - './cfg/agent/config:/etc/agent'
+  #  environment:
+  #    TZ: ${TZ}
+  #  ports:
+  #    - "12345:12345"
+
+  vmagent:
+    container_name: vmagent
+    image: victoriametrics/vmagent:v1.91.3
     volumes:
-      - '/tmp/agent:/etc/agent/data'
-      - './cfg/agent/config:/etc/agent'
+      - /tmp/agent:/vmagentdata
+      - ./cfg/agent/config:/etc/prometheus
+    command:
+      - "--promscrape.config=/etc/prometheus/agent.yaml"
+      - "--remoteWrite.url=${VMAGENT_URL}"
+      - "--remoteWrite.basicAuth.password=${VMAGNET_PASSWORD}"
+      - "--remoteWrite.basicAuth.username=${VMAGENT_USER}"
+
     environment:
       TZ: ${TZ}
-    ports:
-      - "12345:12345"
+    restart: always
 
 volumes:
   nas_10:
