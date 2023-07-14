@@ -21,7 +21,7 @@ services:
     image: "ghcr.io/home-assistant/home-assistant:2023.6"
     depends_on:
       - mariadb
-      - influxdb
+      - victoriametrics
       - mosquitto
     volumes:
       - ./cfg/hass:/config
@@ -83,49 +83,6 @@ services:
       environment:
         TZ: ${TZ}      
 
-  #influxdb:
-  #    container_name: influxdb
-  #    #image: influxdb
-  #    image: influxdb:1.8.10-alpine
-  #    #healthcheck:
-  #    #  test: "curl -sf http://localhost:8086/ping"
-  #    #  interval: 60s
-  #    #  timeout: 10s
-  #    #  retries: 5
-  #    user: "${UID}:${GID}"
-  #    environment:
-  #    - INFLUXDB_DB="${MYSQL_DATABASE}"
-  #    - INFLUXDB_ADMIN_USER="${MYSQL_USER}"
-  #    - INFLUXDB_ADMIN_PASSWORD="${MYSQL_PASSWORD}"
-  #    - TZ=${TZ}      
-  #
-  #    volumes:
-  #     - './store/influxdb:/var/lib/influxdb'
-  #     - './cfg/influxdb:/etc/influxdb'
-  #     - 'nas_10:/opt/'
-  #    ports:
-  #      - '8086:8086'
-  #    restart: always      
-
-  #grafana:
-  #    container_name: grafana
-  #    #image: grafana/grafana:6.4.5
-  #    image: grafana/grafana:8.3.1
-  #    user: "${UID}:${GID}"
-  #    depends_on:
-  #      - influxdb
-  #    volumes:
-  #      - ./store/grafana:/var/lib/grafana
-  #    ports:
-  #      - '3000:3000'
-  #    environment:
-  #      #- GF_SECURITY_ALLOW_EMBEDDING=true
-  #      #- GF_SECURITY_COOKIE_SAMESITE=none
-  #      - GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME}
-  #      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}        
-  #      - TZ=${TZ}      
-  #    restart: "no"
-
   tasmotaadmin:
       container_name: tasmotaadmin
       image: raymondmm/tasmoadmin:v1.7.0
@@ -135,16 +92,6 @@ services:
       volumes:
         - './cfg/tasmota:/data/tasmoadmin'
 
-  #agent:  this image is taking 20% CPU instead of 0.2% in vmagent 
-  #  container_name: agent
-  #  image: grafana/agent:v0.32.1
-  #  volumes:
-  #    - '/tmp/agent:/etc/agent/data'
-  #    - './cfg/agent/config:/etc/agent'
-  #  environment:
-  #    TZ: ${TZ}
-  #  ports:
-  #    - "12345:12345"
 
   vmagent:
     container_name: vmagent
