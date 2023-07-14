@@ -179,7 +179,7 @@ system_health:
 
 influxdb:
   host: !secret local_host
-  port: 8086
+  port: 8428
   username: !secret influx_user
   password: !secret influx_password
   database: hass_db

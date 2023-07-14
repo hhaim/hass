@@ -83,48 +83,48 @@ services:
       environment:
         TZ: ${TZ}      
 
-  influxdb:
-      container_name: influxdb
-      #image: influxdb
-      image: influxdb:1.8.10-alpine
-      #healthcheck:
-      #  test: "curl -sf http://localhost:8086/ping"
-      #  interval: 60s
-      #  timeout: 10s
-      #  retries: 5
-      user: "${UID}:${GID}"
-      environment:
-      - INFLUXDB_DB="${MYSQL_DATABASE}"
-      - INFLUXDB_ADMIN_USER="${MYSQL_USER}"
-      - INFLUXDB_ADMIN_PASSWORD="${MYSQL_PASSWORD}"
-      - TZ=${TZ}      
+  #influxdb:
+  #    container_name: influxdb
+  #    #image: influxdb
+  #    image: influxdb:1.8.10-alpine
+  #    #healthcheck:
+  #    #  test: "curl -sf http://localhost:8086/ping"
+  #    #  interval: 60s
+  #    #  timeout: 10s
+  #    #  retries: 5
+  #    user: "${UID}:${GID}"
+  #    environment:
+  #    - INFLUXDB_DB="${MYSQL_DATABASE}"
+  #    - INFLUXDB_ADMIN_USER="${MYSQL_USER}"
+  #    - INFLUXDB_ADMIN_PASSWORD="${MYSQL_PASSWORD}"
+  #    - TZ=${TZ}      
+  #
+  #    volumes:
+  #     - './store/influxdb:/var/lib/influxdb'
+  #     - './cfg/influxdb:/etc/influxdb'
+  #     - 'nas_10:/opt/'
+  #    ports:
+  #      - '8086:8086'
+  #    restart: always      
 
-      volumes:
-       - './store/influxdb:/var/lib/influxdb'
-       - './cfg/influxdb:/etc/influxdb'
-       - 'nas_10:/opt/'
-      ports:
-        - '8086:8086'
-      restart: always      
-
-  grafana:
-      container_name: grafana
-      #image: grafana/grafana:6.4.5
-      image: grafana/grafana:8.3.1
-      user: "${UID}:${GID}"
-      depends_on:
-        - influxdb
-      volumes:
-        - ./store/grafana:/var/lib/grafana
-      ports:
-        - '3000:3000'
-      environment:
-        #- GF_SECURITY_ALLOW_EMBEDDING=true
-        #- GF_SECURITY_COOKIE_SAMESITE=none
-        - GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME}
-        - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}        
-        - TZ=${TZ}      
-      restart: "no"
+  #grafana:
+  #    container_name: grafana
+  #    #image: grafana/grafana:6.4.5
+  #    image: grafana/grafana:8.3.1
+  #    user: "${UID}:${GID}"
+  #    depends_on:
+  #      - influxdb
+  #    volumes:
+  #      - ./store/grafana:/var/lib/grafana
+  #    ports:
+  #      - '3000:3000'
+  #    environment:
+  #      #- GF_SECURITY_ALLOW_EMBEDDING=true
+  #      #- GF_SECURITY_COOKIE_SAMESITE=none
+  #      - GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME}
+  #      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}        
+  #      - TZ=${TZ}      
+  #    restart: "no"
 
   tasmotaadmin:
       container_name: tasmotaadmin
@@ -161,6 +161,40 @@ services:
     environment:
       TZ: ${TZ}
     restart: always
+
+  victoriametrics:
+    image: victoriametrics/victoria-metrics:v1.91.2
+    user: "${UID}:${GID}"
+    ports:
+      - 8428:8428
+      - 8089:8089
+    volumes:
+      - ./store/vm:/victoria-metrics-data
+    restart: "no"
+    command:
+      - "-httpListenAddr=:8428"
+      - "-influxListenAddr=:8089"
+      - "-retentionPeriod=3y"
+
+  grafana:
+      container_name: grafana
+      image: grafana/grafana:10.0.1-ubuntu
+      user: "${UID}:${GID}"
+      depends_on:
+        - victoriametrics
+      volumes:
+        - ./store/grafana2:/var/lib/grafana
+      ports:
+        - '3000:3000'
+      environment:
+        #- GF_SECURITY_ALLOW_EMBEDDING=true
+        #- GF_SECURITY_COOKIE_SAMESITE=none
+        - GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME}
+        - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}        
+        - TZ=${TZ}      
+      restart: "no"
+
+
 
 volumes:
   nas_10:
