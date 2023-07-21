@@ -20,7 +20,7 @@ from ..wb_irrigation.pyeto import convert,fao
 from datetime import timedelta,datetime
 from typing import Optional
 import voluptuous as vol
-from ..wb_irrigation import (TYPE_EV_FAO56_DAY,TYPE_RAIN,TYPE_RAIN_DAY,TYPE_EV_DAY,TYPE_EV_RAIN_BUCKET,CONF_RAIN_FACTOR,CONF_RAIN_MIN,CONF_TAPS,CONF_MAX_EV,CONF_MIN_EV,CONF_DEBUG,CONF_FAO56_SENSOR,CONF_RAIN_SENSOR,CONF_EXTERNAL_SENSOR_RAIN_SENSOR)
+from ..wb_irrigation import (TYPE_EV_FAO56_DAY,TYPE_RAIN,TYPE_RAIN_DAY,TYPE_EV_DAY,TYPE_EV_RAIN_BUCKET,CONF_RAIN_FACTOR,CONF_RAIN_MIN,CONF_TAPS,CONF_MAX_EV,CONF_MIN_EV,CONF_DEBUG,CONF_FAO56_SENSOR,CONF_RAIN_SENSOR,CONF_EXTERNAL_SENSOR_RAIN_SENSOR,CONF_MON_FILTER)
 from homeassistant.core import callback
 from homeassistant.components import sensor
 from homeassistant.components.sensor import DEVICE_CLASSES_SCHEMA
@@ -123,6 +123,11 @@ class WeatherIrrigarion(RestoreEntity):
         self._api = conf.get(CONF_API_KEY)
         self._max_ev = conf.get(CONF_MAX_EV)
         self._min_ev = conf.get(CONF_MIN_EV)
+        self._months_filter =[]
+        mf = conf.get(CONF_MON_FILTER)
+        if (mf != None) and (len(mf)>0):
+            self._months_filter = mf
+    
         self._update_lock = asyncio.Lock()
         self._state = 0.0
         self._last_rain_mm = None
@@ -204,6 +209,11 @@ class WeatherIrrigarion(RestoreEntity):
 
 
     def read_rain_sensor (self):
+            # filter by months, reason for this feature that in hot months there are sporadic rain indications 
+            if len(self._months_filter)>0:
+                if (datetime.now().timetuple().tm_mon) in self._months_filter:
+                    return 0.0
+                
             if self._rain_sensor_inc == False:
                 rain_mm = 0.0
                 rain_state = self.hass.states.get(self._rain_sensor_id)
