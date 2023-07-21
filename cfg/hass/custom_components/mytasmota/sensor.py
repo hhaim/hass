@@ -190,7 +190,7 @@ class MqttTasmotaCounter(MqttAvailability,  RestoreEntity):
         if self._valid_ref:
             diff = 0  
             if new_counter < self._old_value:
-                # check wrap of 64bit tasmota save it as 64bit 
+                # check wrap of 32bit tasmota save it as 64bit 
                diff = (new_counter + 0xffffffff + 1) - self._old_value 
                if diff > self._max_valid_diff :
                   new_counter = self._old_value
