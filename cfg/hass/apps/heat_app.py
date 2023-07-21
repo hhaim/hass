@@ -1400,7 +1400,7 @@ class CTrackerNeta(HassBase):
         self.do_turn_off()
 
 
-EVENTM_TIMER_SEC = 20
+EVENTM_TIMER_SEC = 300 # every 5 min sginal 
 EVENTM_TIMERS_CNT = 10
 
 # this is an event manager 
