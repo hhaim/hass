@@ -124,14 +124,14 @@ notify:
     recipient: !secret clicksend_phones
     sender: !secret clicksend_sener
 
-  - platform: clicksend_tts
+  - platform: clicksend_tts_en
     name: clicksend_tts
     username: !secret clicksend_user
     api_key: !secret clicksend_api
     recipient: !secret clicksend_phone
     caller: !secret clicksend_sener
 
-  - platform: clicksend_tts
+  - platform: clicksend_tts_en
     name: clicksend_tts2
     username: !secret clicksend_user
     api_key: !secret clicksend_api

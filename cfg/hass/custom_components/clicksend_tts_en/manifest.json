@@ -1,0 +1,9 @@
+{
+  "domain": "clicksend_tts_en",
+  "name": "ClickSend TTS EN",
+  "codeowners": [],
+  "documentation": "https://www.home-assistant.io/integrations/clicksend_tts",
+  "iot_class": "cloud_push",
+  "version": "0.1.1"
+
+}

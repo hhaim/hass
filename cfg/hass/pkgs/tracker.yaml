@@ -9,20 +9,20 @@ binary_sensor:
   - platform: ping
     host: 1.1.1.1
     name: cloudflare
-    count: 60
-    scan_interval: 60    
+    count: 120
+    scan_interval: 120    
 
   - platform: ping
     host: 8.8.8.8
     name: google
-    count: 60
-    scan_interval: 60    
+    count: 120
+    scan_interval: 120
 
   - platform: ping
     host: 10.0.0.138
     name: home
-    count: 60
-    scan_interval: 60    
+    count: 120
+    scan_interval: 120
 
 device_tracker:
    - platform: ping
