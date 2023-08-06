@@ -78,7 +78,7 @@ heater_ac_up:
           cool: { min_o: 44.9, min_i: 28.5, max_i: 29.5} 
           heat: { min_o: 01.0, min_i: 19.5, max_i: 20.2} 
         c : 
-          cool: { min_o: 44.5, min_i: 28.5, max_i: 29.5} 
+          cool: { min_o: 44.5, min_i: 25.5, max_i: 27.0} 
           heat: { min_o: 01.0, min_i: 19.5, max_i: 20.2} 
 #
 #heater_ac_base:

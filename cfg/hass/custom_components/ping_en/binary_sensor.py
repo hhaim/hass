@@ -24,7 +24,7 @@ import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
-from homeassistant.helpers.event import async_track_utc_time_change
+from homeassistant.helpers.event import  async_track_time_interval
 
 
 from .const import DOMAIN, ICMP_TIMEOUT, PING_PRIVS, PING_TIMEOUT
@@ -88,7 +88,7 @@ async def async_setup_platform(
         ping_cls = PingDataICMPLib
 
     async_add_entities(
-        [PingBinarySensor(hass,name, ping_cls(hass, host, count, privileged))]
+        [PingBinarySensor(hass,name, ping_cls(hass, host, 9, privileged))]
     )
 
 
@@ -104,29 +104,40 @@ class PingBinarySensor(RestoreEntity, BinarySensorEntity):
         self._last_data = None 
         self._last_is_alive = None 
         self._cnt = 0
-        self._update_cnt =0
 
-        # open a infinit task 
-        self.hass.async_add_executor_job(self._do_update_sync)
-        # update a timer to update 
-        async_track_utc_time_change(
-              self.hass, self._async_update_every_min,
-                  second = 59)
+        async_track_time_interval(
+            self.hass,
+            self._async_update_every_10_sec,
+            timedelta(seconds=10),
+            name="ping diff",
+            cancel_on_shutdown=True,
+        )
 
+    def _update_data(self,new_data):
+        if self._last_data == None :
+            self._last_data = copy.deepcopy(new_data)
+        else:
+            self._last_data['min'] =min(self._last_data['min'],new_data['min'])
+            self._last_data['max'] =max(self._last_data['max'],new_data['max'])
+            self._last_data['avg'] =self._last_data['avg'] + new_data['avg']
+            self._last_data['loss'] =self._last_data['loss'] + new_data['loss']
+            self._last_data['jitter'] =max(self._last_data['jitter'],new_data['jitter'])
 
-    async def _async_update_every_min(self,time=None):
-        if self._cnt != self._update_cnt :
-            self._update_cnt = self._cnt
-            _LOGGER.error("update new data: {}".format(self._last_data))
-            self.async_schedule_update_ha_state()
+    def _update_data_flush(self,cnt):
+            self._last_data['avg'] =self._last_data['avg']/cnt 
+            self._last_data['loss'] =self._last_data['loss']/cnt 
+        
+    async def _async_update_every_10_sec(self,time=None):
+            await self._ping.async_update()
 
-    # do ping in loop and update last_data
-    def _do_update_sync(self):
-        while True:
-            d = self._ping.async_update_sync()
-            self._last_data = copy.deepcopy(d)
-            self._last_is_alive = copy.deepcopy(self._ping.is_alive)
-            self._cnt = self._cnt + 1 
+            self._update_data(self._ping.data)
+            self._cnt = self._cnt + 1
+            if self._cnt == 6:
+                self._cnt = 0
+                self._update_data_flush(6)
+                self.async_schedule_update_ha_state()
+                self._last_data = None 
+
 
     @property
     def should_poll(self):
@@ -190,13 +201,14 @@ class PingBinarySensor(RestoreEntity, BinarySensorEntity):
 
         attributes = last_state.attributes
         self._last_is_alive = True
+
         self._last_data = {
-            "min": attributes[ATTR_ROUND_TRIP_TIME_MIN],
-            "max": attributes[ATTR_ROUND_TRIP_TIME_MAX],
-            "avg": attributes[ATTR_ROUND_TRIP_TIME_AVG],
-            "mdev": attributes[ATTR_ROUND_TRIP_TIME_MDEV],
-            "loss": 0,
-            "jitter": 0,
+            "min": 1.0,
+            "max": 5.0,
+            "avg": 5.0,
+            "mdev": 0.0,
+            "loss": 0.0,
+            "jitter": 0.0,
             "alive": True,
         }
 
@@ -223,34 +235,6 @@ class PingDataICMPLib(PingData):
         """Initialize the data object."""
         super().__init__(hass, host, count)
         self._privileged = privileged
-
-    def async_update_sync(self) -> None:
-
-        try:
-            data = ping(
-                self._ip_address,
-                count=self._count,
-                timeout=ICMP_TIMEOUT,
-                privileged=self._privileged,
-            )
-        except NameLookupError:
-            self.is_alive = False
-            return
-
-        self.is_alive = data.is_alive
-        if not self.is_alive:
-            self.data = None
-            return
-
-        self.data = {
-            "min": data.min_rtt,
-            "max": data.max_rtt,
-            "avg": data.avg_rtt,
-            "mdev": "",
-            "loss": data.packet_loss,
-            "jitter": data.jitter,
-            "alive": data.is_alive,
-        }
 
     async def async_update(self) -> None:
         """Retrieve the latest details from the host."""
