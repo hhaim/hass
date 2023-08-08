@@ -142,6 +142,46 @@ services:
       restart: "no"
 
 
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.2
+    container_name: cadvisor
+    restart: always
+    command: 
+      - '--housekeeping_interval=30s'
+      - '--docker_only=true'
+      - '--disable_metrics=disk,network,tcp,udp,percpu,sched,process'
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/snap/docker/common/var-lib-docker/:/var/lib/docker:ro
+    ports:
+      - 8091:8080
+   
+
+  ping_exporter:
+    image: czerwonk/ping_exporter:v1.1.0
+    user: "${UID}:${GID}"
+    ports:
+      - 9427:9427
+    volumes:
+      - ./cfg/ping_exporter:/config:ro
+    cap_add:
+      - CAP_NET_RAW
+
+  vmagent2:
+    image: victoriametrics/vmagent:v1.91.3
+    volumes:
+      - /tmp/agent2:/vmagentdata
+      - ./cfg/agent2/config:/etc/prometheus
+    command:
+      - "--promscrape.config=/etc/prometheus/agent.yaml"
+      - "--remoteWrite.url=http://10.0.0.140:8428/api/v1/write"
+
+    environment:
+      TZ: ${TZ}
+    restart: always
+
 
 volumes:
   nas_10:

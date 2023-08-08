@@ -1,0 +1,20 @@
+targets:
+  - 1.1.1.1
+  - 8.8.8.8
+  - 8.8.4.4
+  - 2001:4860:4860::8888
+  - 2001:4860:4860::8844
+  - google.com
+  - 10.0.0.138
+  - 10.0.0.139
+  - 10.0.0.10 
+
+dns:
+  refresh: 2m15s
+  nameserver: 1.1.1.1
+
+ping:
+  interval: 1s
+  timeout: 5s
+  history-size: 120
+  payload-size: 120
