@@ -404,20 +404,28 @@ views:
             name: tap1
           - entity: switch.wbi_p2
             name: tap2
+          - entity: switch.wbi_p3
+            name: tap3
           - entity: sensor.wb_irrigation_p1
             name: Pipe1
           - entity: sensor.wb_irrigation_p2
             name: Pipe2
+          - entity: sensor.wb_irrigation_p3
+            name: Pipe3
           - entity: sensor.external_rain
             name: Rain
           - entity: variable.wbi_water_p1
             name: p1_l
           - entity: variable.wbi_water_p2
             name: p2_l
+          - entity: variable.wbi_water_p3
+            name: p3_l
           - entity: variable.wbi_last_duration_p1
             name: p1_d
           - entity: variable.wbi_last_duration_p2
             name: p2_d
+          - entity: variable.wbi_last_duration_p3
+            name: p3_d
 
       - type: entities
         entities:
@@ -425,12 +433,14 @@ views:
           - sensor.wb_irrigation_fao56
           - input_number.wbi_p1_duration
           - input_number.wbi_p2_duration
+          - input_number.wbi_p3_duration
           - input_boolean.wbi_enabled
 
       - type: entities
         entities:
           - input_number.wbi_week_p1_duration
           - input_number.wbi_week_p2_duration
+          - input_number.wbi_week_p3_duration
 
       - type: history-graph
         title: graph 
@@ -440,6 +450,7 @@ views:
           - sensor.external_rain
           - sensor.wb_irrigation_p1
           - sensor.wb_irrigation_p2
+          - sensor.wb_irrigation_p3
 
 
   - title: EventsM
