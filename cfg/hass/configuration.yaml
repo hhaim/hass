@@ -165,11 +165,11 @@ recorder:
       - variable.tracker_neta
 
 
-xiaomi_aqara:
-  discovery_retry: 5
-  gateways:
-      -  mac: !secret mii_mac
-         key: !secret mii_key 
+#xiaomi_aqara:
+#  discovery_retry: 5
+#  gateways:
+#      -  mac: !secret mii_mac
+#         key: !secret mii_key 
 
 hebcal:
 #  debug: true

@@ -68,7 +68,7 @@ services:
   #  - "9999:80/tcp"
 
   dnscrypt:
-    image: melchor9000/dnscrypt-proxy:2.1.1
+    image: melchor9000/dnscrypt-proxy:2.1.5
     user: "${UID}:${GID}"
     environment:
       TZ: ${TZ}      

@@ -322,7 +322,7 @@ water_monitor:
   max_day: 2000
   max_burst_l0: 400
   max_burst_l1: 800
-  taps_switchs: [ switch.wbi_p1, switch.wbi_p2] # when one of them is enabled move to burstl1
+  taps_switchs: [ switch.wbi_p1, switch.wbi_p2, switch.wbi_p3] # when one of them is enabled move to burstl1
   
 
 tv_lights:
@@ -369,6 +369,15 @@ wb_irrigation:
        water_sensor: variable.wbi_water_p2
        time_sensor: variable.wbi_last_duration_p2
 
+     - name: p3
+       days: [1,2,3,4,5,6]  # 
+       stime: "04:00:00" # time to start irrigating 
+       m_week_duration_min: input_number.wbi_week_p3_duration
+       switch: switch.wbi_p3
+       manual_duration: input_number.wbi_p3_duration
+       queue_sensor: sensor.wb_irrigation_p3 
+       water_sensor: variable.wbi_water_p3
+       time_sensor: variable.wbi_last_duration_p3
 
 neta_tracer:
   module: heat_app

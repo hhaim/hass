@@ -39,7 +39,7 @@ services:
       TZ: ${TZ}      
   mariadb:
     restart: unless-stopped
-    image: mariadb:11.0.2-jammy
+    image: mariadb:11.0.3
     #user: "${UID}:${GID}"    
     ports:
       - "3306:3306/tcp"    
