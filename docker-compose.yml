@@ -20,7 +20,7 @@ services:
     container_name: homeassistant
     image: "ghcr.io/home-assistant/home-assistant:2023.8.0"
     depends_on:
-      - mariadb
+      - psdb
       - victoriametrics
       - mosquitto
     volumes:
@@ -37,21 +37,34 @@ services:
     #user: "${UID}:${GID}"
     environment:
       TZ: ${TZ}      
-  mariadb:
-    restart: unless-stopped
-    image: mariadb:11.0.3
-    #user: "${UID}:${GID}"    
-    ports:
-      - "3306:3306/tcp"    
-    volumes:
-      - ./cfg/mariadb:/etc/mysql/conf.d
-      - ./store/mariadb:/var/lib/mysql # Never remove
-    environment:
-      TZ: ${TZ}      
-      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
-      MYSQL_DATABASE: "${MYSQL_DATABASE}"
-      MYSQL_USER: "${MYSQL_USER}"
-      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+
+  psdb: 
+     restart: unless-stopped
+     image:  postgres:15.4
+     ports:
+       - 5432:5432    
+     volumes:
+       - ./store/psdb2:/var/lib/postgresql/data/pgdata  # Never remove
+     environment:
+       TZ: ${TZ}      
+       POSTGRES_PASSWORD: "$MYSQL_ROOT_PASSWORD"
+       POSTGRES_USER: "$MYSQL_USER"
+       PGDATA: "/var/lib/postgresql/data/pgdata"
+
+     command: |
+        postgres
+          -c listen_addresses="*"
+          -c max_connections=5
+          -c shared_buffers=128MB
+          -c effective_cache_size=64MB
+          -c work_mem=16MB
+          -c maintenance_work_mem=128MB
+          -c min_wal_size=128MB
+          -c max_wal_size=256MB
+          -c checkpoint_completion_target=0.9
+          -c wal_buffers=16MB
+          -c default_statistics_target=100
+
 
   mosquitto:
     container_name: mosquitto
