@@ -172,15 +172,17 @@ services:
       - 8091:8080
    
 
-  ping_exporter:
+  ping_exp:
     image: czerwonk/ping_exporter:v1.1.0
-    user: "${UID}:${GID}"
-    ports:
-      - 9427:9427
+    #user: "${UID}:${GID}"
+    network_mode: host
     volumes:
       - ./cfg/ping_exporter:/config:ro
     cap_add:
       - CAP_NET_RAW
+      - NET_ADMIN    
+      - NET_RAW
+
 
   vmagent2:
     image: victoriametrics/vmagent:v1.91.3
