@@ -130,7 +130,7 @@ services:
       - 8089:8089
     volumes:
       - ./store/vm:/victoria-metrics-data
-    restart: "no"
+    restart: unless-stopped
     command:
       - "-httpListenAddr=:8428"
       - "-influxListenAddr=:8089"
@@ -152,8 +152,8 @@ services:
         - GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME}
         - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}        
         - TZ=${TZ}      
-      restart: "no"
-
+      restart: unless-stopped
+  
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.47.2
@@ -176,13 +176,13 @@ services:
     image: czerwonk/ping_exporter:v1.1.0
     #user: "${UID}:${GID}"
     network_mode: host
+    restart: unless-stopped
     volumes:
       - ./cfg/ping_exporter:/config:ro
     cap_add:
       - CAP_NET_RAW
       - NET_ADMIN    
       - NET_RAW
-
 
   vmagent2:
     image: victoriametrics/vmagent:v1.91.3

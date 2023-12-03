@@ -30,7 +30,7 @@ heater_ac1:
        
   heater:
      default: a  # this is the default mode for input switch 
-     mode: cool  #heat #cool  
+     mode: heat #cool  
      switch: switch.ac1
      input: input_boolean.ac1_input
      sensor_inside :  variable.heat_index0
@@ -64,7 +64,7 @@ heater_ac_up:
        
   heater:
      default: a   # this is the default mode for input switch 
-     mode: cool #heat #cool 
+     mode: heat #cool 
      switch: switch.ac2
      input: input_boolean.ac2_input  # input switch to enable/disable under feedback 
      sensor_inside :  variable.heat_index1
