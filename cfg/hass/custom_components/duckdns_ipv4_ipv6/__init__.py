@@ -38,25 +38,35 @@ DEFAULT_IPV6_MODE = False
 DEFAULT_IPV4_RESOLVER = "208.67.222.222"
 DEFAULT_IPV6_RESOLVER = "2620:0:ccc::2"
 
+CONF_OBJS = "objects"
+
+_OBJ_SCHEMA = vol.All(
+    vol.Schema({
+            vol.Required(CONF_DOMAIN): cv.string,
+            vol.Required(CONF_ACCESS_TOKEN): cv.string,
+            vol.Optional(CONF_HOSTNAME, default=DEFAULT_HOSTNAME): cv.string,
+            vol.Optional(CONF_IPV4_MODE, default=DEFAULT_IPV4_MODE): vol.Any(
+                False, "duckdns", "nameserver"
+            ),
+            vol.Optional(CONF_IPV6_MODE, default=DEFAULT_IPV6_MODE): vol.Any(
+                False, "nameserver"
+            ),
+            vol.Optional(
+                CONF_IPV4_RESOLVER, default=DEFAULT_IPV4_RESOLVER
+            ): cv.string,
+            vol.Optional(
+                CONF_IPV6_RESOLVER, default=DEFAULT_IPV6_RESOLVER
+            ): cv.string,
+    }), 
+)
+
 CONFIG_SCHEMA = vol.Schema(
     {
         DOMAIN: vol.Schema(
             {
-                vol.Required(CONF_DOMAIN): cv.string,
-                vol.Required(CONF_ACCESS_TOKEN): cv.string,
-                vol.Optional(CONF_HOSTNAME, default=DEFAULT_HOSTNAME): cv.string,
-                vol.Optional(CONF_IPV4_MODE, default=DEFAULT_IPV4_MODE): vol.Any(
-                    False, "duckdns", "nameserver"
-                ),
-                vol.Optional(CONF_IPV6_MODE, default=DEFAULT_IPV6_MODE): vol.Any(
-                    False, "nameserver"
-                ),
-                vol.Optional(
-                    CONF_IPV4_RESOLVER, default=DEFAULT_IPV4_RESOLVER
-                ): cv.string,
-                vol.Optional(
-                    CONF_IPV6_RESOLVER, default=DEFAULT_IPV6_RESOLVER
-                ): cv.string,
+                vol.Optional(CONF_OBJS): vol.All(
+                    cv.ensure_list, [_OBJ_SCHEMA]),
+
             }
         )
     },
@@ -72,18 +82,21 @@ SERVICE_TXT_SCHEMA = vol.Schema(
 
 async def async_setup(hass, config):
     """Initialize the DuckDNS component."""
-    domain = config[DOMAIN][CONF_DOMAIN]
-    token = config[DOMAIN][CONF_ACCESS_TOKEN]
-    hostname = config[DOMAIN][CONF_HOSTNAME]
-    ipv4_mode = config[DOMAIN][CONF_IPV4_MODE]
-    ipv6_mode = config[DOMAIN][CONF_IPV6_MODE]
-    ipv4_resolver = config[DOMAIN][CONF_IPV4_RESOLVER]
-    ipv6_resolver = config[DOMAIN][CONF_IPV6_RESOLVER]
+    cfg = config.get(DOMAIN)
 
     session = async_get_clientsession(hass)
 
-    async def update_domain_interval(_now):
+    async def update_domain_interval(_now, dev):
         """Update the DuckDNS entry."""
+
+        domain = dev[CONF_DOMAIN]
+        token = dev[CONF_ACCESS_TOKEN]
+        hostname = dev[CONF_HOSTNAME]
+        ipv4_mode = dev[CONF_IPV4_MODE]
+        ipv6_mode = dev[CONF_IPV6_MODE]
+        ipv4_resolver = dev[CONF_IPV4_RESOLVER]
+        ipv6_resolver = dev[CONF_IPV6_RESOLVER]
+
         return await _prepare_update(
             session,
             domain,
@@ -99,7 +112,9 @@ async def async_setup(hass, config):
         timedelta(minutes=1),
         timedelta(minutes=5)
     )
-    async_track_time_interval_backoff(hass, update_domain_interval, intervals)
+    for dev in cfg.get(CONF_OBJS):
+        async_track_time_interval_backoff(hass, update_domain_interval, intervals, dev)
+
 
     async def update_domain_service(call):
         """Update the DuckDNS entry."""
@@ -221,7 +236,7 @@ async def _prepare_update(
 
 @callback
 @bind_hass
-def async_track_time_interval_backoff(hass, action, intervals) -> CALLBACK_TYPE:
+def async_track_time_interval_backoff(hass, action, intervals, dev) -> CALLBACK_TYPE:
     """Add a listener that fires repetitively at every timedelta interval."""
     if not iscoroutinefunction:
         _LOGGER.error("Action needs to be a coroutine and return True/False")
@@ -237,7 +252,7 @@ def async_track_time_interval_backoff(hass, action, intervals) -> CALLBACK_TYPE:
         nonlocal failed, remove
         try:
             failed += 1
-            if await action(now):
+            if await action(now, dev):
                 failed = 0
         finally:
             delay = intervals[failed] if failed < len(intervals) else intervals[-1]

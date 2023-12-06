@@ -79,10 +79,16 @@ sun:
 #  access_token: !secret duckdns_tocken
 
 duckdns_ipv4_ipv6:
-  access_token: !secret duckdns_tocken
-  domain: !secret duckdns_domain 
-  ipv4_mode: duckdns
-  ipv6_mode: nameserver
+  objects:
+    - access_token: !secret duckdns_tocken
+      domain: !secret duckdns_domain 
+      ipv4_mode: duckdns
+      ipv6_mode: nameserver
+
+    - access_token: !secret duckdns_tocken
+      domain: !secret duckdns_domain2 
+      ipv6_mode: nameserver
+
 
 # Example configuration.yaml entry
 #speedtestdotnet:
