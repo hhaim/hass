@@ -254,31 +254,15 @@ enter_lamp:
   module: heat_app
   class: OutdoorLampWithPir
   switch: group.garden_i0
-  sensor: binary_sensor.alarm16
+  sensor: group.garden_entrance0
   delay: 60
   schedule: *id002
 
-door_lamp:
-  module: heat_app
-  class: OutdoorLampWithPir
-  switch: switch.door_lamp0
-  sensor: binary_sensor.alarm16
-  delay: 60
-  schedule: *id002
 
 garden_lamp:
   module: heat_app
   class: OutdoorLampWithPir
-  switch: switch.garden_lamp0
-  sensor: binary_sensor.alarm15
-  delay: 15
-  schedule: *id001
-
-# garden lamp projectors 
-garden_lamp2:
-  module: heat_app
-  class: OutdoorLampWithPir
-  switch: switch.gardenlamp1
+  switch: group.garden_i1
   sensor: binary_sensor.alarm15
   delay: 15
   schedule: *id001

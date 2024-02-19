@@ -96,6 +96,14 @@ group:
     entities:
         - switch.kit7on
         - switch.inputlamp0
+        - switch.door_lamp0
+
+  garden_i1:
+    name: gr1
+    entities:
+        - switch.garden_lamp0
+        - switch.gardenlamp1
+
 
 accumulator:
 

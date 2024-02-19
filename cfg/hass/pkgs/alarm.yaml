@@ -158,8 +158,13 @@ group:
         - binary_sensor.alarm6
         - binary_sensor.motion_sensor_158d0002b48209
         - binary_sensor.motion_sensor_158d0002b7d548
+  
+  garden_entrance0:
+    name: garden entrance sensors 
+    entities:
         - binary_sensor.motion_sensor_158d0002b7f8b4
         - binary_sensor.motion_sensor_158d0002b85a33
+
 
 
 input_boolean:

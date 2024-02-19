@@ -82,6 +82,9 @@ views:
           - entity: group.garden_i0
             name: light
             icon: mdi:lightbulb
+          - entity: group.garden_i1
+            name: light
+            icon: mdi:lightbulb
           - entity: sensor.uptime
             name: uptime
 
