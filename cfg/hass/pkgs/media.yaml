@@ -8,7 +8,7 @@ homeassistant:
 switch:
   - platform: mytasmota
     name: TV
-    stopic: pow0
+    stopic: basic11
 
 
 accumulator:
