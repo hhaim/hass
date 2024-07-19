@@ -33,13 +33,13 @@ variable:
 mqtt: 
   sensor:
     - name: "Temperature"
-      state_topic: "tele/sonoff/SENSOR"
-      value_template: "{{ value_json['AM2301'].Temperature }}"
+      state_topic: "tele/temp3/SENSOR"
+      value_template: "{{ value_json['SI7021'].Temperature }}"
       unit_of_measurement: "C"
 
     - name: "Humidity"
-      state_topic: "tele/sonoff/SENSOR"
-      value_template: "{{ value_json['AM2301'].Humidity }}"
+      state_topic: "tele/temp3/SENSOR"
+      value_template: "{{ value_json['SI7021'].Humidity }}"
       unit_of_measurement: "%"
 
     - name: "temp1"
