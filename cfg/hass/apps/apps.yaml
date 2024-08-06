@@ -24,8 +24,8 @@ heater_ac1:
   module: heat_app
   class: HeatApp
   schedule:
-       - { mode: a, start: { t: "08:00:00", d: 0}, end: { t: "11:00:00", d: 0} }  
-       - { mode: a, start: { t: "11:00:01", d: 0}, end: { t: "14:45:00", d: 0} }
+       - { mode: a, start: { t: "08:00:00", d: 0}, end: { t: "10:00:00", d: 0} }  
+       - { mode: c, start: { t: "10:00:01", d: 0}, end: { t: "14:45:00", d: 0} }
        - { mode: b, start: { t: "15:15:20", d: 0}, end: { t: "23:30:40", d: 0} }
        
   heater:
@@ -38,10 +38,13 @@ heater_ac1:
      enable : input_boolean.heat_app_enable
      modes :
         a : 
-          cool: { min_o: 50.0, min_i: 22.7, max_i: 24.5}
+          cool: { min_o: 50.0, min_i: 26.5, max_i: 27.5}
           heat: { min_o: 01.0, min_i: 21.0, max_i: 22.0} 
         b : 
-          cool: { min_o: 50.0, min_i: 22.3, max_i: 24.5}
+          cool: { min_o: 50.0, min_i: 24.5, max_i: 25.5}
+          heat: { min_o: 01.0, min_i: 21.0, max_i: 22.0} 
+        c : 
+          cool: { min_o: 50.0, min_i: 24.7, max_i: 25.5}
           heat: { min_o: 01.0, min_i: 21.0, max_i: 22.0} 
 
 
