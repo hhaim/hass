@@ -189,20 +189,18 @@ class MqttTasmotaCounter(MqttAvailability,  RestoreEntity):
     def update_counter(self,new_counter):
         if self._valid_ref:
             diff = 0  
-            if new_counter < self._old_value:
-                # check wrap of 32bit tasmota save it as 64bit 
-               diff = (new_counter + 0xffffffff + 1) - self._old_value 
-               if diff > self._max_valid_diff :
-                  new_counter = self._old_value
-                  _LOGGER.error("New counter (%d) is smaller than old (%d) -- we missed uptime?",new_counter ,self._old_value)
-                  return;
-            else:    
-              diff = new_counter - self._old_value
+            if new_counter > self._old_value:
+                  diff = new_counter - self._old_value
+            else:
+               self._old_value = new_counter
+               self.update_state_value ()
+               self.async_schedule_update_ha_state()
 
             if diff == 0:
                 return;
             if diff > self._max_valid_diff:
                 _LOGGER.error("diff is too high (%d) somthing is wrong new:(%d) - old:(%d) ", diff,new_counter ,self._old_value)
+                diff = self._max_valid_diff
             else:
                self._mqtt_update = True
                self._value += diff

@@ -160,7 +160,7 @@ sensor:
   - platform: mytasmota # sensor for mm of rain, going up 
     name: external_rain
     stopic: water_out
-    id: 2
+    id: 2        
     unit_of_measurement: 'mm'
     icon: mdi:weather-rainy
     expire_after: 300

@@ -1,4 +1,3 @@
-
 variable:
       water_leak_detector:
         value: 0
