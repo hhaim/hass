@@ -17,17 +17,6 @@ device_tracker:
    - platform: tplink_v2
      interval_seconds: 20
      consider_home: 400
-     host: 10.0.0.139
-     username: !secret ap_user2
-     password: !secret ap_password
-     firmware: ac7
-     zname: main
-     disable_input: input_boolean.disable_ap_c7
-   
-   
-   - platform: tplink_v2
-     interval_seconds: 20
-     consider_home: 400
      host: 10.0.0.141
      username: !secret ap_user2 
      password: !secret ap_password
@@ -64,6 +53,15 @@ device_tracker:
      password: !secret ap_password3
      firmware: ws7200
      zname: k1
+
+   - platform: huawei_ws7200  
+     interval_seconds: 20
+     consider_home: 400
+     host: 10.0.0.148
+     username: !secret ap_user3
+     password: !secret ap_password3
+     firmware: ws7200
+     zname: washing
 
    - platform: luci  
      interval_seconds: 20
