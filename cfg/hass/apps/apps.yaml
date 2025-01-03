@@ -42,10 +42,10 @@ heater_ac1:
           heat: { min_o: 01.0, min_i: 21.0, max_i: 22.0} 
         b : 
           cool: { min_o: 50.0, min_i: 24.5, max_i: 25.5}
-          heat: { min_o: 01.0, min_i: 21.0, max_i: 22.0} 
+          heat: { min_o: 01.0, min_i: 20.0, max_i: 21.0} 
         c : 
           cool: { min_o: 50.0, min_i: 24.7, max_i: 25.5}
-          heat: { min_o: 01.0, min_i: 21.0, max_i: 22.0} 
+          heat: { min_o: 01.0, min_i: 20.0, max_i: 21.0} 
 
 
  # the up floor  
@@ -82,7 +82,7 @@ heater_ac_up:
           heat: { min_o: 01.0, min_i: 19.5, max_i: 20.2} 
         c : 
           cool: { min_o: 44.5, min_i: 25.5, max_i: 26.5} 
-          heat: { min_o: 01.0, min_i: 19.5, max_i: 20.2} 
+          heat: { min_o: 01.0, min_i: 17.5, max_i: 20.2} 
 #
 #heater_ac_base:
 #  module: heat_app
