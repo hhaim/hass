@@ -62,7 +62,7 @@ async def _async_setup_entity(hass: HomeAssistantType, config: ConfigType,
     hass.data[DATA_KEY].append(obj)
 
 
-OWM_URL = "https://api.openweathermap.org/data/2.5/weather?units=metric&lat={}&lon={}&appid={}"
+OWM_URL = "https://api.openweathermap.org/data/3.0/onecall?units=metric&lat={}&lon={}&exclude=hourly,daily,alerts,minutely&appid={}"
 
 
 def  estimate_fao56(day_of_year,
@@ -152,10 +152,11 @@ class WeatherIrrigarion(RestoreEntity):
                hass, self._async_update_last_day,
                 hour = 23, minute = sync_min, second = 0)
 
+        #
         if (self._type != TYPE_EV_RAIN_BUCKET):
           async_track_utc_time_change(
               hass, self._async_update_every_hour,
-                  minute =0, second = 0)
+               minute =0,second = 0)
 
 
     async def async_added_to_hass(self):
@@ -289,12 +290,12 @@ class WeatherIrrigarion(RestoreEntity):
              d =  owm_d
              dt=d['dt']
              factor = 0.0
-             if dt > d['sys']['sunrise']:
-                 if dt < d['sys']['sunset']:
-                    factor = min(float(dt - d['sys']['sunrise'])/3600.0,1.0)
+             if dt > d['sunrise']:
+                 if dt < d['sunset']:
+                    factor = min(float(dt - d['sunrise'])/3600.0,1.0)
              else:
-                 if dt > d['sys']['sunset']:
-                     factor = (dt - d['sys']['sunrise'])/3600.0
+                 if dt > d['sunset']:
+                     factor = (dt - d['sunrise'])/3600.0
                      if factor < 1.0:
                         factor = 1.0 - factor
              return factor           
@@ -311,19 +312,21 @@ class WeatherIrrigarion(RestoreEntity):
         # make sure we have last value 
         self.init_rain_sensor ()
 
-        d = self.get_data()
-        if d is None:
+        d1 = self.get_data()
+        if d1 is None:
             return;
 
-        if d['cod'] != 200:
-            _LOGGER.error(" Invalid response from OWM {} ".format(d))
+
+        if 'current' not in d1:
+            _LOGGER.error(" Invalid response from OWM {} ".format(d1))
             return
 
         if self._debug and self._type == TYPE_RAIN:
-            _LOGGER.error(" wbi_raw_data {} ".format(d))
+            _LOGGER.error(" wbi_raw_data {} ".format(d1))
 
         # estimate rain
         rain_mm = 0
+        d = d1['current']
         if "rain" in d:
             # accurate 
             if "1h" in d["rain"]:
@@ -357,10 +360,10 @@ class WeatherIrrigarion(RestoreEntity):
 
     def calc_fao56 (self,owm_d):
            day_of_year = datetime.now().timetuple().tm_yday
-           t = owm_d['main']['temp']
-           rh =owm_d['main']['humidity']
-           ws = owm_d['wind']['speed']
-           atmos_pres = owm_d['main']['pressure']
+           t = owm_d['temp']
+           rh =owm_d['humidity']
+           ws = owm_d['wind_speed']
+           atmos_pres = owm_d['pressure']
 
            # multiply it by 2 to norm it to 300ev a day 
            fao56 =  2 * estimate_fao56(day_of_year,
