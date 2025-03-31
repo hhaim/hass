@@ -894,9 +894,13 @@ class CBoilerAutomation(HassBase):
         low = self.get_float("input_temp_min",30.0)
         high  = self.get_float("input_temp_max",40.0)
 
-        uv=0.0;
-        if "input_uv" in self.args:
-           uv = self.get_float("input_uv",0.0)
+        sen = 0.0;
+        if "input_sensor" in self.args:
+            sen = self.get_float("input_sensor",0.0)
+        min =  0
+
+        if "input_min" in self.args:
+           min = self.args["input_min"]
            
         #self.log(" boiler c:{} m:{} x:{} ".format(self.temp,low,high))
 
@@ -904,8 +908,11 @@ class CBoilerAutomation(HassBase):
             return; # somthing wrong 
 
         if self.temp < low:
-            if uv < 5.0:
-               self.start()
+            if min == 0:
+                self.start() # wasn't configured
+            else:
+                if (min > 0) and (sen < min): #configured but need to start 
+                   self.start()
         else:
             if self.temp > high:
                 self.stop()

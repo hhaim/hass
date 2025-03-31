@@ -30,7 +30,7 @@ heater_ac1:
        
   heater:
      default: a  # this is the default mode for input switch 
-     mode: heat #cool  heat
+     mode: cool #cool  heat
      switch: switch.ac1
      input: input_boolean.ac1_input
      sensor_inside :  variable.heat_index0
@@ -67,7 +67,7 @@ heater_ac_up:
        
   heater:
      default: a   # this is the default mode for input switch 
-     mode: heat #cool heat
+     mode: cool #cool heat
      switch: switch.ac2
      input: input_boolean.ac2_input  # input switch to enable/disable under feedback 
      sensor_inside :  variable.heat_index1
@@ -233,7 +233,10 @@ boiler_automation:
   input_temp_max:   input_number.boiler_temp_max
   sensor_eff_power: variable.boiler_eff_power0
   sensor_eff_solar:  variable.boiler_eff_solar0
-  input_uv:  sensor.openweathermap_uv_index
+  input_sensor:  sensor.solaredge_current_power
+  input_min: 3000
+
+  
 
 scheduleh: &id001
   - { mode: b, start: { t: "16:00:00", d: 0}, end: { t: "23:55:00", d: 0} }
