@@ -6,7 +6,7 @@ import typing as T  # pylint: disable=unused-import
 
 import collections
 import datetime
-import util
+from . import util
 
 def state_to_bool (state:str):
    return(True if state=="on" else False)

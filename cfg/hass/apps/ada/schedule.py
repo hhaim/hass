@@ -6,7 +6,7 @@ import typing as T  # pylint: disable=unused-import
 
 import collections
 import datetime
-import util
+from . import util
 
 HEBCAL_EVENT = "hebcal.event"
 

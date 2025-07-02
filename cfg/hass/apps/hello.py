@@ -7,7 +7,6 @@ import datetime
 # Args:
 #
 
-
 class HelloWorld(hass.Hass):
 
     def initialize(self):

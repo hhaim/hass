@@ -116,7 +116,7 @@ class AppDaemonStub:
 
     def parse_time(self,time_str,name=None ) :
         parsed_time = None
-        parts = re.search('^(\d+):(\d+):(\d+)', time_str)
+        parts = re.search(r'^(\d+):(\d+):(\d+)', time_str)
         if parts:
             parsed_time = datetime.time(
                 int(parts.group(1)), int(parts.group(2)), int(parts.group(3))
@@ -128,7 +128,7 @@ class AppDaemonStub:
                 parsed_time = self.sunset().time()
             else:
                 parts = re.search(
-                    '^sunrise\s*([+-])\s*(\d+):(\d+):(\d+)', time_str
+                    r'^sunrise\s*([+-])\s*(\d+):(\d+):(\d+)', time_str
                 )
                 if parts:
                     if parts.group(1) == "+":
@@ -143,7 +143,7 @@ class AppDaemonStub:
                         )).time()
                 else:
                     parts = re.search(
-                        '^sunset\s*([+-])\s*(\d+):(\d+):(\d+)', time_str
+                        r'^sunset\s*([+-])\s*(\d+):(\d+):(\d+)', time_str
                     )
                     if parts:
                         if parts.group(1) == "+":
