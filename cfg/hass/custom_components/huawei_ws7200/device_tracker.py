@@ -311,8 +311,9 @@ class HuaweiScanner(DeviceScanner):
                     self.last_results = self.c.get_devices_response()
                     valid =True
                     self.c.logout(); 
-                else:    
-                    _LOGGER.error("wireless clients {0}: {1}".format(self.c.name,str(self.last_results)))
+                else:
+                    pass    
+                    #_LOGGER.error("wireless clients {0}: {1}".format(self.c.name,str(self.last_results)))
                 break;
             except Exception as e:
                 pass;

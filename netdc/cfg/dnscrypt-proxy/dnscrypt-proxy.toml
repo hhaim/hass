@@ -40,7 +40,7 @@ server_names = ['scaleway-fr', 'google', 'yandex', 'cloudflare']
 ## To listen to all IPv4+IPv6 addresses, use `listen_addresses = ['[::]:53']`
 
 #listen_addresses = ['0.0.0.0:5353']
-listen_addresses = ['[::]:5353']
+listen_addresses = ['[::]:5354']
 
 
 ## Maximum number of simultaneous client connections to accept

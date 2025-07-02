@@ -37,7 +37,7 @@ services:
         retries: 2    
     #user: "${UID}:${GID}"
     environment:
-      TZ: ${TZ}      
+      TZ: ${TZ} 
 
   psdb: 
      restart: unless-stopped
