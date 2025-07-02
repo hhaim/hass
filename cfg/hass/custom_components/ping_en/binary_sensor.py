@@ -135,7 +135,7 @@ class PingBinarySensor(RestoreEntity, BinarySensorEntity):
             if self._cnt == 6:
                 self._cnt = 0
                 self._update_data_flush(6)
-                self.async_schedule_update_ha_state()
+                self.async_write_ha_state()
                 self._last_data = None 
 
 

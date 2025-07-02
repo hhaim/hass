@@ -7,22 +7,12 @@ input_boolean:
 
 
 device_tracker:
-   - platform: ping
-     interval_seconds: 60
-     consider_home: 400
-     hosts:
-       tv           : tv.hhaim.home
-  
-   
-   - platform: tplink_v2
-     interval_seconds: 20
-     consider_home: 400
-     host: 10.0.0.141
-     username: !secret ap_user2 
-     password: !secret ap_password
-     firmware: wr940
-     zname: daniel 
-     disable_input: input_boolean.disable_ap_c7
+   #- platform: ping
+   #  interval_seconds: 60
+   #  consider_home: 400
+   #  hosts:
+   #    tv           : tv.hhaim.home
+     
 
      # huawei_ws7200  can scan all the network using arp/ipv6 so there is no need the others 
    - platform: huawei_ws7200  

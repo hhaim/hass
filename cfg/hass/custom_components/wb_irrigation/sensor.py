@@ -18,10 +18,10 @@ import requests
 from ..wb_irrigation import pyeto
 from ..wb_irrigation.pyeto import convert,fao
 from datetime import timedelta,datetime
-from typing import Optional
+from typing import Optional, Any, Dict
 import voluptuous as vol
 from ..wb_irrigation import (TYPE_EV_FAO56_DAY,TYPE_RAIN,TYPE_RAIN_DAY,TYPE_EV_DAY,TYPE_EV_RAIN_BUCKET,CONF_RAIN_FACTOR,CONF_RAIN_MIN,CONF_TAPS,CONF_MAX_EV,CONF_MIN_EV,CONF_DEBUG,CONF_FAO56_SENSOR,CONF_RAIN_SENSOR,CONF_EXTERNAL_SENSOR_RAIN_SENSOR,CONF_MON_FILTER)
-from homeassistant.core import callback
+from homeassistant.core import callback,HomeAssistant
 from homeassistant.components import sensor
 from homeassistant.components.sensor import DEVICE_CLASSES_SCHEMA
 from homeassistant.util import Throttle
@@ -30,10 +30,10 @@ from homeassistant.helpers.event import async_track_utc_time_change
 from homeassistant.const import (
     CONF_NAME, CONF_TYPE,CONF_UNIT_OF_MEASUREMENT,CONF_ICON,
     CONF_API_KEY, CONF_ELEVATION,CONF_LATITUDE, CONF_LONGITUDE,CONF_LATITUDE, CONF_MODE, 
-    STATE_UNKNOWN, TEMP_CELSIUS)
+    STATE_UNKNOWN)
 
 from homeassistant.helpers.entity import Entity
-from homeassistant.helpers.typing import HomeAssistantType, ConfigType
+from homeassistant.helpers.typing import  ConfigType
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.event import (async_track_point_in_utc_time,async_track_time_interval)
 from homeassistant.util import dt as dt_util
@@ -44,7 +44,7 @@ _LOGGER = logging.getLogger(__name__)
 DATA_KEY = 'wb_irrigation.devices'
 
 
-async def async_setup_platform(hass: HomeAssistantType, config: ConfigType,
+async def async_setup_platform(hass: HomeAssistant, config: ConfigType,
                                async_add_entities, discovery_info=None):
 
     if discovery_info:
@@ -54,7 +54,7 @@ async def async_setup_platform(hass: HomeAssistantType, config: ConfigType,
 
 
 
-async def _async_setup_entity(hass: HomeAssistantType, config: ConfigType,
+async def _async_setup_entity(hass: HomeAssistant, config: ConfigType,
                               async_add_entities, discovery_hash=None):
 
     obj=WeatherIrrigarion(hass,conf)
@@ -268,7 +268,7 @@ class WeatherIrrigarion(RestoreEntity):
             self._state = round(self._state,1)
 
         self.reset_data ()
-        self.async_schedule_update_ha_state()
+        self.async_write_ha_state()
 
     def rain_desc_to_mm (self,code):
         CONVERT= {500:1.0,
@@ -303,7 +303,7 @@ class WeatherIrrigarion(RestoreEntity):
     async def _async_update_every_hour(self,time=None):
         async with self._update_lock:
             await self.hass.async_add_executor_job(self._update_every_hour)
-            self.async_schedule_update_ha_state()     
+            self.async_write_ha_state()     
 
 
     def _update_every_hour(self):
@@ -399,7 +399,7 @@ class WeatherIrrigarion(RestoreEntity):
 
 
     @property
-    def state_attributes(self):
+    def extra_state_attributes(self) -> Dict[str, Any]:
         """Return the state attributes."""
         if self._type == TYPE_RAIN_DAY:
            return { 'rain_total' :  round(self._rain_mm,1) }
@@ -423,5 +423,5 @@ class WeatherIrrigarion(RestoreEntity):
                             num_value, self._min_ev, self._max_ev)
             return
         self._state = num_value
-        self.async_schedule_update_ha_state()
+        self.async_write_ha_state()
 

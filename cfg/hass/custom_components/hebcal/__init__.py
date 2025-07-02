@@ -59,7 +59,7 @@ from homeassistant.util import dt as dt_util
 from homeassistant.helpers import event, service
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.event import async_track_utc_time_change
-from homeassistant.helpers.typing import HomeAssistantType, ConfigType
+from homeassistant.helpers.typing import  ConfigType
 from datetime import timedelta
 
 
@@ -100,7 +100,9 @@ DEPENDENCIES = ['discovery']
 async def async_setup(hass, config):
     """Track the state of the sun."""
     HebcalSensor(hass, config)
+
     return True
+
 
 HEBCAL_URL = 'https://www.hebcal.com/hebcal/?i=on&b=28&m=50&v=1&cfg=json&maj=on&year={}&c=on&geo=pos&latitude={}&longitude={}&tzid={}'
 
@@ -287,7 +289,7 @@ class HebcalSensor(Entity):
             self.load_timers()
             if self._unsubscribe_auto_updater != None:
                 self._unsubscribe_auto_updater()
-        self.async_schedule_update_ha_state()     
+        self.async_write_ha_state()     
 
     def load_db_from_web(self):    
         db = CalandarDb()
@@ -317,7 +319,7 @@ class HebcalSensor(Entity):
             _LOGGER.error(" ==> pre_on  ")
         self.hass.bus.async_fire(HEBCAL_EVENT,
                                  self._get_d(True, EVENT_STATE_PRE)) 
-        self.async_schedule_update_ha_state()     
+        self.async_write_ha_state()     
 
     @callback
     def _on(self, now):
@@ -325,7 +327,7 @@ class HebcalSensor(Entity):
         if self._debug:
             _LOGGER.error(" ==>  on  ")
         self.hass.bus.async_fire(HEBCAL_EVENT, self._get_d(True, STATE_ON))
-        self.async_schedule_update_ha_state()     
+        self.async_write_ha_state()     
 
     @callback
     def _off(self, now):
@@ -338,7 +340,7 @@ class HebcalSensor(Entity):
             self.start_loading_db()
         else:
             self.load_timers()
-        self.async_schedule_update_ha_state()     
+        self.async_write_ha_state()     
 
 
     # load the timers from the database 

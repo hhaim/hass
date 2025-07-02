@@ -94,17 +94,5 @@ switch:
     stopic: temp2
 
 
-accumulator:
-      ac1_acc:
-        name: "ac1_acc"
-        state_on: "on"
-        state_off: "off"
-        switch_id: "switch.ac1"
-
-      ac2_acc:
-        name: "ac2_acc"
-        state_on: "on"
-        state_off: "off"
-        switch_id: "switch.ac2"
 
 

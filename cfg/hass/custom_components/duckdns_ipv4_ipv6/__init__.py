@@ -258,7 +258,8 @@ def async_track_time_interval_backoff(hass, action, intervals, dev) -> CALLBACK_
             delay = intervals[failed] if failed < len(intervals) else intervals[-1]
             remove = async_call_later(hass, delay.total_seconds(), interval_listener)
 
-    hass.async_run_job(interval_listener, dt_util.utcnow())
+    #hass.async_run_job(interval_listener, dt_util.utcnow())
+    hass.async_create_task(interval_listener(dt_util.utcnow()))
 
     def remove_listener():
         """Remove interval listener."""

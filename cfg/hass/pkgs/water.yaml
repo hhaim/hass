@@ -14,6 +14,33 @@ variable:
           unit_of_measurement: "l"
 
 
+template:
+  - sensor:
+      - name: water_total_external
+        unit_of_measurement: 'l'
+        icon: mdi:water-pump
+        state_class: measurement
+        state: >
+          {% set source = states('sensor.water_total') | float(0) %}
+          {{ (80600 + 45497 + (source )) | int }}
+
+      - name: water_total_norm
+        unit_of_measurement: 'l'
+        icon: mdi:water-pump
+        state_class: measurement
+        state: >
+          {% set source = states('sensor.water_total') | float(0) %}
+          {{ (357120 + (source /1.05)) | int }}
+
+      - name: water_total_external_norm
+        unit_of_measurement: 'l'
+        icon: mdi:water-pump
+        state_class: measurement
+        state: >
+          {% set source = states('sensor.water_total') | float(0) %}
+          {{ (692437 + (source /1.05)) | int }}
+
+
 sensor:
 
   - platform: mytasmota
@@ -25,32 +52,7 @@ sensor:
     expire_after: 300
     value_template: "{{ (45497 + (value))|int }}"
 
-  - platform: mytasmota
-    name: water_total_external
-    stopic: water_out
-    id: 1
-    unit_of_measurement: 'l'
-    icon: mdi:water-pump
-    expire_after: 300
-    value_template: "{{ (80600 + 45497 + (value))|int }}"
 
-  - platform: mytasmota
-    name: water_total_norm
-    stopic: water_out
-    id: 1
-    unit_of_measurement: 'l'
-    icon: mdi:water-pump
-    expire_after: 300
-    value_template: "{{ (357120 + (value/1.05))|int }}"
-
-  - platform: mytasmota
-    name: water_total_external_norm
-    stopic: water_out
-    id: 1
-    unit_of_measurement: 'l'
-    icon: mdi:water-pump
-    expire_after: 300
-    value_template: "{{ (692437 + (value/1.05))|int }}"
     
 
 

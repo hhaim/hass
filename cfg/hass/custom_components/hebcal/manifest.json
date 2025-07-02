@@ -1,9 +1,12 @@
 {
   "domain": "hebcal",
   "name": "hebcal",
-  "documentation": "",
-  "requirements": [],
+  "documentation": "https://github.com/hhaim/hass",
+  "requirements": ["requests"],
   "dependencies": [],
   "codeowners": [],
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "iot_class": "cloud_polling",
+  "integration_type": "helper"
+
 }

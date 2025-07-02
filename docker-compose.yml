@@ -18,13 +18,14 @@ version: '3.5'
 services:
   homeassistant:
     container_name: homeassistant
-    image: "ghcr.io/home-assistant/home-assistant:2023.8.0"
+    image: "ghcr.io/home-assistant/home-assistant:2025.6.1"
     depends_on:
       - psdb
       - victoriametrics
       - mosquitto
     volumes:
       - ./cfg/hass:/config
+      - ./cfg/hass/loader.py:/usr/src/homeassistant/homeassistant/loader.py
       - /etc/localtime:/etc/localtime:ro
     restart: unless-stopped
     privileged: true
@@ -124,7 +125,7 @@ services:
     restart: always
 
   victoriametrics:
-    image: victoriametrics/victoria-metrics:v1.91.2
+    image: victoriametrics/victoria-metrics:v1.120.0
     user: "${UID}:${GID}"
     ports:
       - 8428:8428
@@ -139,7 +140,7 @@ services:
 
   grafana:
       container_name: grafana
-      image: grafana/grafana:10.0.1-ubuntu
+      image: grafana/grafana-oss:12.0.2-ubuntu
       user: "${UID}:${GID}"
       depends_on:
         - victoriametrics

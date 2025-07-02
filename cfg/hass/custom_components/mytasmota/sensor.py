@@ -10,19 +10,44 @@ import logging
 import json
 import re
 from datetime import timedelta
-from typing import Optional
+from typing import Optional, Any, Dict
 
 import voluptuous as vol
-from ..mytasmota import (get_tasmota_avail_topic,get_tasmota_result,get_tasmota_tele,get_tasmota_state,get_tasmota_command)
-from homeassistant.core import callback
+from ..mytasmota import (
+    get_tasmota_avail_topic,
+    get_tasmota_result,
+    get_tasmota_tele,
+    get_tasmota_state,
+    get_tasmota_command
+)
+
+from homeassistant.core import callback, HomeAssistant
 from homeassistant.components import sensor
-from homeassistant.components.mqtt.mixins import (
-    CONF_PAYLOAD_NOT_AVAILABLE, CONF_PAYLOAD_AVAILABLE,CONF_AVAILABILITY_TOPIC, CONF_AVAILABILITY_MODE,AVAILABILITY_LATEST,
-    MqttAvailability)
+from homeassistant.components.mqtt.models import ReceiveMessage
+from homeassistant.components.mqtt import subscription
+from homeassistant.helpers.entity import DeviceInfo
 
 from homeassistant.components.mqtt.const import (
-    CONF_QOS,CONF_STATE_TOPIC,CONF_ENCODING
+    CONF_AVAILABILITY_MODE,
+    CONF_AVAILABILITY_TOPIC,
+    CONF_PAYLOAD_AVAILABLE,
+    CONF_PAYLOAD_NOT_AVAILABLE,
+    AVAILABILITY_LATEST,
+    CONF_QOS,
+    CONF_STATE_TOPIC,
+    CONF_RETAIN,CONF_ENCODING
 )
+
+from homeassistant.util import slugify
+
+
+#from homeassistant.components.mqtt.mixins import (
+#    CONF_PAYLOAD_NOT_AVAILABLE, CONF_PAYLOAD_AVAILABLE,CONF_AVAILABILITY_TOPIC, CONF_AVAILABILITY_MODE,AVAILABILITY_LATEST,
+#    MqttAvailability)
+
+#from homeassistant.components.mqtt.const import (
+#    CONF_QOS,CONF_STATE_TOPIC,CONF_ENCODING
+#)
 
 from homeassistant.components.sensor import DEVICE_CLASSES_SCHEMA
 from homeassistant.const import (
@@ -31,7 +56,7 @@ from homeassistant.const import (
 from homeassistant.helpers.entity import Entity
 from homeassistant.components import mqtt
 import homeassistant.helpers.config_validation as cv
-from homeassistant.helpers.typing import HomeAssistantType, ConfigType
+from homeassistant.helpers.typing import  ConfigType
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.event import (async_track_point_in_utc_time,async_track_time_interval)
 from homeassistant.util import dt as dt_util
@@ -68,14 +93,14 @@ PLATFORM_SCHEMA = cv.PLATFORM_SCHEMA.extend({
 })
 
 
-async def async_setup_platform(hass: HomeAssistantType, config: ConfigType,
+async def async_setup_platform(hass: HomeAssistant, config: ConfigType,
                                async_add_entities, discovery_info=None):
     """Set up MQTT sensors through configuration.yaml."""
     await _async_setup_entity(hass, config, async_add_entities)
 
 
 
-async def _async_setup_entity(hass: HomeAssistantType, config: ConfigType,
+async def _async_setup_entity(hass: HomeAssistant, config: ConfigType,
                               async_add_entities, discovery_hash=None):
     """Set up MQTT sensor."""
 
@@ -98,22 +123,14 @@ TASMOTA_OFFLINE = "Offline"
 
 
 
-class MqttTasmotaCounter(MqttAvailability,  RestoreEntity):
+class MqttTasmotaCounter(RestoreEntity):
     """Representation of a Tasmota counter using MQTT."""
 
     def __init__(self, hass, config):
         """Initialize the sensor."""
         stopic = config.get(CONF_SHORT_TOPIC)
+        pindex = config.get(CONF_ID)
 
-        avail_cfg={ }
-        avail_cfg[CONF_PAYLOAD_AVAILABLE] = TASMOTA_ONLINE
-        avail_cfg[CONF_PAYLOAD_NOT_AVAILABLE] = TASMOTA_OFFLINE 
-        avail_cfg[CONF_AVAILABILITY_TOPIC] = get_tasmota_avail_topic(stopic)
-        avail_cfg[CONF_AVAILABILITY_MODE] = AVAILABILITY_LATEST
-        avail_cfg[CONF_QOS] = DEFAULT_QOS
-        avail_cfg[CONF_ENCODING] = "utf8"
-
-        MqttAvailability.__init__(self, avail_cfg)
         self.hass = hass
         self._state = STATE_UNKNOWN
         self._old_value = None
@@ -124,6 +141,10 @@ class MqttTasmotaCounter(MqttAvailability,  RestoreEntity):
         self._max_valid_diff = config.get(CONF_MAX_DIFF)
         self._state_tele = get_tasmota_tele(stopic)
         self._state_state = get_tasmota_state(stopic)
+        self._avail_topic = get_tasmota_avail_topic(stopic)
+        #self._result_topic = get_tasmota_result(stopic)
+        self._short_topic = stopic
+                
         self._expire_after = config.get(CONF_EXPIRE_AFTER)
         self._couner_id = config.get(CONF_ID)
         self._qos = DEFAULT_QOS
@@ -131,33 +152,106 @@ class MqttTasmotaCounter(MqttAvailability,  RestoreEntity):
         self._template = config.get(CONF_VALUE_TEMPLATE)
         self._mqtt_update = True
         self._icon = config.get(CONF_ICON)
-
+        self._available = True
+        self._attr_unique_id = f"tasmota_{slugify(stopic)}_{slugify(str(pindex)) if pindex else 'main'}"
+                # MQTT subscriptions
+        self._sub_state = None
+        self._sub_availability = None
+        
         # start keepalive 
         if self._expire_after is not None and self._expire_after > 0:
             async_track_time_interval(
                  self.hass, self._async_keepalive, timedelta(seconds=self._expire_after))
 
+    @property
+    def device_info(self) -> DeviceInfo:
+        """Return device information for this entity."""
+        return DeviceInfo(
+            identifiers={(DEPENDENCIES[0], self._short_topic)},
+            name=f"Tasmota {self._short_topic}",
+            manufacturer="Tasmota",
+            model="Counter",
+        )
+
 
     async def async_added_to_hass(self):
         """Subscribe mqtt events."""
-        await self.load_state_from_recorder() # load from the value from recorder
+        await super().async_added_to_hass()
 
-        await MqttAvailability.async_added_to_hass(self)
+        await self.load_state_from_recorder()
+
 
         @callback
-        def tele_received(msg):
+        def availability_message_received(msg: ReceiveMessage):
+            """Handle availability messages."""
+            if msg.payload == TASMOTA_ONLINE:
+                self._available = True
+            elif msg.payload == TASMOTA_OFFLINE:
+                self._available = False
+            else:
+                _LOGGER.warning(
+                    "Invalid availability payload: %s for %s",
+                    msg.payload,
+                    self.entity_id
+                )
+                return
+            self.async_write_ha_state()
+
+
+        @callback
+        def tele_received(msg: ReceiveMessage):
             payload = msg.payload
             self.update_mqtt_sensor(payload)
 
         @callback
-        def state_received(msg):
+        def state_received(msg: ReceiveMessage):
             payload = msg.payload
             self.update_mqtt_state(payload)
 
-        await mqtt.async_subscribe(
-            self.hass, self._state_state, state_received, self._qos)
-        await mqtt.async_subscribe(
-            self.hass, self._state_tele, tele_received, self._qos)
+        self._sub_state = subscription.async_prepare_subscribe_topics(self.hass, self._sub_state,
+            {
+                "state_topic": {
+                    "topic": self._state_state,
+                    "msg_callback": state_received,
+                    "qos": self._qos,
+                },
+                "state_topic2": {
+                    "topic": self._state_tele,
+                    "msg_callback": tele_received,
+                    "qos": self._qos,
+                },
+            },
+         )
+
+        self._sub_state = await subscription.async_subscribe_topics(
+            self.hass,
+            self._sub_state)
+
+        self._sub_availability = subscription.async_prepare_subscribe_topics(self.hass, self._sub_availability,
+            {
+                "availability_topic": {
+                    "topic": self._avail_topic,
+                    "msg_callback": availability_message_received,
+                    "qos": self._qos,
+                },
+            },
+         )
+
+        # Subscribe to availability topic
+        self._sub_availability = await subscription.async_subscribe_topics(
+            self.hass,
+            self._sub_availability
+        )
+
+    async def async_will_remove_from_hass(self):
+        """Unsubscribe when removed."""
+        self._sub_state = await subscription.async_unsubscribe_topics(
+            self.hass, self._sub_state
+        )
+        self._sub_availability = await subscription.async_unsubscribe_topics(
+            self.hass, self._sub_availability
+        )
+
 
     #COUNTER":{"C1":0}
     def update_mqtt_sensor (self,payload):
@@ -183,7 +277,7 @@ class MqttTasmotaCounter(MqttAvailability,  RestoreEntity):
             self._mqtt_update = False
         else:
             self._m_state = STATE_UNKNOWN
-            self.async_schedule_update_ha_state()
+            self.async_write_ha_state()
 
 
     def update_counter(self,new_counter):
@@ -194,7 +288,7 @@ class MqttTasmotaCounter(MqttAvailability,  RestoreEntity):
             else:
                self._old_value = new_counter
                self.update_state_value ()
-               self.async_schedule_update_ha_state()
+               self.async_write_ha_state()
 
             if diff == 0:
                 return;
@@ -206,12 +300,12 @@ class MqttTasmotaCounter(MqttAvailability,  RestoreEntity):
                self._value += diff
                self._old_value = new_counter
                self.update_state_value ()
-               self.async_schedule_update_ha_state()
+               self.async_write_ha_state()
         else:
             # set new value 
             self._old_value = new_counter
             self._valid_ref = True
-            self.async_schedule_update_ha_state()
+            self.async_write_ha_state()
 
 
     def update_state_value (self):
@@ -259,10 +353,100 @@ class MqttTasmotaCounter(MqttAvailability,  RestoreEntity):
            self._uptime_sec = uptime_sec
         else:
             self._uptime_sec = uptime_sec
-        self.async_schedule_update_ha_state()
+        self.async_write_ha_state()
         
 
-    async def load_state_from_recorder (self):
+    async def load_state_from_recorder(self) -> None:
+        """Load entity state from recorder with modern HA 2025 practices."""
+        if self._value is not None:
+            return
+
+        # Use the modern state restoration method
+        state = await self.async_get_last_state()
+        
+        if not state:
+            _LOGGER.info(
+                "load_state_from_recorder: No previous state found for %s, initializing defaults",
+                self.entity_id
+            )
+            # Initialize default values for first run
+            self._value = 0
+            self._old_value = 0
+            self._valid_ref = False
+            self.update_state_value()
+            self.async_write_ha_state()
+            return
+
+        # Store the state value
+        self._state = state.state
+        _LOGGER.debug(
+            "load_state_from_recorder: Restoring state for %s with attributes: %s",
+            self.entity_id,
+            state.attributes
+        )
+
+        # Modern attribute restoration with type safety
+        attribute_mappings = [
+            (ATTR_VALUE, '_value', int, 0),
+            (ATTR_OLD_VALUE, '_old_value', int, 0),
+            (ATTR_UPTIME, '_uptime_sec', int, 0)
+        ]
+        
+        for attr_name, instance_var, type_converter, default_value in attribute_mappings:
+            if attr_name in state.attributes:
+                try:
+                    raw_value = state.attributes[attr_name]
+                    converted_value = type_converter(raw_value)
+                    setattr(self, instance_var, converted_value)
+                    _LOGGER.debug(
+                        "Restored %s = %s for %s",
+                        instance_var,
+                        converted_value,
+                        self.entity_id
+                    )
+                except (ValueError, TypeError) as exc:
+                    _LOGGER.warning(
+                        "Failed to convert attribute %s (value: %s) to %s for %s: %s. Using default: %s",
+                        attr_name,
+                        raw_value,
+                        type_converter.__name__,
+                        self.entity_id,
+                        exc,
+                        default_value
+                    )
+                    setattr(self, instance_var, default_value)
+            else:
+                # Set default if attribute doesn't exist
+                setattr(self, instance_var, default_value)
+                _LOGGER.debug(
+                    "Attribute %s not found, using default %s = %s for %s",
+                    attr_name,
+                    instance_var,
+                    default_value,
+                    self.entity_id
+                )
+
+        # Ensure _value is never None (defensive programming)
+        if self._value is None:
+            self._value = 0
+            _LOGGER.warning("_value was None after restoration, defaulting to 0 for %s", self.entity_id)
+
+        # Update valid reference flag based on uptime
+        self._valid_ref = self._uptime_sec > 0
+        
+        # Update the state after restoration
+        self.update_state_value()
+        
+        _LOGGER.info(
+            "State restoration completed for %s: value=%s, old_value=%s, uptime=%s, valid_ref=%s",
+            self.entity_id,
+            self._value,
+            self._old_value,
+            self._uptime_sec,
+            self._valid_ref
+        )
+
+    async def load_state_from_recorder1 (self):
         if self._value is not None:
            return
 
@@ -274,7 +458,7 @@ class MqttTasmotaCounter(MqttAvailability,  RestoreEntity):
             self._old_value = 0
             self._valid_ref = False
             self.update_state_value ()
-            self.async_schedule_update_ha_state()
+            self.async_write_ha_state()
             return
 
         self._state = state.state
@@ -307,6 +491,12 @@ class MqttTasmotaCounter(MqttAvailability,  RestoreEntity):
         return False
 
     @property
+    def available(self):
+        """Return true if the device is available."""
+        return self._available
+
+
+    @property
     def name(self):
         """Return the name of the sensor."""
         return self._name
@@ -322,7 +512,7 @@ class MqttTasmotaCounter(MqttAvailability,  RestoreEntity):
         return self._state 
 
     @property
-    def state_attributes(self):
+    def extra_state_attributes(self) -> Dict[str, Any]:
         """Return the state attributes."""
         if self._value is None:
             return {}

@@ -14,8 +14,8 @@ homeassistant:
   # Customization file
   auth_providers:
       - type: homeassistant
-      - type: legacy_api_password
-        api_password: !secret http_password
+      #- type: legacy_api_password
+      #  api_password: !secret http_password
   customize: !include customize.yaml
 
   packages: !include_dir_named pkgs

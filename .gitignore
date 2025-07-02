@@ -6,4 +6,5 @@ apps/_test.__yaml
 apps/ada/__pycache__/
 apps/__pycache__/
 picture/
-
+__pycache__/
+*.pyc
