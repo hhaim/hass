@@ -1,5 +1,6 @@
 import os
-import util
+from . import util
+
 import yaml
 import datetime
 from pprint import pprint

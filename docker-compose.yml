@@ -1,5 +1,3 @@
-version: '3.5'
-
 # DOCKER COMPOSE COMMAND REFERENCE
 # --------------------------------------------------------------------------
 # Start    | docker-compose up -d

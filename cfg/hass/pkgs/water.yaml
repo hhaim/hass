@@ -19,6 +19,9 @@ template:
       - name: water_total_external
         unit_of_measurement: 'l'
         icon: mdi:water-pump
+        availability: >
+          {{ states('sensor.water_total') not in ['unavailable', 'unknown'] and 
+          states('sensor.water_total') | float(0) > 0 }}
         state_class: measurement
         state: >
           {% set source = states('sensor.water_total') | float(0) %}
@@ -26,6 +29,9 @@ template:
 
       - name: water_total_norm
         unit_of_measurement: 'l'
+        availability: >
+          {{ states('sensor.water_total') not in ['unavailable', 'unknown'] and 
+          states('sensor.water_total') | float(0) > 0 }}
         icon: mdi:water-pump
         state_class: measurement
         state: >
@@ -35,6 +41,9 @@ template:
       - name: water_total_external_norm
         unit_of_measurement: 'l'
         icon: mdi:water-pump
+        availability: >
+          {{ states('sensor.water_total') not in ['unavailable', 'unknown'] and 
+          states('sensor.water_total') | float(0) > 0 }}
         state_class: measurement
         state: >
           {% set source = states('sensor.water_total') | float(0) %}

@@ -178,8 +178,8 @@ high_priorty_track_alarm:
    class: AlarmNotificationHighPriorty
 
 sabbath_manager:
-  module: heat_app
-  class: SabbathEvent
+   module: heat_app
+   class: SabbathEvent
 
 
 alarm_off:
