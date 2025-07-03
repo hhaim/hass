@@ -84,7 +84,7 @@ services:
   appdaemon:
       container_name: appdaemon
       #4.1.0 4.5.11
-      image: acockburn/appdaemon:4.5.11
+      image: acockburn/appdaemon:3.0.5
       #3.0.5
       #user: "${UID}:${GID}"
       depends_on:

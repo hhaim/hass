@@ -105,13 +105,13 @@ class CTestDays(hass.Hass):
     def initialize(self):
         self.log("start CTestDays");
         self.run_daily(self._cb_event, 
-                       self.parse_time("13:36:00"), 
-                       constrain_days=ada.schedule.day_of_week(6),
+                       self.parse_time("16:50:00"), 
+                       constrain_days=ada.schedule.day_of_week(5),
                        a="1",b="2")
 
         self.run_daily(self._cb_event, 
-                       self.parse_time("13:37:00"), 
-                       constrain_days=ada.schedule.day_of_week(1),
+                       self.parse_time("16:50:00"), 
+                       constrain_days=ada.schedule.day_of_week(5),
                        a="3",b="4")
 
     def _cb_event(self,kwargs):

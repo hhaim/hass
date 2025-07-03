@@ -6,9 +6,10 @@ appdaemon:
   elevation: !secret accurate_elevation
   #total_threads: 10
   #pin_apps: false 
-  production_mode: true 
-  pin_threads: 1
-  threadpool_workers: 1
+  #production_mode: true 
+  #pin_threads: 1
+  #threadpool_workers: 1
+  threads: 1 
   plugins:
     HASS:
       type: hass
