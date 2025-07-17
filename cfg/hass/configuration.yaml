@@ -23,6 +23,19 @@ homeassistant:
 # Show links to resources in log and frontend
 #introduction:
 
+
+
+cloudflare_dns:
+      api_key: !secret cf_token
+      name: cf
+      owrt_host: !secret owrt_host
+      owrt_user: !secret owrt_user
+      owrt_pass: !secret owrt_password
+      domain: !secret cf_domain
+      ipv4_domain: !secret cf_ip4_domain
+      ipv6_domain: !secret cf_ip6_domain
+      sync_sec: 10.0
+
   
 # Enables the frontend
 frontend:

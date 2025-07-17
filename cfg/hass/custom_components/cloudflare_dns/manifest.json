@@ -1,0 +1,11 @@
+{
+  "domain": "cloudflare_dns",
+  "name": "cloudflare_dns",
+  "documentation": "https://github.com/hhaim/hass",
+  "requirements": ["requests","cloudflare"],
+  "dependencies": [],
+  "codeowners": [],
+  "version": "1.0.0",
+  "iot_class": "cloud_polling",
+  "integration_type": "helper"
+}
