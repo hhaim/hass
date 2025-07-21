@@ -2,6 +2,12 @@
 
 switch:
 
+   # turn on and then off will toggle the state of the garage door, need another sensor to understand the state 
+  - platform: mytasmota
+    name: garage
+    stopic: garage
+
+
   - platform: mytasmota
     name: inputlamp0
     stopic: basic10
@@ -17,6 +23,7 @@ switch:
   - platform: mytasmota
     name: gardenlamp1
     stopic: basic2
+
 
   - platform: mytasmota
     name: r0table
@@ -50,6 +57,8 @@ switch:
     name: rshutter12
     stopic: shutter1
     index: '2'
+
+
 
   - platform: template
     switches:

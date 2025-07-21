@@ -98,8 +98,10 @@ views:
           - switch.tv
           - input_boolean.ac1_input
           - input_boolean.ac2_input
-          - input_boolean.tracker_neta_enabled
           - media_player.main
+          - entity: switch.garage
+            name: Garage
+            icon: mdi:garage
 
       - type: entity-filter
         entities:
