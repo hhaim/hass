@@ -287,14 +287,17 @@ views:
             - binary_sensor.water_leak_sensor_158d000256ce93
             - binary_sensor.water_leak_sensor_158d000256cede
             - binary_sensor.water_leak_sensor_158d00027049bb
-            - binary_sensor.motion_sensor_158d0002b48209     
-            - binary_sensor.motion_sensor_158d0002b75328     
-            - binary_sensor.motion_sensor_158d0002b75423     
-            - binary_sensor.motion_sensor_158d0002b7d400     
-            - binary_sensor.motion_sensor_158d0002b7d548     
-            - binary_sensor.motion_sensor_158d0002b7f8b4     
-            - binary_sensor.motion_sensor_158d0002b85a33     
-            - binary_sensor.motion_sensor_158d0002c7165a     
+            - binary_sensor.motion_sensor_158d0002b48209
+            - binary_sensor.motion_sensor_158d0002b75328
+            - binary_sensor.motion_sensor_158d0002b75423
+            - binary_sensor.motion_sensor_158d0002b7d400
+            - binary_sensor.motion_sensor_158d0002b7d548
+            - binary_sensor.motion_sensor_158d0002b7f8b4
+            - binary_sensor.motion_sensor_158d0002b85a33
+            - binary_sensor.motion_sensor_158d0002c7165a
+            - binary_sensor.motion_sensor_158d000ab710b1
+            - binary_sensor.motion_sensor_158d000ab71195
+
         state_filter:
               - 'on'
         card:
@@ -325,14 +328,16 @@ views:
             - binary_sensor.water_leak_sensor_158d000256ce93
             - binary_sensor.water_leak_sensor_158d000256cede
             - binary_sensor.water_leak_sensor_158d00027049bb
-            - binary_sensor.motion_sensor_158d0002b48209     
-            - binary_sensor.motion_sensor_158d0002b75328     
-            - binary_sensor.motion_sensor_158d0002b75423     
-            - binary_sensor.motion_sensor_158d0002b7d400     
-            - binary_sensor.motion_sensor_158d0002b7d548     
-            - binary_sensor.motion_sensor_158d0002b7f8b4     
-            - binary_sensor.motion_sensor_158d0002b85a33     
-            - binary_sensor.motion_sensor_158d0002c7165a     
+            - binary_sensor.motion_sensor_158d0002b48209
+            - binary_sensor.motion_sensor_158d0002b75328
+            - binary_sensor.motion_sensor_158d0002b75423
+            - binary_sensor.motion_sensor_158d0002b7d400
+            - binary_sensor.motion_sensor_158d0002b7d548
+            - binary_sensor.motion_sensor_158d0002b7f8b4
+            - binary_sensor.motion_sensor_158d0002b85a33
+            - binary_sensor.motion_sensor_158d0002c7165a
+            - binary_sensor.motion_sensor_158d000ab710b1
+            - binary_sensor.motion_sensor_158d000ab71195
       
       - type: entities
         title: Alarm control 
