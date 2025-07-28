@@ -102,15 +102,23 @@ homeassistant:
        device_class: None
     
     binary_sensor.motion_sensor_158d0002b7f8b4:     
-       friendly_name: base
+       friendly_name: main_door_light
        device_class: None
 
     binary_sensor.motion_sensor_158d0002b85a33:     
-       friendly_name: back_door
+       friendly_name: car
        device_class: None
     
     binary_sensor.motion_sensor_158d0002c7165a:     
        friendly_name: up_stair
+       device_class: None
+
+    binary_sensor.motion_sensor_158d000ab710b1:
+       friendly_name: back_main_door
+       device_class: None
+
+    binary_sensor.motion_sensor_158d000ab71195:
+       friendly_name: basement_stairs
        device_class: None
 
 group: 

@@ -139,26 +139,25 @@ class CFDnsSensor(Entity):
 
 
     async def _timer_callback(self, now):
+
         try:
           self._timer_handler = None
           await self.hass.async_add_executor_job(self.blocking_sync) # run blocking job 
         except Exception as err:
             self._sync.do_backoff()
+            self._state = self._state + 1
+            self.async_write_ha_state()     
             _LOGGER.error("Error while trying to get : %s", err)
 
-        self.async_write_ha_state()     
         self.start_timer()
 
 
     def blocking_sync(self):
         self._sync.do_sync()
-        self._state = self._state + 1
         self._cnt =self._cnt +1
         if self._cnt > self._cnt_max:
             self._cnt =0
             self._sync.force_sync() # from time to time force sync to make sure
-
-
 
        
     @property
