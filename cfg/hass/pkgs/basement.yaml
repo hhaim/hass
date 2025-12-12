@@ -1,0 +1,45 @@
+homeassistant:
+  customize:
+    light.tz3000_1nenkvye_ts0004_light:
+      friendly_name: base_l1
+
+    light.tz3000_1nenkvye_ts0004_light_2:
+      friendly_name: base_l2
+
+    light.tz3000_1nenkvye_ts0004_light_3:
+      friendly_name: base_l3
+
+    light.tz3000_1nenkvye_ts0004_light_4:
+      friendly_name: base_l4
+
+    light.tz3000_1nenkvye_ts0004_light:
+      friendly_name: base_l1
+
+    switch.tz3000_gjnozsaz_ts011f:
+      friendly_name: base_vent1
+
+    switch.tz3000_gjnozsaz_ts011f_2:
+      friendly_name: base_vent2
+
+    binary_sensor.lumi_lumi_sensor_wleak_aq1:
+        friendly_name: base_water
+        
+    binary_sensor.lumi_lumi_sensor_motion_aq2_2:
+      friendly_name: base_motion
+
+group: 
+  base_light:
+    name: basement lights
+    entities:
+      - light.tz3000_1nenkvye_ts0004_light
+      - light.tz3000_1nenkvye_ts0004_light_2
+      - light.tz3000_1nenkvye_ts0004_light_3
+      - light.tz3000_1nenkvye_ts0004_light_4
+      - switch.tz3000_gjnozsaz_ts011f
+
+
+
+input_boolean:
+  base_all:
+    name: base_enable_all
+

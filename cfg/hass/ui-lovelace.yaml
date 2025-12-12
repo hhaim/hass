@@ -384,6 +384,9 @@ views:
             - binary_sensor.motion_sensor_158d0002c7165a
             - binary_sensor.motion_sensor_158d000ab710b1
             - binary_sensor.motion_sensor_158d000ab71195
+            - binary_sensor.lumi_lumi_sensor_wleak_aq1
+            - binary_sensor.lumi_lumi_sensor_motion_aq2_2
+
 
   - title: Boiler
     id: boiler
@@ -482,4 +485,31 @@ views:
             type: custom:multiple-entity-row
             secondary_info: 
                attribute: help
+
+  - title: Basement 
+    id: Basement 
+    background: radial-gradient(crimson, skyblue)
+    theme: dark-mode
+    cards:
+      - type: entities
+        entities:
+          - group.base_light
+          - switch.tz3000_gjnozsaz_ts011f
+          - switch.tz3000_gjnozsaz_ts011f_2
+          - input_boolean.base_all
+      
+      - type: history-graph
+        title: graph 
+        hours_to_show : 2
+        entities:
+          - binary_sensor.lumi_lumi_sensor_wleak_aq1
+          - binary_sensor.lumi_lumi_sensor_motion_aq2_2
+
+      - type: history-graph
+        title: graph 
+        hours_to_show : 24
+        entities:
+          - sensor.lumi_lumi_weather_temperature
+          - sensor.sensor.lumi_lumi_weather_humidity
+          - sensor.lumi_lumi_weather_pressure
 
