@@ -153,21 +153,25 @@ services:
         - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}        
         - TZ=${TZ}      
       restart: unless-stopped
-  
+
 
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.47.2
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
     container_name: cadvisor
     restart: always
-    command: 
+    privileged: true
+    devices:
+      - /dev/kmsg
+    command:
       - '--housekeeping_interval=30s'
-      - '--docker_only=true'
-      - '--disable_metrics=disk,network,tcp,udp,percpu,sched,process'
+      - '--docker_only=false'
+      - '--disable_metrics=disk,tcp,udp,percpu,sched,process'
     volumes:
       - /:/rootfs:ro
-      - /var/run:/var/run:rw
+      - /var/run:/var/run:ro
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
+      - /cgroup:/cgroup:ro  # Add cgroup mount
     ports:
       - 8091:8080
    

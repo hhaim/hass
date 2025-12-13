@@ -13,4 +13,15 @@ scrape_configs:
       scheme: http
       static_configs:
         - targets: ['10.0.0.140:8091']
-
+      metric_relabel_configs:
+        # Extract full container ID from cgroup path
+        - source_labels: [id]
+          regex: '.*/docker-([0-9a-f]{64})\.scope'
+          target_label: container_id
+          replacement: '${1}'
+        
+        # Extract short container ID (first 12 chars)
+        - source_labels: [id]
+          regex: '.*/docker-([0-9a-f]{12}).*'
+          target_label: container_id_short
+          replacement: '${1}'
