@@ -10,6 +10,9 @@ appdaemon:
   #pin_threads: 1
   #threadpool_workers: 1
   threads: 1 
+  pin_apps: true          # Pin all apps
+
+
   plugins:
     HASS:
       type: hass

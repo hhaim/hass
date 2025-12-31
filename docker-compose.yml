@@ -16,7 +16,7 @@
 services:
   homeassistant:
     container_name: homeassistant
-    image: "ghcr.io/home-assistant/home-assistant:2025.6.1"
+    image: "ghcr.io/home-assistant/home-assistant:2025.12"
     depends_on:
       - psdb
       - victoriametrics
@@ -39,7 +39,7 @@ services:
 
   psdb: 
      restart: unless-stopped
-     image:  postgres:15.4
+     image:  postgres:18.1
      ports:
        - 5432:5432    
      volumes:
@@ -67,7 +67,7 @@ services:
 
   mosquitto:
     container_name: mosquitto
-    image: eclipse-mosquitto:2.0.14
+    image: eclipse-mosquitto:2.0.22
     restart: unless-stopped
     user: "${UID}:${GID}"    
     ports:
@@ -84,7 +84,7 @@ services:
   appdaemon:
       container_name: appdaemon
       #4.1.0 4.5.11
-      image: acockburn/appdaemon:3.0.5
+      image: acockburn/appdaemon:4.5.12
       #3.0.5
       #user: "${UID}:${GID}"
       depends_on:
@@ -96,19 +96,19 @@ services:
       environment:
         TZ: ${TZ}      
 
-  tasmotaadmin:
-      container_name: tasmotaadmin
-      image: raymondmm/tasmoadmin:v1.7.0
-      restart: unless-stopped
-      ports:
-        - 9000:80
-      volumes:
-        - './cfg/tasmota:/data/tasmoadmin'
+  #tasmotaadmin:
+  #    container_name: tasmotaadmin
+  #    image: raymondmm/tasmoadmin:v1.7.0
+  #    restart: unless-stopped
+  #    ports:
+  #      - 9000:80
+  #    volumes:
+  #      - './cfg/tasmota:/data/tasmoadmin'
 
 
   vmagent:
     container_name: vmagent
-    image: victoriametrics/vmagent:v1.91.3
+    image: victoriametrics/vmagent:v1.132.0
     volumes:
       - /tmp/agent:/vmagentdata
       - ./cfg/agent/config:/etc/prometheus
@@ -123,7 +123,7 @@ services:
     restart: always
 
   victoriametrics:
-    image: victoriametrics/victoria-metrics:v1.120.0
+    image: victoriametrics/victoria-metrics:v1.132.0
     user: "${UID}:${GID}"
     ports:
       - 8428:8428
@@ -138,7 +138,7 @@ services:
 
   grafana:
       container_name: grafana
-      image: grafana/grafana-oss:12.0.2-ubuntu
+      image: grafana/grafana-oss:12.3.1-ubuntu
       user: "${UID}:${GID}"
       depends_on:
         - victoriametrics
@@ -189,7 +189,7 @@ services:
       - NET_RAW
 
   vmagent2:
-    image: victoriametrics/vmagent:v1.91.3
+    image: victoriametrics/vmagent:v1.132.0
     volumes:
       - /tmp/agent2:/vmagentdata
       - ./cfg/agent2/config:/etc/prometheus

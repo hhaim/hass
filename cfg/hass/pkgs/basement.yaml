@@ -12,9 +12,6 @@ homeassistant:
     light.tz3000_1nenkvye_ts0004_light_4:
       friendly_name: base_l4
 
-    light.tz3000_1nenkvye_ts0004_light:
-      friendly_name: base_l1
-
     switch.tz3000_gjnozsaz_ts011f:
       friendly_name: base_vent1
 
