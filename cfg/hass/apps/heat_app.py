@@ -1382,6 +1382,8 @@ class CTrackerNeta(HassBase):
         self.tracker="variable.tracker_neta"
         self.listen_state(self.do_button_change, 'input_boolean.tracker_neta_enabled')
         self.handle = None
+        self.set_production_mode(True)
+
 
     def get_timer_time (self):
         return 60*60*8
