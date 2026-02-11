@@ -157,7 +157,8 @@ views:
           - input_boolean.heat_timer_0
           - input_number.heat_timer_time
           - switch.ac1
-          - switch.ac2
+          - climate.151732606823085_climate
+          - climate.150633095197966_climate 
       - type: history-graph
         title: graph 
         hours_to_show : 24
@@ -167,7 +168,9 @@ views:
           - variable.heat_index2
           - variable.heat_index_outside0
           - switch.ac1
-          - switch.ac2
+          - climate.151732606823085_climate
+          - climate.150633095197966_climate 
+
 
   - title: Debug
     id: debug

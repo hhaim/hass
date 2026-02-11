@@ -1,32 +1,50 @@
-from homeassistant.components.binary_sensor import BinarySensorEntity
-from homeassistant.const import Platform, CONF_DEVICE_ID, CONF_SENSORS
-from .const import (
-    DOMAIN,
-    DEVICES
+"""Binary sensor for Midea Lan."""
+
+from typing import cast
+
+from homeassistant.components.binary_sensor import (
+    BinarySensorDeviceClass,
+    BinarySensorEntity,
 )
-from .midea_entity import MideaEntity
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import CONF_DEVICE_ID, CONF_SENSORS, Platform
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
+
+from .const import DEVICES, DOMAIN
 from .midea_devices import MIDEA_DEVICES
+from .midea_entity import MideaEntity
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+) -> None:
+    """Set up sensors for device."""
     device_id = config_entry.data.get(CONF_DEVICE_ID)
     device = hass.data[DOMAIN][DEVICES].get(device_id)
-    extra_sensors = config_entry.options.get(
-        CONF_SENSORS, []
-    )
+    extra_sensors = config_entry.options.get(CONF_SENSORS, [])
     binary_sensors = []
-    for entity_key, config in MIDEA_DEVICES[device.device_type]["entities"].items():
+    for entity_key, config in cast(
+        "dict",
+        MIDEA_DEVICES[device.device_type]["entities"],
+    ).items():
         if config["type"] == Platform.BINARY_SENSOR and entity_key in extra_sensors:
-            sensor = MideaSensor(device, entity_key)
+            sensor = MideaBinarySensor(device, entity_key)
             binary_sensors.append(sensor)
     async_add_entities(binary_sensors)
 
 
-class MideaSensor(MideaEntity, BinarySensorEntity):
-    @property
-    def device_class(self):
-        return self._config.get("device_class")
+class MideaBinarySensor(MideaEntity, BinarySensorEntity):
+    """Represent a Midea binary sensor."""
 
     @property
-    def is_on(self):
-        return self._device.get_attribute(self._entity_key)
+    def device_class(self) -> BinarySensorDeviceClass | None:
+        """Return device class."""
+        return cast("BinarySensorDeviceClass", self._config.get("device_class"))
+
+    @property
+    def is_on(self) -> bool:
+        """Return true if sensor state is on."""
+        return cast("bool", self._device.get_attribute(self._entity_key))

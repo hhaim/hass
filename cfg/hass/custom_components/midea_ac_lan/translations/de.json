@@ -1,63 +1,63 @@
 {
   "config": {
     "error": {
-      "preset_account": "Failed to login with preset account, please report this issue",
-      "login_failed": "Failed to login, account or password was wrong",
-      "no_devices": "Aucun nouvel apparel trouvé sur le réseau",
-      "device_exist": "L'appareil est déjà configurée",
-      "config_incorrect": "La configuration est incorrecte",
-      "connect_error": "Impossible de se connecter à l'appareil",
-      "invalid_token": "Token ou Key dans un format incorrect"
+      "preset_account": "Anmeldung mit voreingestelltem Konto fehlgeschlagen, bitte melden Sie dieses Problem",
+      "login_failed": "Anmeldung fehlgeschlagen, Konto oder Passwort ist falsch",
+      "no_devices": "Keine neuen verfügbaren Geräte im Netzwerk gefunden",
+      "device_exist": "Das Gerät ist bereits konfiguriert",
+      "config_incorrect": "Die Konfiguration ist falsch",
+      "connect_error": "Kann keine Verbindung zum Gerät herstellen",
+      "invalid_token": "Token oder Schlüssel hat ein falsches Format"
     },
     "step": {
       "user": {
         "data": {
-          "way": "Ajout d'appareil"
+          "way": "Hinzufügen von Geräten"
         },
-        "description": "Choisissez comment ajouter des appareils",
-        "title": "Ajouter un nouvel apparel"
+        "description": "Wählen Sie die Art des Hinzufügens eines Geräts",
+        "title": "Neues Gerät hinzufügen"
       },
       "login": {
         "data": {
-          "account": "Account",
-          "password": "Password"
+          "account": "Konto",
+          "password": "Passwort"
         },
-        "description": "Login and storage your Midea account only for getting the appliance info.\nYou can remove this configuration after all appliance configured.",
+        "description": "Melden Sie sich mit Ihrem Midea-Konto an. Ihr Konto wird nur verwendet, um die Geräteinformationen zu erhalten.\nSie können die Konfiguration entfernen, nachdem alle Geräte konfiguriert wurden.",
         "title": "Login"
       },
       "discovery": {
-        "description": "Saisissez l'address IP de l'appareil, entrez \"auto\" pour découvrir automatiquement.\nVous pouvez également utiliser une address IP pour rechercher dans un réseau spécifié, comme \"192.168.1.255\".",
-        "title": "Recherche",
+        "description": "IP-Adresse des Geräts, geben Sie \"auto\" ein, um es automatisch zu finden.\nSie können auch eine IP-Adresse verwenden, um innerhalb eines bestimmten Netzwerks zu suchen, z.B. \"192.168.1.255\".",
+        "title": "Suche",
         "data": {
-          "ip_address": "Address IP"
+          "ip_address": "IP-Adresse"
         }
       },
       "list": {
         "description": "{table}",
-        "title": "Apparel"
+        "title": "Geräte"
       },
       "auto": {
         "data": {
-          "device": "Apparel"
+          "device": "Geräte"
         },
-        "description": "Choisissez un apparel à ajouter",
-        "title": "Nouvel apparel trouvé"
+        "description": "Wählen Sie ein Gerät zum Hinzufügen",
+        "title": "Neues Gerät gefunden"
       },
       "manually": {
         "data": {
-          "name": "Nom (ex: Clim Salon)",
-          "device_id": "Code apparel",
-          "type": "Type",
-          "ip_address": "Address IP",
+          "name": "Name (z.B. Klimaanlage Wohnzimmer)",
+          "device_id": "Geräte-ID",
+          "type": "Typ",
+          "ip_address": "IP-Adresse",
           "port": "Port",
-          "model": "Modèle",
-          "subtype": "Soustype",
-          "protocol": "Protocole",
+          "model": "Modell",
+          "subtype": "Untertyp",
+          "protocol": "Protokoll",
           "token": "Token",
-          "key": "Key"
+          "key": "Schlüssel"
         },
-        "description": "Configuration de l'appareil",
-        "title": "Nouvel apparel"
+        "description": "Konfiguration des Geräts",
+        "title": "Neues Gerät"
       }
     }
   },
@@ -223,7 +223,7 @@
     },
     "lock": {
       "child_lock": {
-        "name": "Child Lock"
+        "name": "Kindersicherung"
       }
     },
     "number": {
@@ -325,22 +325,22 @@
         "name": "Filter Life"
       },
       "filter1_days": {
-        "name": "Filter1 Available Days"
+        "name": "Filter1 Verfügbare Tage"
       },
       "filter1_life": {
-        "name": "Filter1 Life Level"
+        "name": "Filter1 Lebensdauer Level"
       },
       "filter2_days": {
-        "name": "Filter2 Available Days"
+        "name": "Filter2 Verfügbare Tage"
       },
       "filter2_life": {
-        "name": "Filter2 Life Level"
+        "name": "Filter2 Lebensdauer Level"
       },
       "filter3_days": {
-        "name": "Filter3 Available Days"
+        "name": "Filter3 Verfügbare Tage"
       },
       "filter3_life": {
-        "name": "Filter3 Life Level"
+        "name": "Filter3 Lebensdauer Level"
       },
       "flex_zone_actual_temp": {
         "name": "Flex Zone Actual Temperature"
@@ -367,7 +367,7 @@
         "name": "Heating Time Remaining"
       },
       "in_tds": {
-        "name": "In TDS"
+        "name": "TDS-Wert rein"
       },
       "indoor_humidity": {
         "name": "Indoor Humidity"
@@ -394,7 +394,7 @@
         "name": "Mode"
       },
       "out_tds": {
-        "name": "Out TDS"
+        "name": "TDS-Wert raus"
       },
       "outdoor_temperature": {
         "name": "Outdoor Temperature"
@@ -487,7 +487,7 @@
         "name": "wash time"
       },
       "water_consumption": {
-        "name": "Water Consumption"
+        "name": "Wasserverbrauch"
       },
       "water_temperature": {
         "name": "Water Temperature"
@@ -543,7 +543,7 @@
         "name": "Indirect Wind"
       },
       "light": {
-        "name": "Light"
+        "name": "Licht"
       },
       "link_to_ac": {
         "name": "Link to AC"
@@ -564,7 +564,7 @@
         "name": "Oscillate"
       },
       "power": {
-        "name": "Power"
+        "name": "Strom"
       },
       "powerful_purify": {
         "name": "Powerful Purification"
@@ -594,7 +594,7 @@
         "name": "Smart Volume"
       },
       "smelly_sensor": {
-        "name": "Smelly Sensor"
+        "name": "Geruchssensor"
       },
       "standby": {
         "name": "Standby"
@@ -621,7 +621,7 @@
         "name": "Variable Heating"
       },
       "ventilation": {
-        "name": "Ventilation"
+        "name": "Lüftung"
       },
       "whole_tank_heating": {
         "name": "Whole Tank Heating"
@@ -661,53 +661,53 @@
     "step": {
       "init": {
         "data": {
-          "ip_address": "Address IP",
-          "refresh_interval": "Refresh interval (0 means not refreshing actively)",
-          "sensors": "Capteurs supplémentaire",
-          "switches": "Contrôles supplémentaire",
-          "customize": "Personnaliser"
+          "ip_address": "IP-Adresse",
+          "refresh_interval": "Aktualisierungsintervall (0 bedeutet, dass nicht aktiv aktualisiert wird)",
+          "sensors": "Zusätzliche Sensoren",
+          "switches": "Zusätzliche Schalter",
+          "customize": "Anpassen"
         },
-        "title": "Configurer"
+        "title": "Konfiguration"
       }
     },
     "abort": {
-      "account_option": "The account does not supports this operation.\nClick \"ADD DEVICE\" to  add a new device."
+      "account_option": "Das Konto unterstützt diesen Vorgang nicht.\nKlicken Sie auf \"GERÄT HINZUFÜGEN\" um ein neues Gerät hinzuzufügen."
     }
   },
   "services": {
     "set_attribute": {
-      "name": "Définir l'attribut",
-      "description": "Définir la valeur d'attribut de l'appareil",
+      "name": "Attribut setzen",
+      "description": "Einstellen des Attributwerts des Geräts",
       "fields": {
         "device_id": {
-          "name": "Code apparel",
-          "description": "Code de l'appareil (ID de l'appareil)"
+          "name": "Geräte-ID",
+          "description": "Die Geräte-ID des Geräts"
         },
         "attribute": {
-          "name": "Attribute",
-          "description": "Nom de l'attribut que vous souhaitez définir"
+          "name": "Attribut",
+          "description": "Der Name des Attributs, das gesetzt werden soll"
         },
         "value": {
-          "name": "Valeur",
-          "description": "Valeur d'attribut que vous souhaitez définir"
+          "name": "Wert",
+          "description": "Der Attributwert, der gesetzt werden soll"
         }
       }
     },
     "send_command": {
-      "name": "Customize command",
-      "description": "Send a customize command to device",
+      "name": "Befehl an Gerät senden",
+      "description": "Senden eines Befehls an das Gerät",
       "fields": {
         "device_id": {
-          "name": "Code apparel",
-          "description": "Code de l'appareil (ID de l'appareil)"
+          "name": "Geräte-ID",
+          "description": "Die Geräte-ID des Geräts"
         },
         "cmd_type": {
-          "name": "command type",
-          "description": "The type of command，should be 3（query) or 2（set)"
+          "name": "Befehlstyp",
+          "description": "Die Art des Befehls, sollte 3 （abfragen) oder 2 （setzen) sein"
         },
         "cmd_body": {
-          "name": "command body",
-          "description": "The body of command, (not include MSmart protocol head and checksum at the end)"
+          "name": "Befehl",
+          "description": "Der Hauptteil des Befehls (ohne den MSmart-Protokollkopf und die Prüfsumme am Ende)"
         }
       }
     }
