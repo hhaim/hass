@@ -413,6 +413,16 @@ light_automation:
        - { global_cfg: true, disable_startup: true}
        - { mode: a, start: { t: "07:00:00", d: 0}, end: { t: "15:07:00", d: 0 } }
 
+bath_lamp:
+  module: heat_app
+  class: OutdoorLampWithPir
+  switch: light.bath_led_01
+  sensor: binary_sensor.bath_motion_01_occupancy
+  delay: 30
+  schedule: 
+    - { mode: b, start: { t: "16:00:00", d: 0}, end: { t: "23:55:00", d: 0} }
+
+
 voice_events:
   module: heat_app
   class: RhasspyEvents
