@@ -163,14 +163,18 @@ views:
         title: graph 
         hours_to_show : 24
         entities:
+          - switch.ac1
+          - entity: climate.151732606823085_climate
+            attribute: hvac_action
+          - entity: climate.150633095197966_climate
+            attribute: hvac_action
           - variable.heat_index0
           - variable.heat_index1
           - variable.heat_index2
           - variable.heat_index_outside0
-          - switch.ac1
           - climate.151732606823085_climate
-          - climate.150633095197966_climate 
-
+          - climate.150633095197966_climate
+           
 
   - title: Debug
     id: debug

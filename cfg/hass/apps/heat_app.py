@@ -4,6 +4,7 @@ from pprint import pprint
 import ada.schedule 
 import ada.temp_sensor
 import ada.temp
+import ada.humidity_sensor
 
 HEBCAL_EVENT = "hebcal.event"
 EVENTM_EVENT = "eventm.event"
@@ -69,6 +70,31 @@ class HeatApp(hass.Hass):
                                      self.args['schedule'],
                                      self.heater.on_schedule_event,None)
         self.sch.init()
+
+
+class InverterAcApp(hass.Hass):
+
+    def initialize(self):
+        self.log("start Inverter AC App")
+        self.ac = ada.temp_sensor.InverterAcSensor(self, self.args['ac'])
+        self.sch = ada.schedule.Schedule(self,
+                                     self.args['schedule'],
+                                     self.ac.on_schedule_event, None)
+        self.sch.init()
+
+
+class HumiditySwitchApp(hass.Hass):
+
+    def initialize(self):
+        self.log("start Humidity Switch App")
+        self.humidity_switch = ada.humidity_sensor.HumiditySwitchSensor(self, self.args['humidity_switch'])
+        self.sch = ada.schedule.Schedule(self,
+                                     self.args['schedule'],
+                                     self.humidity_switch.on_schedule_event, None)
+        self.sch.init()
+        # Initialize state after schedule is set up
+        self.humidity_switch.init_state()
+
 
 
 class CalcHeatIndexApp(hass.Hass):

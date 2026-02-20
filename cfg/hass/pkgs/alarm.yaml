@@ -175,6 +175,15 @@ group:
         - binary_sensor.motion_sensor_158d0002b85a33
 
 
+#water sensor for bath 3-1024 , 1024 means we have a problem (the sensor is wet) 1024 means that the resistor of the sensor is wet and it resistance is very low (not high )
+mqtt: 
+  sensor:
+    - name: "kids_bath_water_sensor"
+      state_topic: "tele/alarm/SENSOR"
+      value_template: "{{ value_json['ANALOG']['A0'] }}"
+      unit_of_measurement: "V"
+      device_class: voltage
+      state_class: measurement
 
 input_boolean:
   gateway_sound_enable:

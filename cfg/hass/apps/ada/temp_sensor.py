@@ -325,6 +325,316 @@ class HeaterSensor:
             self.set_process(False)
             self.turn_off_input()
 
+class InverterAcSensor:
+    """ Control Inverter AC with automatic heat/cool mode selection
+    
+    Example config:
+        climate_entity: climate.ac1
+        input: input_boolean.ac1_input
+        sensor_inside: variable.heat_index0
+        sensor_outside: variable.heat_index_outside0
+        enable: input_boolean.heat_app_enable
+        sensor_max_age_minutes: 10
+        modes:
+            a:
+                cool: { min_o: 50.0, min_i: 26.5, max_i: 27.5, dest: 24.0 }
+                heat: { min_o: 1.0, min_i: 22.0, max_i: 24.0, dest: 26.0 }
+    """
+    
+    # State machine constants
+    DISABLED = 0
+    MONITORING = 1
+    RUNNING_COOL = 2
+    RUNNING_HEAT = 3
+    
+    DEFAULT_SENSOR_MAX_AGE_MIN = 10
+    
+    def __init__(self, ad, cfg: dict):
+        self.ad = ad
+        self.cfg = cfg
+        self.state = InverterAcSensor.DISABLED
+        
+        # Configuration
+        self.climate_entity = cfg["climate_entity"]
+        self.sensor_inside = cfg["sensor_inside"]
+        self.sensor_outside = cfg["sensor_outside"]
+        self.sensor_max_age_minutes = cfg.get("sensor_max_age_minutes", 
+                                               InverterAcSensor.DEFAULT_SENSOR_MAX_AGE_MIN)
+        
+        # Mode configuration (loaded during schedule event)
+        self.cool_min_o = None
+        self.cool_min_i = None
+        self.cool_max_i = None
+        self.cool_dest = None
+        self.heat_min_o = None
+        self.heat_min_i = None
+        self.heat_max_i = None
+        self.heat_dest = None
+        
+        # Sensor monitoring handles
+        self.sensor_inside_handle = None
+        self.sensor_outside_handle = None
+        
+        # Listen to input switch for manual override
+        self.ad.listen_state(self.do_input_change, self.cfg["input"])
+        
+        # Check if input is already ON at startup (manual override before schedule)
+        user_input = self.ad.get_state(self.cfg["input"])
+        if user_input == "on":
+            self.do_input_change(None, None, "off", "on", None)
+    
+    def is_enabled(self):
+        """Check if enable switch is ON"""
+        state = self.ad.get_state(self.cfg["enable"])
+        return bool(state_to_bool(state))
+    
+    def get_float(self, entity_id, def_val):
+        """Get float value from entity"""
+        res = def_val
+        try:
+            val = self.ad.get_state(entity_id)
+            if val is not None:
+                res = float(val)
+        except ValueError:
+            pass
+        return res
+    
+    def is_sensor_stale(self, entity_id):
+        """Check if sensor data is too old"""
+        try:
+            from dateutil import parser
+            state_obj = self.ad.get_state(entity_id, attribute="all")
+            
+            if state_obj and "last_updated" in state_obj:
+                last_updated = parser.parse(state_obj["last_updated"])
+                now = self.ad.get_now()
+                age_minutes = (now - last_updated).total_seconds() / 60.0
+                
+                if age_minutes > self.sensor_max_age_minutes:
+                    return True, age_minutes
+            return False, 0.0
+        except Exception as e:
+            self.ad.log(f"Error checking sensor staleness for {entity_id}: {e}")
+            return True, 999.0  # Treat as stale on error
+    
+    def set_monitoring(self, enable):
+        """Subscribe/unsubscribe from sensor state changes"""
+        if enable:
+            if self.is_enabled():
+                # Unsubscribe first if already subscribed
+                if self.sensor_inside_handle:
+                    self.ad.cancel_listen_state(self.sensor_inside_handle)
+                if self.sensor_outside_handle:
+                    self.ad.cancel_listen_state(self.sensor_outside_handle)
+                
+                # Subscribe to both sensors
+                self.state = InverterAcSensor.MONITORING
+                self.sensor_inside_handle = self.ad.listen_state(
+                    self.do_check_sensors, self.sensor_inside)
+                self.sensor_outside_handle = self.ad.listen_state(
+                    self.do_check_sensors, self.sensor_outside)
+                
+                # Do initial check
+                self.do_check_sensors(None, None, None, None, None)
+        else:
+            # Stop monitoring
+            if self.sensor_inside_handle:
+                self.ad.cancel_listen_state(self.sensor_inside_handle)
+                self.sensor_inside_handle = None
+            if self.sensor_outside_handle:
+                self.ad.cancel_listen_state(self.sensor_outside_handle)
+                self.sensor_outside_handle = None
+            
+            self.state = InverterAcSensor.DISABLED
+            self.stop_ac()
+    
+    def do_check_sensors(self, entity, attribute, old, new, kwargs):
+        """Main decision logic - check sensors and decide heat/cool/nothing"""
+        if self.state != InverterAcSensor.MONITORING:
+            return
+        
+        # Check if enable switch is still ON
+        if not self.is_enabled():
+            self.set_monitoring(False)
+            return
+        
+        # FIRST: Check sensor staleness
+        inside_stale, inside_age = self.is_sensor_stale(self.sensor_inside)
+        outside_stale, outside_age = self.is_sensor_stale(self.sensor_outside)
+        
+        if inside_stale or outside_stale:
+            stale_sensors = []
+            if inside_stale:
+                stale_sensors.append(f"{self.sensor_inside} ({inside_age:.1f} min)")
+            if outside_stale:
+                stale_sensors.append(f"{self.sensor_outside} ({outside_age:.1f} min)")
+            
+            self.notify(f"WARNING: Stale sensor data: {', '.join(stale_sensors)} "
+                       f"(max: {self.sensor_max_age_minutes} min). Skipping decision cycle.")
+            return
+        
+        # Get current sensor values
+        heat_index_inside = self.get_float(self.sensor_inside, -1.0)
+        heat_index_outside = self.get_float(self.sensor_outside, -1.0)
+        
+        # Validate sensor readings
+        if heat_index_inside <= 0.0 or heat_index_outside <= 0.0:
+            self.ad.log(f"Invalid sensor readings: inside={heat_index_inside}, "
+                       f"outside={heat_index_outside}")
+            return
+        
+        self.ad.log(f"Checking sensors: inside={heat_index_inside:.1f}, "
+                   f"outside={heat_index_outside:.1f}")
+        
+        # SECOND: Check COOLING (user preference - check first)
+        if (heat_index_inside > self.cool_max_i and 
+            heat_index_outside > self.cool_max_i):
+            self.notify(f"COOLING NEEDED: inside={heat_index_inside:.1f} > {self.cool_max_i}, "
+                       f"outside={heat_index_outside:.1f} > {self.cool_max_i}")
+            self.start_cooling()
+            return
+        
+        # THIRD: Check HEATING
+        if (heat_index_inside < self.heat_min_i and 
+            heat_index_outside < self.heat_min_i):
+            self.notify(f"HEATING NEEDED: inside={heat_index_inside:.1f} < {self.heat_min_i}, "
+                       f"outside={heat_index_outside:.1f} < {self.heat_min_i}")
+            self.start_heating()
+            return
+        
+        # Otherwise: sensors disagree or already in acceptable range
+        self.ad.log(f"No action needed: inside={heat_index_inside:.1f} "
+                   f"({self.heat_min_i}-{self.cool_max_i}), "
+                   f"outside={heat_index_outside:.1f}")
+    
+    def do_input_change(self, entity, attribute, old, new, kwargs):
+        """Handle input switch state changes (user manual override)"""
+        msg = "input changed by user" if new == "on" else "turn off by user"
+        self.notify(msg)
+        
+        if new == "on":
+            # OFF→ON: User wants to start
+            if self.state == InverterAcSensor.DISABLED:
+                if self.is_enabled():
+                    # Load default mode config
+                    mode = self.cfg.get("default", "a")
+                    self.load_mode_config(mode)
+                    self.ad.log(f"Manual start: loading mode {mode}")
+                    self.set_monitoring(True)
+                else:
+                    self.ad.log("Manual start ignored: enable switch is OFF")
+        else:
+            # ON→OFF: User wants to stop
+            if self.state != InverterAcSensor.DISABLED:
+                self.ad.log("Manual stop requested")
+                self.set_monitoring(False)
+    
+    def load_mode_config(self, mode_name):
+        """Load configuration for a specific mode"""
+        cool_config = self.cfg["modes"][mode_name]["cool"]
+        heat_config = self.cfg["modes"][mode_name]["heat"]
+        
+        self.cool_min_o = cool_config["min_o"]
+        self.cool_min_i = cool_config["min_i"]
+        self.cool_max_i = cool_config["max_i"]
+        self.cool_dest = cool_config["dest"]
+        
+        self.heat_min_o = heat_config["min_o"]
+        self.heat_min_i = heat_config["min_i"]
+        self.heat_max_i = heat_config["max_i"]
+        self.heat_dest = heat_config["dest"]
+    
+    def start_cooling(self):
+        """Start AC in cool mode"""
+        self.ad.log(f"Starting AC in COOL mode at {self.cool_dest}°C")
+        
+        # Set HVAC mode AND temperature in ONE call (atomic operation)
+        self.ad.call_service('climate/set_temperature',
+                            entity_id=self.climate_entity,
+                            temperature=self.cool_dest,
+                            hvac_mode='cool')
+        
+        # Transition to RUNNING_COOL
+        self.state = InverterAcSensor.RUNNING_COOL
+        
+        # Stop monitoring sensors (unsubscribe)
+        if self.sensor_inside_handle:
+            self.ad.cancel_listen_state(self.sensor_inside_handle)
+            self.sensor_inside_handle = None
+        if self.sensor_outside_handle:
+            self.ad.cancel_listen_state(self.sensor_outside_handle)
+            self.sensor_outside_handle = None
+        
+        self.notify(f"Started COOL mode at {self.cool_dest}°C")
+    
+    def start_heating(self):
+        """Start AC in heat mode"""
+        self.ad.log(f"Starting AC in HEAT mode at {self.heat_dest}°C")
+        
+        # Set HVAC mode AND temperature in ONE call (atomic operation)
+        self.ad.call_service('climate/set_temperature',
+                            entity_id=self.climate_entity,
+                            temperature=self.heat_dest,
+                            hvac_mode='heat')
+        
+        # Transition to RUNNING_HEAT
+        self.state = InverterAcSensor.RUNNING_HEAT
+        
+        # Stop monitoring sensors (unsubscribe)
+        if self.sensor_inside_handle:
+            self.ad.cancel_listen_state(self.sensor_inside_handle)
+            self.sensor_inside_handle = None
+        if self.sensor_outside_handle:
+            self.ad.cancel_listen_state(self.sensor_outside_handle)
+            self.sensor_outside_handle = None
+        
+        self.notify(f"Started HEAT mode at {self.heat_dest}°C")
+    
+    def stop_ac(self):
+        """Turn off AC"""
+        if self.state in [InverterAcSensor.RUNNING_COOL, InverterAcSensor.RUNNING_HEAT]:
+            self.ad.log("Stopping AC")
+            self.ad.call_service('climate/turn_off',
+                                entity_id=self.climate_entity)
+            self.notify("AC stopped")
+        
+        self.state = InverterAcSensor.DISABLED
+    
+    def turn_off_input(self):
+        """Turn off input switch"""
+        sw = self.cfg["input"]
+        self.ad.turn_off(sw)
+    
+    def notify(self, msg):
+        """Log message with context"""
+        t = datetime.datetime.now().strftime("%H:%M:%S")
+        state_name = ["DISABLED", "MONITORING", "RUNNING_COOL", "RUNNING_HEAT"][self.state]
+        log_msg = f"[InverterAC] {t} {self.climate_entity}, {msg}, state={state_name}"
+        self.ad.log(log_msg)
+    
+    def on_schedule_event(self, kwargs):
+        """Handle schedule events (start/stop)"""
+        if kwargs['state'] == "on":
+            # Schedule started - check if enabled
+            if not self.is_enabled():
+                self.notify("Schedule started but enable=OFF, staying DISABLED")
+                return
+            
+            # Load mode configuration
+            mode = kwargs['rule'].mode
+            self.load_mode_config(mode)
+            self.ad.log(f"Schedule started with mode {mode}")
+            
+            # Enter MONITORING state
+            self.notify(f"Schedule started, enable=ON, entering MONITORING")
+            self.set_monitoring(True)
+        
+        elif kwargs['state'] == "off":
+            # Schedule ended - stop AC and monitoring
+            self.notify("Schedule ended, stopping AC")
+            self.set_monitoring(False)
+
+
         
 
 

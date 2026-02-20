@@ -426,3 +426,107 @@ bath_lamp:
 voice_events:
   module: heat_app
   class: RhasspyEvents
+
+
+
+# Example: Inverter AC with automatic heat/cool mode selection
+# This is a NEW application that automatically chooses between heat/cool
+# based on dual sensor readings (inside + outside)
+#inverter_ac_living_room:
+#  module: heat_app
+#  class: InverterAcApp
+#  schedule:
+#    - { mode: a, start: { t: "11:30:00", d: 0}, end: { t: "17:00:00", d: 0} }
+#  
+#  ac:
+#    climate_entity: climate.ac1    # Climate entity (not switch!)
+#    input: input_boolean.ac1_input
+#    sensor_inside: variable.heat_index0
+#    sensor_outside: variable.heat_index_outside0
+#    enable: input_boolean.heat_app_enable
+#    sensor_max_age_minutes: 10     # Optional: max age of sensor data (default: 10 min)
+#    default: a                     # Default mode for manual input switch
+#    modes:
+#      a:
+#        cool: { min_o: 50.0, min_i: 26.5, max_i: 27.5, dest: 24.0 }
+#        heat: { min_o: 1.0, min_i: 22.0, max_i: 24.0, dest: 26.0 }
+
+# Example: Humidity-based switch control with hysteresis
+# Automatically controls a switch (dehumidifier, fan, etc.) based on humidity sensor readings
+# Features: hysteresis control, max runtime protection, cooldown period, schedule integration, Sabbath support
+#bathroom_dehumidifier:
+#  module: heat_app
+#  class: HumiditySwitchApp
+#  schedule:
+#    # Disable during these times (e.g., night hours when noise is undesirable)
+#    - { mode: a, start: { t: "22:00:00", d: 0}, end: { t: "06:00:00", d: 0} }
+#  
+#  humidity_switch:
+#    switch: switch.bathroom_dehumidifier        # Switch to control
+#    sensor: sensor.bathroom_humidity            # Humidity sensor to monitor
+#    input_start: 65.0                           # Start when humidity > 65% (trigger threshold)
+#    input_stop: 60.0                            # Stop when humidity <= 60% (release threshold)
+#    max_time_minutes: 120                       # Maximum 2 hours continuous runtime
+#    cooldown_minutes: 180                       # Cooldown period after max runtime (3 hours)
+#    enable: input_boolean.dehumidifier_enable   # Enable switch (read-only at schedule start)
+#    
+#    # Optional parameters (with defaults)
+#    sensor_max_age_minutes: 10                  # Optional: sensor staleness check (default: 10 min)
+#    notify_service: notify/telegram             # Optional: notification service for max runtime alerts
+#
+# Hysteresis explanation:
+#   - input_start (65%) > input_stop (60%) creates a 5% dead zone
+#   - When humidity rises above 65%: switch turns ON
+#   - When humidity drops below 60%: switch turns OFF
+#   - When humidity is between 60-65%: switch maintains current state (prevents rapid cycling)
+#
+# Max runtime protection:
+#   - If switch runs continuously for max_time_minutes, it will stop and enter cooldown
+#   - Cooldown period prevents immediate restart (gives device a break)
+#   - Notification is sent if notify_service is configured
+#   - Useful for detecting device malfunction or insufficient capacity
+#
+# States:
+#   - DISABLED: Schedule active or Sabbath active, switch OFF, no monitoring
+#   - MONITORING: Listening to sensor changes, ready to start switch if needed
+#   - RUNNING: Switch ON, monitoring humidity to decide when to stop
+#   - COOLDOWN: Switch OFF after max runtime, waiting before resuming monitoring
+
+#
+#heater_ac_base:
+#  module: heat_app
+#  class: HeatApp
+#  schedule:
+#       - { mode: a, start: { t: "18:15:00", d: 6}, end: { t: "18:16:00", d: 6} }
+#       - { mode: a, start: { t: "23:20:00", d: 6}, end: { t: "23:21:00", d: 6} }
+#       - { mode: a, start: { t: "23:30:00", d: 6}, end: { t: "08:00:00", d: 7} }
+#       - { mode: b, start: { t: "13:00:00", d: 7}, end: { t: "17:00:00", d: 7} }
+#       - { mode: c, start: { t: "00:00:10", d: 1}, end: { t: "07:00:00", d: 1} }
+#       - { mode: c, start: { t: "00:00:10", d: 2}, end: { t: "07:00:00", d: 2} }
+#       - { mode: c, start: { t: "00:00:10", d: 3}, end: { t: "07:00:00", d: 3} }
+#       - { mode: c, start: { t: "00:00:10", d: 4}, end: { t: "07:00:00", d: 4} }
+#       - { mode: c, start: { t: "00:00:10", d: 5}, end: { t: "07:00:00", d: 5} }
+#       - { mode: c, start: { t: "00:00:10", d: 6}, end: { t: "07:00:00", d: 6} }#
+#
+#      #- { mode: a, start: { t: "23:30:00", d: 1}, end: { t: "08:00:00", d: 2} }
+#      #- { mode: b, start: { t: "13:00:00", d: 2}, end: { t: "17:00:00", d: 2} }
+#       #- { mode: a, start: { t: "23:30:00", d: 2}, end: { t: "08:00:00", d: 3} }
+#       #- { mode: b, start: { t: "13:00:00", d: 3}, end: { t: "17:00:00", d: 3} }
+#       
+#  heater:
+#     mode: cool #heat #cool 
+#     switch: switch.ac3
+#    sensor_inside :  variable.heat_index2
+#     sensor_outside : variable.heat_index_outside0
+#     enable : input_boolean.heat_app_enable_base
+#     modes :
+#        a : 
+#          cool: { min_o: 37.3, min_i: 25.1, max_i: 26.4} 
+#          heat: { min_o: 10.0, min_i: 14.9, max_i: 18.5} 
+#        b : 
+#          cool: { min_o: 37.9, min_i: 25.1, max_i: 26.4} 
+#          heat: { min_o: 10.0, min_i: 17.0, max_i: 18.5} 
+#        c : 
+#          cool: { min_o: 37.5, min_i: 25.1, max_i: 26.4} 
+#          heat: { min_o: 10.0, min_i: 14.9, max_i: 18.5} 
+#
