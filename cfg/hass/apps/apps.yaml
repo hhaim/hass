@@ -48,80 +48,6 @@ heater_ac1:
           heat: { min_o: 01.0, min_i: 22.0, max_i: 24.0} 
 
 
- # the up floor  
-heater_ac_up:
-  module: heat_app
-  class: HeatApp
-  schedule:
-       - { mode: b, start: { t: "11:30:00", d: 0}, end: { t: "17:00:00", d: 0} }
-       - { mode: a, start: { t: "23:20:00", d: 0}, end: { t: "23:50:00", d: 0} }
-       - { mode: c, start: { t: "00:01:00", d: 0}, end: { t: "08:00:00", d: 0} }
-
-       - { mode: c, start: { t: "00:00:10", d: 1}, end: { t: "07:00:00", d: 1} }
-       - { mode: c, start: { t: "00:00:10", d: 2}, end: { t: "07:00:00", d: 2} }
-       - { mode: c, start: { t: "00:00:10", d: 3}, end: { t: "07:00:00", d: 3} }
-       - { mode: c, start: { t: "00:00:10", d: 4}, end: { t: "07:00:00", d: 4} }
-       - { mode: c, start: { t: "00:00:10", d: 5}, end: { t: "07:00:00", d: 5} }
-       - { mode: c, start: { t: "00:00:10", d: 6}, end: { t: "07:00:00", d: 6} }
-
-       
-  heater:
-     default: a   # this is the default mode for input switch 
-     mode: heat #cool heat
-     switch: switch.ac2
-     input: input_boolean.ac2_input  # input switch to enable/disable under feedback 
-     sensor_inside :  variable.heat_index1
-     sensor_outside : variable.heat_index_outside0
-     enable : input_boolean.heat_app_enable
-     modes :
-        a : 
-          cool: { min_o: 44.3, min_i: 25.5, max_i: 26.5} 
-          heat: { min_o: 01.0, min_i: 14.9, max_i: 18.5} 
-        b : 
-          cool: { min_o: 44.9, min_i: 25.5, max_i: 26.5} 
-          heat: { min_o: 01.0, min_i: 19.5, max_i: 20.2} 
-        c : 
-          cool: { min_o: 44.5, min_i: 25.5, max_i: 26.5} 
-          heat: { min_o: 01.0, min_i: 17.5, max_i: 20.2} 
-#
-#heater_ac_base:
-#  module: heat_app
-#  class: HeatApp
-#  schedule:
-#       - { mode: a, start: { t: "18:15:00", d: 6}, end: { t: "18:16:00", d: 6} }
-#       - { mode: a, start: { t: "23:20:00", d: 6}, end: { t: "23:21:00", d: 6} }
-#       - { mode: a, start: { t: "23:30:00", d: 6}, end: { t: "08:00:00", d: 7} }
-#       - { mode: b, start: { t: "13:00:00", d: 7}, end: { t: "17:00:00", d: 7} }
-#       - { mode: c, start: { t: "00:00:10", d: 1}, end: { t: "07:00:00", d: 1} }
-#       - { mode: c, start: { t: "00:00:10", d: 2}, end: { t: "07:00:00", d: 2} }
-#       - { mode: c, start: { t: "00:00:10", d: 3}, end: { t: "07:00:00", d: 3} }
-#       - { mode: c, start: { t: "00:00:10", d: 4}, end: { t: "07:00:00", d: 4} }
-#       - { mode: c, start: { t: "00:00:10", d: 5}, end: { t: "07:00:00", d: 5} }
-#       - { mode: c, start: { t: "00:00:10", d: 6}, end: { t: "07:00:00", d: 6} }#
-#
-#      #- { mode: a, start: { t: "23:30:00", d: 1}, end: { t: "08:00:00", d: 2} }
-#      #- { mode: b, start: { t: "13:00:00", d: 2}, end: { t: "17:00:00", d: 2} }
-#       #- { mode: a, start: { t: "23:30:00", d: 2}, end: { t: "08:00:00", d: 3} }
-#       #- { mode: b, start: { t: "13:00:00", d: 3}, end: { t: "17:00:00", d: 3} }
-#       
-#  heater:
-#     mode: cool #heat #cool 
-#     switch: switch.ac3
-#    sensor_inside :  variable.heat_index2
-#     sensor_outside : variable.heat_index_outside0
-#     enable : input_boolean.heat_app_enable_base
-#     modes :
-#        a : 
-#          cool: { min_o: 37.3, min_i: 25.1, max_i: 26.4} 
-#          heat: { min_o: 10.0, min_i: 14.9, max_i: 18.5} 
-#        b : 
-#          cool: { min_o: 37.9, min_i: 25.1, max_i: 26.4} 
-#          heat: { min_o: 10.0, min_i: 17.0, max_i: 18.5} 
-#        c : 
-#          cool: { min_o: 37.5, min_i: 25.1, max_i: 26.4} 
-#          heat: { min_o: 10.0, min_i: 14.9, max_i: 18.5} 
-#
-
 calc_sensor_inside1:
   module: heat_app
   class: CalcHeatIndexApp
@@ -132,9 +58,10 @@ calc_sensor_inside1:
 calc_sensor_inside2:
   module: heat_app
   class: CalcHeatIndexApp
-  temp :  sensor.temp1
-  hum  :  sensor.hum1
+  temp :  sensor.bedroom_weather_temperature
+  hum  :  sensor.bedroom_weather_humidity
   out  :  variable.heat_index1
+
 
 calc_sensor_inside3:
   module: heat_app
@@ -530,3 +457,30 @@ voice_events:
 #          cool: { min_o: 37.5, min_i: 25.1, max_i: 26.4} 
 #          heat: { min_o: 10.0, min_i: 14.9, max_i: 18.5} 
 #
+
+inverter_ac_parent_room:
+  module: heat_app
+  class: InverterAcApp
+  schedule:
+    - { mode: a, start: { t: "11:30:00", d: 0}, end: { t: "17:00:00", d: 0} }
+    - { mode: a, start: { t: "23:20:00", d: 0}, end: { t: "23:50:00", d: 0} }
+    - { mode: a, start: { t: "00:01:00", d: 0}, end: { t: "08:00:00", d: 0} }
+    - { mode: a, start: { t: "00:00:10", d: 1}, end: { t: "07:00:00", d: 1} }
+    - { mode: a, start: { t: "00:00:10", d: 2}, end: { t: "07:00:00", d: 2} }
+    - { mode: a, start: { t: "00:00:10", d: 3}, end: { t: "07:00:00", d: 3} }
+    - { mode: a, start: { t: "00:00:10", d: 4}, end: { t: "07:00:00", d: 4} }
+    - { mode: a, start: { t: "00:00:10", d: 5}, end: { t: "07:00:00", d: 5} }
+    - { mode: a, start: { t: "00:00:10", d: 6}, end: { t: "07:00:00", d: 6} }
+
+  ac:
+    climate_entity: climate.150633095197966_climate    # Climate entity (not switch!)
+    input: input_boolean.ac2_input
+    sensor_inside: variable.heat_index1
+    sensor_outside: variable.heat_index_outside0
+    enable: input_boolean.heat_app_enable
+    sensor_max_age_minutes: 240     # Optional: max age of sensor data (default: 10 min)
+    default: a                     # Default mode for manual input switch
+    modes:
+      a:
+        cool: { min_o: 50.0, min_i: 26.5, max_i: 27.5, dest: 24.0 } # >max i to cool
+        heat: { min_o: 1.0, min_i: 22.0, max_i: 24.0, dest: 26.0 }   # <min_i to heat
