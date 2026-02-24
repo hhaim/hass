@@ -162,7 +162,7 @@ heat_timer_off:
   class: SimpleTimerOff
   input_start: input_boolean.heat_timer_0
   input_time:  input_number.heat_timer_time
-  switchs : [switch.ac2,switch.ac1]
+  switchs : [switch.bath-switch]
 
 # too much noise, remove this for now too many devices   
 #track_notification:
