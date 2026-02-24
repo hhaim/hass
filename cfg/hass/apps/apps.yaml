@@ -157,12 +157,12 @@ test_days:
   class: CTestDays
 
 
-heat_timer_off:
+bath_room1_parent_auto_off:
   module: heat_app
-  class: SimpleTimerOff
-  input_start: input_boolean.heat_timer_0
+  class: SimpleTimerOffv2
   input_time:  input_number.heat_timer_time
-  switchs : [switch.bath-switch]
+  switch : switch.bath_switch
+
 
 # too much noise, remove this for now too many devices   
 #track_notification:

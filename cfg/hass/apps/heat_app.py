@@ -148,6 +148,41 @@ class CTestDays(hass.Hass):
         self.log(" event {0} ".format(kwargs))
 
 
+class SimpleTimerOffv2(hass.Hass):
+
+    def initialize(self):
+        self.log("SimpleTimerOffv2");
+        self.listen_state(self.do_button_change, self.args["switch"])
+        self.handle = None
+
+    def get_timer_time (self):
+        r=float(self.get_state(self.args["input_time"]))
+        return (int(r))
+
+    def do_turn_off(self):
+        self.handle=None
+        sw =self.args["switch"]
+        self.log(" try to turn off {0}".format(sw));
+        if self.get_state(sw) == "on":
+            self.log(" state was on, turn off {0}".format(sw));
+            self.turn_off(sw)
+
+    def do_button_change (self,entity, attribute, old, new, kwargs):
+        if (new == "on") and (self.handle == None):
+            self.log("start timer for {0} minutes for {1} switch ".format(self.get_timer_time(),self.args["switch"]) );
+            sec= self.get_timer_time()*60;
+            self.handle = self.run_in(self._cb_event, sec)
+        else:
+            if (new == "off") and (self.handle != None): 
+               self.log("stop timer ")
+               self.cancel_timer(self.handle)
+               self.handle = None
+
+    def _cb_event(self,kargs):
+        self.do_turn_off()
+
+
+
 
 class SimpleTimerOff(hass.Hass):
 

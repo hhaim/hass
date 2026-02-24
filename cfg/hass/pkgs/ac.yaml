@@ -72,9 +72,9 @@ input_boolean:
 input_number:
   heat_timer_time:
     name: A/C Timer
-    min: 60
-    max: 240
-    step: 30
+    min: 5
+    max: 60
+    step: 5
 
 
 switch:

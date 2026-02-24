@@ -159,6 +159,7 @@ views:
           - switch.ac1
           - climate.151732606823085_climate
           - climate.150633095197966_climate 
+          - climate.150633095226767_climate
       - type: history-graph
         title: graph 
         hours_to_show : 24
