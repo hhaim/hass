@@ -68,6 +68,8 @@ input_boolean:
     name: A/C-Down
   ac2_input:  
     name: A/C-Up
+  ac3_input:  
+    name: A/C-Neta
 
 input_number:
   heat_timer_time:

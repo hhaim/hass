@@ -147,6 +147,7 @@ views:
           - variable.heat_index1
           - input_boolean.ac1_input
           - input_boolean.ac2_input
+          - input_boolean.ac3_input
           - variable.heat_index_outside0
       - type: entities
         title: Automation

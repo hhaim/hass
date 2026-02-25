@@ -484,3 +484,31 @@ inverter_ac_parent_room:
       a:
         cool: { min_o: 50.0, min_i: 26.5, max_i: 24.5, dest: 22.0 } # >max i to cool
         heat: { min_o: 1.0, min_i: 20.0, max_i: 24.0, dest: 21.0 }   # <min_i to heat
+
+
+inverter_ac_neta_room:
+  module: heat_app
+  class: InverterAcApp
+  schedule:
+    - { mode: a, start: { t: "11:30:00", d: 0}, end: { t: "17:00:00", d: 0} }
+    - { mode: a, start: { t: "23:20:00", d: 0}, end: { t: "23:50:00", d: 0} }
+    - { mode: a, start: { t: "00:01:00", d: 0}, end: { t: "08:00:00", d: 0} }
+    - { mode: a, start: { t: "00:00:09", d: 1}, end: { t: "07:00:00", d: 1} }
+    - { mode: a, start: { t: "00:00:09", d: 2}, end: { t: "07:00:00", d: 2} }
+    - { mode: a, start: { t: "00:00:09", d: 3}, end: { t: "07:00:00", d: 3} }
+    - { mode: a, start: { t: "00:00:09", d: 4}, end: { t: "07:00:00", d: 4} }
+    - { mode: a, start: { t: "00:00:09", d: 5}, end: { t: "07:00:00", d: 5} }
+    - { mode: a, start: { t: "00:00:09", d: 6}, end: { t: "07:00:00", d: 6} }
+
+  ac:
+    climate_entity: climate.151732606823085_climate    # Climate entity (not switch!)
+    input: input_boolean.ac3_input
+    sensor_inside: variable.heat_index1
+    sensor_outside: variable.heat_index_outside0
+    enable: input_boolean.heat_app_enable
+    sensor_max_age_minutes: 240     # Optional: max age of sensor data (default: 10 min)
+    default: a                     # Default mode for manual input switch
+    modes:
+      a:
+        cool: { min_o: 50.0, min_i: 26.5, max_i: 24.5, dest: 22.0 } # >max i to cool
+        heat: { min_o: 1.0, min_i: 20.0, max_i: 24.0, dest: 21.0 }   # <min_i to heat
