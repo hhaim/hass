@@ -445,7 +445,6 @@ class InverterAcSensor:
                 self.ad.cancel_listen_state(self.sensor_outside_handle)
                 self.sensor_outside_handle = None
             
-            self.state = InverterAcSensor.DISABLED
             self.stop_ac()
     
     def do_check_sensors(self, entity, attribute, old, new, kwargs):

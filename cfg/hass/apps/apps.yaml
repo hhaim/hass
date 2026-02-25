@@ -482,5 +482,5 @@ inverter_ac_parent_room:
     default: a                     # Default mode for manual input switch
     modes:
       a:
-        cool: { min_o: 50.0, min_i: 26.5, max_i: 27.5, dest: 24.0 } # >max i to cool
-        heat: { min_o: 1.0, min_i: 22.0, max_i: 24.0, dest: 26.0 }   # <min_i to heat
+        cool: { min_o: 50.0, min_i: 26.5, max_i: 24.5, dest: 22.0 } # >max i to cool
+        heat: { min_o: 1.0, min_i: 20.0, max_i: 24.0, dest: 21.0 }   # <min_i to heat
