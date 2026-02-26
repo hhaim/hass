@@ -66,8 +66,8 @@ calc_sensor_inside2:
 calc_sensor_inside3:
   module: heat_app
   class: CalcHeatIndexApp
-  temp :  sensor.temp2
-  hum  :  sensor.hum2
+  temp :  sensor.base_weather_temperature
+  hum  :  sensor.base_weather_humidity
   out  :  variable.heat_index2
 
 
@@ -512,3 +512,32 @@ inverter_ac_neta_room:
       a:
         cool: { min_o: 50.0, min_i: 26.5, max_i: 24.5, dest: 22.0 } # >max i to cool
         heat: { min_o: 1.0, min_i: 20.0, max_i: 24.0, dest: 21.0 }   # <min_i to heat
+
+
+inverter_ac_base_room:
+  module: heat_app
+  class: InverterAcApp
+  schedule: []
+  ac:
+    climate_entity: climate.150633095226767_climate    # Climate entity (not switch!)
+    input: input_boolean.base_ac_input
+    sensor_inside: variable.heat_index2
+    sensor_outside: variable.heat_index_outside0
+    enable: input_boolean.heat_app_enable
+    sensor_max_age_minutes: 240     # Optional: max age of sensor data (default: 10 min)
+    default: a                     # Default mode for manual input switch
+    modes:
+      a:
+        cool: { min_o: 50.0, min_i: 26.5, max_i: 24.5, dest: 22.0 } # >max i to cool
+        heat: { min_o: 1.0, min_i: 20.0, max_i: 24.0, dest: 23.0 }   # <min_i to heat
+
+
+bt1_listener:
+  module: heat_app
+  class: Bt1Listener
+
+base_button_listener:
+  module: heat_app
+  class: BaseButtonListener
+
+

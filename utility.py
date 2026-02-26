@@ -73,7 +73,7 @@ def get_dump_mq():
 
 #
 def get_sync_hass():
-    cmd ='rsync -avz --exclude=".git" --exclude="netdc"  --exclude="store/zigbee2mqtt_01" --exclude="cfg/hass/known_devices.yaml" --exclude="linux_services"  --exclude="services" . {}:{} '.format(RH,REMOTE_HASS)
+    cmd ='rsync -avz --exclude=".git" --exclude="netdc"  --exclude="store/zigbee2mqtt_01" --exclude="store/zigbee2mqtt_02" --exclude="cfg/hass/known_devices.yaml" --exclude="linux_services"  --exclude="services" . {}:{} '.format(RH,REMOTE_HASS)
     return cmd
 
 # backup z2m data 
@@ -81,6 +81,12 @@ def get_backup_z2m():
     cmd ='rsync -avz   --exclude="*backup*" --exclude="*.log"  {}:{} store '.format(RH,REMOTE_HASS_STORE+'zigbee2mqtt_01',)
     print(cmd)
     return cmd
+
+def get_backup_z2m_base():
+    cmd ='rsync -avz   --exclude="*backup*" --exclude="*.log"  {}:{} store '.format(RH,REMOTE_HASS_STORE+'zigbee2mqtt_02',)
+    print(cmd)
+    return cmd
+
 
 def get_sync_net():
     cmd ='rsync -avz  netdc/ {}:{} '.format(RH,REMOTE_NETDC)
@@ -106,6 +112,8 @@ def main(args=None):
     if opts.sync_hass:
         run_cmd(get_sync_hass())
         run_cmd(get_backup_z2m())
+        run_cmd(get_backup_z2m_base())
+        
 
     if opts.sync_net:
         run_cmd(get_sync_net())

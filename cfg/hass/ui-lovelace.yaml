@@ -496,6 +496,7 @@ views:
             secondary_info: 
                attribute: help
 
+
   - title: Basement 
     id: Basement 
     background: radial-gradient(crimson, skyblue)
@@ -507,39 +508,44 @@ views:
             name: lights
             icon: mdi:lightbulb
 
-          - entity: switch.tz3000_gjnozsaz_ts011f
+          - entity: switch.base_fan_power
             name: fan1
             icon: mdi:lightbulb
 
-          - entity: switch.tz3000_gjnozsaz_ts011f_2
-            name: room
-            icon: mdi:lightbulb
+          - entity: input_boolean.base_ac_input
+            name: A/C-Base
+            icon: mdi:air-conditioner
 
-          - entity: input_boolean.base_all
-            name: room
-            icon: mdi:lightbulb
+          - entity: variable.heat_index2
+            name: Base
+            icon: mdi:oil-temperature
+
       
       - type: history-graph
         title: graph 
         hours_to_show : 24
         entities:
-          - entity: binary_sensor.lumi_lumi_sensor_wleak_aq1
+          - entity: binary_sensor.base_water_sensor1_water_leak
             name: water_leak_detector
 
-          - entity: binary_sensor.lumi_lumi_sensor_motion_aq2_2
+          - entity: binary_sensor.base_motion1_occupancy
             name: motion
+
+          - entity: binary_sensor.base_window_contact
+            name: window_contact
+
 
       - type: history-graph
         title: graph 
         hours_to_show : 24
         entities:
-        - entity: sensor.lumi_lumi_weather_temperature
+        - entity: sensor.base_weather_temperature
           name: temp
           icon: mdi:oil-temperature
-        - entity: sensor.lumi_lumi_weather_humidity
+        - entity: sensor.base_weather_humidity
           name: humidity
           icon: mdi:oil-temperature
-        - entity: sensor.lumi_lumi_weather_pressure
+        - entity: sensor.base_weather_pressure
           name: pressure
           icon: mdi:oil-temperature
 

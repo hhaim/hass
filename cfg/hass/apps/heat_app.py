@@ -1740,4 +1740,50 @@ class RhasspyEvents(HassBase):
                    self.turn_off('group.lamps_r0')
                    self.turn_off('switch.tv')
 
-            
+
+class Bt1Listener(hass.Hass):
+
+    def initialize(self):
+        self.listen_state(self.on_click, "sensor.bt1_action")
+
+    def on_click(self, entity, attribute, old, new, kwargs):
+        self.log(f"bt1 action: {entity}, {attribute} {old} {new} {kwargs}")
+        if new == 'double':
+            self.turn_off("switch.bath_switch")
+            self.turn_off("light.bath_led_01")
+        elif new == 'single':
+            self.toggle("switch.bath_switch")
+        elif new == 'hold':
+            self.toggle("light.bath_led_01")
+        elif new == 'triple':
+            self.toggle("light.bath_led_01")
+
+
+class BaseButtonListener(hass.Hass):
+
+    def initialize(self):
+        self.listen_state(self.on_click, "sensor.base_button_enter_action")
+
+    def ride_on(self,enable):
+        if enable:
+            self.turn_on("group.base_light")
+            self.turn_on("input_boolean.base_ac_input")
+        else:
+            self.turn_off("group.base_light")
+            self.turn_off("input_boolean.base_ac_input")
+
+    def on_click(self, entity, attribute, old, new, kwargs):
+        self.log(f"base button action: {entity}, {attribute} {old} {new} {kwargs}")
+        if new == 'double':
+            self.ride_on(False)
+        elif new == 'single':
+            self.ride_on(True)
+        elif new == 'hold':
+            pass
+        elif new == 'triple':
+            pass
+
+
+  
+
+

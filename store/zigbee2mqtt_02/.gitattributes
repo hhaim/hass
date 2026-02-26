@@ -1,0 +1,6 @@
+secret.yaml         filter=git-crypt diff=git-crypt
+configuration.yaml       filter=git-crypt diff=git-crypt
+database.db         filter=git-crypt diff=git-crypt
+state.json          filter=git-crypt diff=git-crypt
+.gitattributes !filter !diff
+
