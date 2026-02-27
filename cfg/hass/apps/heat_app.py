@@ -1763,14 +1763,64 @@ class BaseButtonListener(hass.Hass):
 
     def initialize(self):
         self.listen_state(self.on_click, "sensor.base_button_enter_action")
+        self.tv_entity = "media_player.tvbase"
+        self.tv_mac = "74:C1:7E:44:D5:7C"
+        self.tv_ip = "10.0.0.75"
+        self.hdmi_input = "HDMI 1"
+        self.startup_delay = 10
+        self.listen_state(self.do_input_change, 'input_boolean.base_all')
+
+
+    def start_tv_sequence(self):
+        self.log("Starting LG TV sequence...")
+        current_state = self.get_state(self.tv_entity)
+
+        if current_state == "off" or current_state == "unavailable":
+            self.log("TV is off — sending WoL magic packet")
+            self.call_service(
+                "wake_on_lan/send_magic_packet",
+                mac=self.tv_mac,
+                broadcast_address=self.tv_ip
+            )
+            self.run_in(self.set_hdmi_input, self.startup_delay)
+        else:
+            self.log("TV already on — switching input")
+            self.set_hdmi_input({})
+
+    def set_hdmi_input(self, kwargs):
+        self.log(f"Setting input to {self.hdmi_input}")
+        self.call_service(
+            "media_player/select_source",
+            entity_id=self.tv_entity,
+            source=self.hdmi_input,
+        )
+
+    def set_tv_off(self):
+        self.log(f"Setting tv off ")
+        self.call_service(
+            "media_player/turn_off",
+            entity_id=self.tv_entity
+        )
+
+    def do_input_change(self,entity, attribute, old, new, kwargs):
+        if old != new:
+            if new == 'on' and old == 'off':
+                self.ride_on(True)
+            else:
+                if new == 'off' and old == 'on':
+                    self.ride_on(False)
+
 
     def ride_on(self,enable):
         if enable:
             self.turn_on("group.base_light")
             self.turn_on("input_boolean.base_ac_input")
+            self.start_tv_sequence()
         else:
             self.turn_off("group.base_light")
             self.turn_off("input_boolean.base_ac_input")
+            self.set_tv_off()
+
 
     def on_click(self, entity, attribute, old, new, kwargs):
         self.log(f"base button action: {entity}, {attribute} {old} {new} {kwargs}")

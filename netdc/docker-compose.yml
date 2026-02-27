@@ -1,5 +1,3 @@
-version: '3.5'
-
 # network dnsmasq,
 # DOCKER COMPOSE COMMAND REFERENCE
 # --------------------------------------------------------------------------

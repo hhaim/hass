@@ -513,12 +513,21 @@ views:
             icon: mdi:lightbulb
 
           - entity: input_boolean.base_ac_input
-            name: A/C-Base
+            name: A/C-Base input
+            icon: mdi:air-conditioner
+
+          - entity: climate.150633095226767_climate
+            name: A/C-Base 
             icon: mdi:air-conditioner
 
           - entity: variable.heat_index2
             name: Base
             icon: mdi:oil-temperature
+
+          - entity: input_boolean.base_all
+            name: Ride 
+
+          - entity:  media_player.tvbase
 
       
       - type: history-graph
