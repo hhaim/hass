@@ -20,6 +20,12 @@ def SetParserOptions():
                         action="store_true",
                         default=False)
 
+    parser.add_argument("--sync-fri",
+                        dest="sync_frigate",
+                        help="sync frigate ",
+                        action="store_true",
+                        default=False)
+
     parser.add_argument("--sync-net",
                         dest="sync_net",
                         help="sync ad ",
@@ -92,6 +98,12 @@ def get_sync_net():
     cmd ='rsync -avz  netdc/ {}:{} '.format(RH,REMOTE_NETDC)
     return cmd
 
+def get_sync_frigate():
+    cmd ='rsync -avz  frigate/ {}:{} '.format('frigate','frigate')
+    return cmd
+
+
+
 def run_cmd(cmd):    
    print('run :'+cmd) 
    os.system(cmd)
@@ -117,6 +129,9 @@ def main(args=None):
 
     if opts.sync_net:
         run_cmd(get_sync_net())
+
+    if opts.sync_frigate:
+        run_cmd(get_sync_frigate())
 
     
 

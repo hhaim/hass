@@ -1,0 +1,41 @@
+services:
+  frigate:
+    container_name: frigate
+    image: ghcr.io/blakeblackshear/frigate:0.17.0-tensorrt
+    restart: unless-stopped
+    privileged: true
+
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility,video
+      - FRIGATE_RTSP_PASSWORD=changeme        # referenced in config as {FRIGATE_RTSP_PASSWORD}
+
+    # shm_size = (Width * Height * 1.5 * num_cameras) / 1024 / 1024
+    # For 1x 1080p camera ~3MB, 256mb is plenty. Increase for more cameras or 4K.
+    shm_size: "1024mb"
+
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./config:/config
+      - /mnt/frigatedata/storage:/media/frigate
+
+    tmpfs:
+      - /tmp/cache:size=1073741824           # 1GB tmpfs for video clip cache
+
+    ports:
+      - "5000:5000"      # Web UI
+      - "8554:8554"      # RTSP restream (go2rtc)
+      - "8555:8555/tcp"  # WebRTC
+      - "8555:8555/udp"  # WebRTC
+
+    devices:
+      - /dev/dri:/dev/dri                    # keep for potential VAAPI fallback
+
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu, compute, utility, video]
