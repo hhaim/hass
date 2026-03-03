@@ -10,11 +10,6 @@ group:
         - device_tracker.cam3
         - device_tracker.cam4
         - device_tracker.cam5
-        - camera.cam5
-        - camera.cam1
-        - camera.cam2
-        - camera.cam3
-        - camera.cam4
 
   cam_tracker:
     name: Cam Tracker
@@ -35,14 +30,5 @@ switch:
     name: kit7on
     stopic: basic6
 
-camera:
-
-  - platform: ffmpeg
-    name: cam5
-    input: !secret cam5_url
-
-  - platform: ffmpeg
-    name: cam1
-    input: !secret cam1_url
 
 

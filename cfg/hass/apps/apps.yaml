@@ -203,7 +203,7 @@ garden_lamp:
   module: heat_app
   class: OutdoorLampWithPir
   switch: group.garden_i1
-  sensor: binary_sensor.alarm15
+  sensor: group.garden_entrance0
   delay: 15
   schedule: 
     - { mode: b, start: { t: "16:00:00", d: 0}, end: { t: "23:55:00", d: 0} }

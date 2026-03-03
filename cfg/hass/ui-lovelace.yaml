@@ -259,16 +259,27 @@ views:
     background: radial-gradient(crimson, skyblue)
     theme: dark-mode
     cards:
-      - type: entities
-        title: cam
-        show_header_toggle: true
+      - type: history-graph
+        title: graph 
+        hours_to_show : 1
         entities:
-          - camera.cam5
-          - camera.cam1
-          - camera.cam2
-          - camera.cam3
-          - camera.cam4
-          
+          - binary_sensor.backyard_person_occupancy
+          - binary_sensor.solar_person_occupancy
+          - binary_sensor.driveway_person_occupancy
+          - binary_sensor.front_door_person_occupancy
+          - binary_sensor.garage_person_occupancy
+          - binary_sensor.backyard_dog_occupancy
+          - binary_sensor.solar_dog_occupancy
+          - binary_sensor.driveway_dog_occupancy
+          - binary_sensor.front_door_dog_occupancy
+          - binary_sensor.garage_dog_occupancy
+
+      - type: button
+        name: Frigate
+        icon: mdi:chart-line
+        tap_action:
+          action: url
+          url_path: "http://frigate:5000"
 
   - title: Alarm
     id: alarm

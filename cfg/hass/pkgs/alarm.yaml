@@ -173,6 +173,14 @@ group:
     entities:
         - binary_sensor.motion_sensor_158d0002b7f8b4
         - binary_sensor.motion_sensor_158d0002b85a33
+        - binary_sensor.backyard_person_occupancy
+        - binary_sensor.solar_person_occupancy
+        - binary_sensor.driveway_person_occupancy
+        - binary_sensor.front_door_person_occupancy
+        - binary_sensor.garage_person_occupancy
+        - binary_sensor.alarm15
+
+
 
 
 #water sensor for bath 3-1024 , 1024 means we have a problem (the sensor is wet) 1024 means that the resistor of the sensor is wet and it resistance is very low (not high )

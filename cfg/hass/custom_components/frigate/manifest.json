@@ -1,0 +1,20 @@
+{
+    "domain": "frigate",
+    "name": "Frigate",
+    "codeowners": [
+        "@blakeblackshear",
+        "@dermotduffy",
+        "@NickM-27"
+    ],
+    "config_flow": true,
+    "dependencies": [
+        "http",
+        "media_source",
+        "mqtt"
+    ],
+    "documentation": "https://github.com/blakeblackshear/frigate",
+    "iot_class": "local_push",
+    "issue_tracker": "https://github.com/blakeblackshear/frigate-hass-integration/issues",
+    "requirements": ["hass-web-proxy-lib==0.0.7","titlecase==2.4.1"],
+    "version": "5.14.2"
+}
