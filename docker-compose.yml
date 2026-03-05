@@ -25,6 +25,7 @@ services:
       - ./cfg/hass:/config
       - ./cfg/hass/loader.py:/usr/src/homeassistant/homeassistant/loader.py
       - /etc/localtime:/etc/localtime:ro
+      - hass_nas_10:/mnt
     restart: unless-stopped
     privileged: true
     network_mode: host  
@@ -243,7 +244,7 @@ services:
 
 
 volumes:
-  nas_10:
+  hass_nas_10:
     driver: local
     driver_opts:
       type: nfs
