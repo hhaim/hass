@@ -25,7 +25,7 @@ services:
       - ./cfg/hass:/config
       - ./cfg/hass/loader.py:/usr/src/homeassistant/homeassistant/loader.py
       - /etc/localtime:/etc/localtime:ro
-      - hass_nas_10:/mnt
+      - hass_nas_10:/config/backups
     restart: unless-stopped
     privileged: true
     network_mode: host  
