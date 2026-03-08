@@ -1,0 +1,15 @@
+services:
+
+  vector:
+    image: timberio/vector:0.38.0-alpine
+    container_name: vector
+    user: "0:0"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./vector:/etc/vector:ro
+    command: ["--config-dir", "/etc/vector"]
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ} 
+

@@ -1,0 +1,45 @@
+receivers:
+  tcplog:
+    listen_address: "0.0.0.0:9999"
+    encoding: utf-8
+    operators:
+      - type: json_parser
+        id: parse_vector_envelope
+        parse_from: body
+
+      - type: move
+        id: move_service_name
+        from: attributes.service_name
+        to: resource["service.name"]
+
+      - type: move
+        id: move_body
+        from: attributes.body
+        to: body
+
+      - type: move
+        id: move_stream
+        from: attributes.stream
+        to: attributes["log.iostream"]
+
+processors:
+
+  batch:
+    timeout: 5s
+    send_batch_size: 1000
+
+
+exporters:
+  otlp:
+    endpoint: hyperdx:4317
+    tls:
+      insecure: true
+    headers:
+      authorization: "${env:HDX_INGESTION_KEY}"
+
+service:
+  pipelines:
+    logs:
+      receivers: [tcplog]
+      processors: [batch]
+      exporters: [otlp]

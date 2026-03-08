@@ -1,0 +1,7 @@
+sources:
+  docker_logs:
+    type: docker_logs
+    include_containers:
+      - homeassistant
+      - appdaemon
+      - dnscrypt-1

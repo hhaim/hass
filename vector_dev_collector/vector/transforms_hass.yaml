@@ -1,0 +1,24 @@
+transforms:
+  normalize_hass:
+    type: remap
+    inputs:
+      - docker_logs
+    source: |
+      if .container_name != "homeassistant" { abort }
+
+      parsed, err = parse_regex(.message, r'^(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+) (?P<level>\w+) \((?P<thread>[^)]+)\) \[(?P<logger>[^\]]+)\] (?P<message>.+)$')
+      if err == null {
+        .body = parsed
+      } else {
+        .body = .message
+      }
+
+      .service_name = "homeassistant"
+      .stream       = .stream
+
+      del(.labels)
+      del(.message)
+      del(.source_type)
+      del(.container_id)
+      del(.host)
+      del(.container_name)

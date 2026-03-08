@@ -1,0 +1,32 @@
+transforms:
+  normalize_dnscrypt:
+    type: remap
+    inputs:
+      - docker_logs
+    source: |
+      if !starts_with(.container_name, "dnscrypt") { abort }
+
+      parsed, err = parse_regex(.message, r'^\[(?P<timestamp>[^\]]+)\] \[(?P<level>[^\]]+)\] (?P<message>.+)$')
+      if err == null {
+        .body = parsed
+
+        # Try to extract server/rtt from latency lines like "- 9ms cloudflare"
+        server_parsed, err2 = parse_regex(string!(.body.message), r'^\-\s+(?P<rtt_ms>\d+)ms (?P<server>.+)$')
+        if err2 == null {
+          .body.rtt_ms = to_int!(server_parsed.rtt_ms)
+          .body.server = server_parsed.server
+          .body.message = "latency_entry"
+        }
+      } else {
+        .body = .message
+      }
+
+      .service_name = "dnscrypt"
+      .stream       = .stream
+
+      del(.labels)
+      del(.message)
+      del(.source_type)
+      del(.container_id)
+      del(.host)
+      del(.container_name)

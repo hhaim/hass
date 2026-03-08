@@ -1,0 +1,14 @@
+sinks:
+  to_otel:
+    type: socket
+    inputs:
+      - normalize_hass
+      - normalize_appdaemon
+      - normalize_dnscrypt
+      - normalize_default
+    mode: tcp
+    address: "photop:9999"
+    encoding:
+      codec: json
+    framing:
+      method: newline_delimited

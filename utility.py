@@ -20,6 +20,19 @@ def SetParserOptions():
                         action="store_true",
                         default=False)
 
+    parser.add_argument("--sync-hyperdx",
+                        dest="sync_hyperdx",
+                        help="sync hyperdx ",
+                        action="store_true",
+                        default=False)
+
+    # the collector in hass docker 
+    parser.add_argument("--sync-vector_hass",
+                        dest="sync_vector_hass",
+                        help="sync vector_hass ",
+                        action="store_true",
+                        default=False)
+
     parser.add_argument("--sync-fri",
                         dest="sync_frigate",
                         help="sync frigate ",
@@ -102,7 +115,14 @@ def get_sync_frigate():
     cmd ='rsync -avz  frigate/ {}:{} '.format('frigate','frigate')
     return cmd
 
+def get_dump_hyperdx():
+    cmd ='rsync -avz  hyperdx/ {}:{} '.format('photop','/home/hhaim/hyperdx/')
+    return cmd
 
+def get_dump_vector_hass():
+    cmd ='rsync -avz  vector_dev_hass/ {}:{} '.format(RH,REMOTE_HASS+"vector_dev_hass/")
+    return cmd
+    
 
 def run_cmd(cmd):    
    print('run :'+cmd) 
@@ -116,6 +136,12 @@ def main(args=None):
     else:
         opts = parser.parse_args(args)
     
+    if opts.sync_hyperdx:
+        run_cmd(get_dump_hyperdx())
+
+    if opts.sync_vector_hass:
+        run_cmd(get_dump_vector_hass())
+
     if opts.ddns:
         run_cmd(get_dump_dm())
     if opts.dmq:
@@ -137,5 +163,4 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
-    #print(get_backup_z2m())
     

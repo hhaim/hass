@@ -1,0 +1,24 @@
+transforms:
+  normalize_default:
+    type: remap
+    inputs:
+      - docker_logs
+    source: |
+      if .container_name == "homeassistant" || .container_name == "appdaemon" || starts_with(.container_name, "dnscrypt") { abort }
+
+      parsed, err = parse_json(.message)
+      if err == null {
+        .body = parsed
+      } else {
+        .body = .message
+      }
+
+      .service_name = get(value: .labels, path: ["service.name"]) ?? .container_name
+      .stream       = .stream
+
+      del(.labels)
+      del(.message)
+      del(.source_type)
+      del(.container_id)
+      del(.host)
+      del(.container_name)

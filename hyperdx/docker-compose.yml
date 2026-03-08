@@ -1,0 +1,33 @@
+
+services:
+    
+  hyperdx:
+    image: clickhouse/clickstack-all-in-one:2.20.0
+    container_name: hyperdx-stack2
+    ports:
+      - "8080:8080"   # HyperDX UI
+      - "4317:4317"   # OTel gRPC
+      - "4318:4318"   # OTel HTTP      
+      - "8123:8123"   # ClickHouse HTTP (Optional)
+    environment:
+      # Enables v2.x JSON and Materialized View optimizations
+      - BETA_CH_OTEL_JSON_SCHEMA_ENABLED=true
+      #- OTEL_AGENT_FEATURE_GATE_ARG=--feature-gates=clickhouse.json
+    volumes:
+      - ./store/hdx_data:/data/db
+      - ./store/ch_data:/var/lib/clickhouse
+    restart: unless-stopped
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.91.0
+    container_name: otel-collector
+    environment:
+      - HDX_INGESTION_KEY=${HDX_INGESTION_KEY}
+    ports:
+      - "9999:9999"   # TCP JSON from Vector (server2)
+    volumes:
+      - ./otel-config.yaml:/etc/otelcol-config.yaml
+    command: ["--config=/etc/otelcol-config.yaml"]
+    depends_on:
+      - hyperdx
+    restart: unless-stopped
