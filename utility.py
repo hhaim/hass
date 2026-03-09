@@ -27,7 +27,7 @@ def SetParserOptions():
                         default=False)
 
     # the collector in hass docker 
-    parser.add_argument("--sync-vector_hass",
+    parser.add_argument("--sync-vector",
                         dest="sync_vector_hass",
                         help="sync vector_hass ",
                         action="store_true",
@@ -116,11 +116,11 @@ def get_sync_frigate():
     return cmd
 
 def get_dump_hyperdx():
-    cmd ='rsync -avz  hyperdx/ {}:{} '.format('photop','/home/hhaim/hyperdx/')
+    cmd ='rsync -avz  hyperdx/ {}:{} '.format('frigate','/home/hhaim/hyperdx/')
     return cmd
 
 def get_dump_vector_hass():
-    cmd ='rsync -avz  vector_dev_hass/ {}:{} '.format(RH,REMOTE_HASS+"vector_dev_hass/")
+    cmd ='rsync -avz  vector_dev_collector/ {}:{} '.format(RH,REMOTE_HASS+"vector_dev_collector/")
     return cmd
     
 

@@ -8,7 +8,7 @@ sinks:
       - normalize_openwrt
       - normalize_default
     mode: tcp
-    address: "photop:9999"
+    address: "frigate:9999"
     encoding:
       codec: json
     framing:

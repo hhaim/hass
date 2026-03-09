@@ -4,8 +4,9 @@ transforms:
     inputs:
       - docker_logs
     source: |
-      if .container_name == "homeassistant" || .container_name == "appdaemon" || starts_with(.container_name, "dnscrypt") { abort }
-
+      container = string!(.container_name)
+      if !( container == "homeassistant" || container == "appdaemon" || starts_with(container, "dnscrypt") ) { abort }
+    
       parsed, err = parse_json(.message)
       if err == null {
         .body = parsed

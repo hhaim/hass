@@ -4,7 +4,7 @@ transforms:
     inputs:
       - docker_logs
     source: |
-      if !starts_with(.container_name, "dnscrypt") { abort }
+      if !starts_with(string!(.container_name), "dnscrypt") { abort }
 
       parsed, err = parse_regex(.message, r'^\[(?P<timestamp>[^\]]+)\] \[(?P<level>[^\]]+)\] (?P<message>.+)$')
       if err == null {

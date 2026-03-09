@@ -12,6 +12,7 @@ services:
     environment:
       # Enables v2.x JSON and Materialized View optimizations
       - BETA_CH_OTEL_JSON_SCHEMA_ENABLED=true
+      - HYPERDX_APP_URL=http://frigate
       #- OTEL_AGENT_FEATURE_GATE_ARG=--feature-gates=clickhouse.json
     volumes:
       - ./store/hdx_data:/data/db
