@@ -5,3 +5,7 @@ sources:
       - homeassistant
       - appdaemon
       - dnscrypt-1
+  openwrt_syslog:
+    type: syslog
+    mode: udp
+    address: "0.0.0.0:514"

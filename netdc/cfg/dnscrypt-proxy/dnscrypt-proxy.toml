@@ -29,7 +29,7 @@
 ##
 ## Remove the leading # first to enable this; lines starting with # are ignored.
 
-server_names = ['scaleway-fr', 'google', 'yandex', 'cloudflare']
+#server_names = ['scaleway-fr', 'google', 'yandex', 'cloudflare']
 
 
 ## List of local addresses and ports to listen to. Can be IPv4 and/or IPv6.
@@ -186,7 +186,7 @@ cert_refresh_delay = 240
 ## This may improve privacy but can also have a significant impact on CPU usage
 ## Only enable if you don't have a lot of network load
 
-# dnscrypt_ephemeral_keys = false
+dnscrypt_ephemeral_keys = true 
 
 
 ## DoH: Disable TLS session tickets - increases privacy but also latency
@@ -375,7 +375,7 @@ cache = true
 
 ## Cache size
 
-cache_size = 4096
+cache_size = 20000
 
 
 ## Minimum TTL for cached entries
@@ -452,6 +452,9 @@ cache_neg_max_ttl = 600
 
 [query_log]
 
+file = '/etc/dnscrypt-proxy/dnscrypt-query.log'   # path inside your container/host
+#format = 'json'                         # log each query as JSON
+
   ## Path to the query log file (absolute, or relative to the same directory as the config file)
   ## Can be set to /dev/stdout in order to log to the standard output.
 
@@ -460,7 +463,7 @@ cache_neg_max_ttl = 600
 
   ## Query log format (currently supported: tsv and ltsv)
 
-  format = 'tsv'
+format = 'tsv'
 
 
   ## Do not log these query types, to reduce verbosity. Keep empty to log everything.

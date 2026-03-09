@@ -5,6 +5,7 @@ sinks:
       - normalize_hass
       - normalize_appdaemon
       - normalize_dnscrypt
+      - normalize_openwrt
       - normalize_default
     mode: tcp
     address: "photop:9999"
