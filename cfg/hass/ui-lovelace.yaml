@@ -570,3 +570,36 @@ views:
           icon: mdi:oil-temperature
 
 
+  - title: Vent
+    id: Vent
+    background: radial-gradient(crimson, skyblue)
+    theme: dark-mode
+    cards:
+      - type: entities
+        entities:
+          - entity: switch.0xa4c138001990ffff
+            name: vent
+            icon: mdi:air-conditioner
+
+          - entity: sensor.bathroom_kids_weather_humidity
+            name: humidity
+            icon: oil-temperature
+
+          - entity: sensor.bedroom_weather_humidity
+            name: base_humidity
+            icon: mdi:oil-temperature
+
+      - type: history-graph
+        title: graph 
+        hours_to_show : 24
+        entities:
+          - entity: switch.0xa4c138001990ffff
+            name: vent
+
+          - entity: sensor.bathroom_kids_weather_humidity
+            name: humidity
+
+          - entity: sensor.bedroom_weather_humidity
+            name: base_humidity
+
+

@@ -4,11 +4,17 @@ transforms:
     inputs:
       - docker_logs
     source: |
+
       if .container_name != "appdaemon" { abort }
 
       parsed, err = parse_regex(.message, r'^(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+) (?P<level>\w+) (?P<app>[^:]+):\s*(?P<message>.*)$')
+
       if err == null {
-        .body = parsed
+        .timestamp    = parsed.timestamp
+        .level        = parsed.level
+        .body         = parsed.message
+        .app          = parsed.app
+
       } else {
         .body = .message
       }

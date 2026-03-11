@@ -28,6 +28,7 @@ class HumiditySwitchSensor:
         humidity_switch:
             switch: switch.bathroom_dehumidifier
             sensor: sensor.bathroom_humidity
+            base_sensor: sensor.room_humidity for baseline 
             input_start: 65.0              # Start when humidity > 65%
             input_stop: 60.0               # Stop when humidity <= 60%
             max_time_minutes: 120          # Max 2 hours continuous run
@@ -65,6 +66,8 @@ class HumiditySwitchSensor:
         self.sensor_handle = None
         self.max_runtime_handle = None
         self.cooldown_handle = None
+        self.base_sensor_handle = None
+        
         
         # Runtime tracking
         self.start_time = None
@@ -85,8 +88,14 @@ class HumiditySwitchSensor:
         self.cooldown_minutes = int(cfg.get("cooldown_minutes", self.DEFAULT_COOLDOWN_MINUTES))
         self.sensor_max_age_minutes = int(
             cfg.get("sensor_max_age_minutes", self.DEFAULT_SENSOR_MAX_AGE_MINUTES)
-        )
-        
+        )        
+        self.base_sensor_value = self.get_float("base_sensor",50.0)
+        if not self.base_sensor_handle:
+            self.base_sensor_handle = self.ad.listen_state(
+                self.on_base_sensor_change, 
+                self.cfg["base_sensor"]
+            )
+
         # Optional notification service
         self.notify_service = cfg.get("notify_service", None)
         
@@ -102,7 +111,17 @@ class HumiditySwitchSensor:
         )
         
         # Note: State will be set by init_state() which is called after schedule.init()
-    
+
+    def get_float(self,name,def_val):
+        res = def_val
+        try:
+          val=self.ad.get_state(self.cfg[name])
+          if val is not None:
+               res=float(val)
+        except (ValueError,TypeError):
+          pass;
+        return(res)
+
     def init_state(self):
         """Initialize state after schedule setup.
         
@@ -245,6 +264,16 @@ class HumiditySwitchSensor:
                     self.notify("Enable switch OFF, forcing disable")
                     self._transition_to_disabled()
     
+    
+    def on_base_sensor_change(self, entity, attribute, old, new, kwargs):
+        is_valid, humidity = self._is_sensor_valid(new)
+
+        if not is_valid:
+            self.notify(f"Invalid base sensor reading : {new}, continuing in current state")
+            return
+        self.base_sensor_value = humidity # will taken next calculation of on_sensor_change, this change is very slow, no need to update the monitor 
+        
+
     def on_sensor_change(self, entity, attribute, old, new, kwargs):
         """Handle sensor state changes."""
         # Validate sensor value
@@ -257,9 +286,9 @@ class HumiditySwitchSensor:
         # State-dependent threshold logic
         if self.state == HumiditySwitchSensor.MONITORING:
             # Check start threshold
-            if humidity > self.input_start:
+            if humidity > self.input_start and humidity > (self.base_sensor_value *0.9): # to verify that it is not just hot , like very hot day outside
                 if self.is_enabled():
-                    self.notify(f"Humidity {humidity:.1f}% > start threshold {self.input_start}%")
+                    self.notify(f"Humidity {humidity:.1f}%  > start threshold {self.input_start}%, Base {self.base_sensor_value:.1f}% ")
                     self._transition_to_running()
                 else:
                     self.notify(f"Humidity {humidity:.1f}% > start threshold but disabled by schedule/sabbath")
@@ -269,10 +298,10 @@ class HumiditySwitchSensor:
         
         elif self.state == HumiditySwitchSensor.RUNNING:
             # Check stop threshold
-            if humidity <= self.input_stop:
+            if humidity <= self.input_stop or humidity <= (self.base_sensor_value *1.2):
                 runtime_min = (datetime.datetime.now() - self.start_time).total_seconds() / 60
                 self.notify(
-                    f"Humidity {humidity:.1f}% <= stop threshold {self.input_stop}%, "
+                    f"Humidity {humidity:.1f}% <= stop threshold {self.input_stop}%,  base {self.base_sensor_value}% "
                     f"stopping after {runtime_min:.1f} min"
                 )
                 self._transition_to_monitoring()
