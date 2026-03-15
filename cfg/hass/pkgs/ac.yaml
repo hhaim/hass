@@ -75,8 +75,8 @@ input_number:
   heat_timer_time:
     name: A/C Timer
     min: 5
-    max: 60
-    step: 5
+    max: 20
+    step: 1
 
 
 switch:

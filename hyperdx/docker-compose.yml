@@ -18,6 +18,7 @@ services:
       - ./store/hdx_data:/data/db
       - ./store/ch_data:/var/lib/clickhouse
     restart: unless-stopped
+    # --- Resource Limits Added Below ---
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.91.0

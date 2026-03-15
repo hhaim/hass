@@ -547,3 +547,10 @@ bathroom_dehumidifier:
     # Optional parameters (with defaults)
     sensor_max_age_minutes: 180                  # Optional: sensor staleness check (default: 10 min)
     #notify_service: notify/telegram             # Optional: notification service for max runtime alerts
+
+
+bath_kids_switch_auto_off:
+  module: heat_app
+  class: SimpleTimerOffv2
+  input_time:  input_number.heat_timer_time
+  switch : switch.bath_kid_switch

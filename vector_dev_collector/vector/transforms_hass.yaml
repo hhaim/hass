@@ -9,6 +9,9 @@ transforms:
       parsed, err = parse_regex(.message, r'^(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+) (?P<level>\w+) \((?P<thread>[^)]+)\) \[(?P<logger>[^\]]+)\] (?P<message>.+)$')
       if err == null {
         .body = parsed
+        .resources.thread    = parsed.thread
+        .resources.component = parsed.logger
+        .resources.message = parsed.message
       } else {
         .body = .message
       }
