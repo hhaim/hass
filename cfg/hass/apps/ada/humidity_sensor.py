@@ -286,7 +286,7 @@ class HumiditySwitchSensor:
         # State-dependent threshold logic
         if self.state == HumiditySwitchSensor.MONITORING:
             # Check start threshold
-            if humidity > self.input_start and humidity > (self.base_sensor_value *0.9): # to verify that it is not just hot , like very hot day outside
+            if humidity > self.input_start and humidity > (self.base_sensor_value *1.15): # to verify that it is not just hot , like very hot day outside
                 if self.is_enabled():
                     self.notify(f"Humidity {humidity:.1f}%  > start threshold {self.input_start}%, Base {self.base_sensor_value:.1f}% ")
                     self._transition_to_running()
@@ -298,7 +298,7 @@ class HumiditySwitchSensor:
         
         elif self.state == HumiditySwitchSensor.RUNNING:
             # Check stop threshold
-            if humidity <= self.input_stop or humidity <= (self.base_sensor_value *1.2):
+            if humidity <= self.input_stop or humidity <= (self.base_sensor_value *1.1):
                 runtime_min = (datetime.datetime.now() - self.start_time).total_seconds() / 60
                 self.notify(
                     f"Humidity {humidity:.1f}% <= stop threshold {self.input_stop}%,  base {self.base_sensor_value}% "

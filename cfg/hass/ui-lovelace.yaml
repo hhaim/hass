@@ -520,10 +520,6 @@ views:
             name: lights
             icon: mdi:lightbulb
 
-          - entity: switch.base_fan_power
-            name: fan1
-            icon: mdi:lightbulb
-
           - entity: input_boolean.base_ac_input
             name: A/C-Base input
             icon: mdi:air-conditioner

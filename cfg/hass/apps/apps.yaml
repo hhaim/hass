@@ -538,7 +538,7 @@ bathroom_dehumidifier:
     switch: switch.bathroom_vent_switch           # Switch to control
     sensor: sensor.bathroom_kids_weather_humidity  # Humidity sensor to monitor
     base_sensor: sensor.bedroom_weather_humidity   # Humidity sensor to monitor
-    input_start: 80.0                           # Start when humidity > 
+    input_start: 75.0                           # Start when humidity > 
     input_stop: 65.0                            # Stop when humidity <= 
     max_time_minutes: 30                        # Maximum 30 min 
     cooldown_minutes: 10                        # Cooldown period after max runtime 

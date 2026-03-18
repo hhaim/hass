@@ -7,7 +7,6 @@ group:
       - switch.base_power_light_l2
       - switch.base_power_light_l3
       - switch.base_power_light_l4
-      - switch.base_fan_power
 
 input_boolean:
   base_all:
