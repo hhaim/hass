@@ -535,7 +535,7 @@ bathroom_dehumidifier:
     - { mode: a, start: { t: "00:00:00", d: 5}, end: { t: "06:00:00", d: 5} }
     - { mode: a, start: { t: "00:00:00", d: 6}, end: { t: "06:00:00", d: 6} }
   humidity_switch:
-    switch: switch.0xa4c138001990ffff        # Switch to control
+    switch: switch.bathroom_vent_switch           # Switch to control
     sensor: sensor.bathroom_kids_weather_humidity  # Humidity sensor to monitor
     base_sensor: sensor.bedroom_weather_humidity   # Humidity sensor to monitor
     input_start: 80.0                           # Start when humidity > 

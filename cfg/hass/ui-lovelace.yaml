@@ -198,6 +198,7 @@ views:
            - light.light1
            - sensor.kids_bath_water_sensor
            - switch.bath_switch
+           - switch.bath_kid_switch
 
   - title: Energy
     id: energy
@@ -577,7 +578,7 @@ views:
     cards:
       - type: entities
         entities:
-          - entity: switch.0xa4c138001990ffff
+          - entity: switch.bathroom_vent_switch
             name: vent
             icon: mdi:air-conditioner
 
@@ -593,7 +594,7 @@ views:
         title: graph 
         hours_to_show : 24
         entities:
-          - entity: switch.0xa4c138001990ffff
+          - entity: switch.bathroom_vent_switch
             name: vent
 
           - entity: sensor.bathroom_kids_weather_humidity
