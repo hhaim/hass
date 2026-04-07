@@ -1,7 +1,7 @@
 services:
   frigate:
     container_name: frigate
-    image: ghcr.io/blakeblackshear/frigate:0.17.0-tensorrt
+    image: ghcr.io/blakeblackshear/frigate:0.17.1-tensorrt
     restart: unless-stopped
     privileged: true
 
@@ -39,3 +39,31 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu, compute, utility, video]
+
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node_exporter
+    restart: unless-stopped
+    network_mode: host
+    pid: host
+    volumes:
+      - /:/host:ro,rslave
+    command:
+      - --path.rootfs=/host
+      - --collector.hwmon
+      - --collector.cpu
+      - --collector.thermal_zone
+
+  nvidia_gpu_exporter:
+    image: utkuozdemir/nvidia_gpu_exporter:1.2.0
+    container_name: nvidia_gpu_exporter
+    restart: unless-stopped
+    ports:
+      - "9835:9835"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

@@ -25,3 +25,21 @@ scrape_configs:
           regex: '.*/docker-([0-9a-f]{12}).*'
           target_label: container_id_short
           replacement: '${1}'
+
+    - job_name: frigate_host
+      metrics_path: /metrics
+      scheme: http
+      static_configs:
+        - targets: ['10.0.0.57:9100']
+
+    - job_name: frigate_nvidia
+      metrics_path: /metrics
+      scheme: http
+      static_configs:
+        - targets: ['10.0.0.57:9835']
+
+    - job_name: hass_host
+      metrics_path: /metrics
+      scheme: http
+      static_configs:
+        - targets: ['10.0.0.140:9100']

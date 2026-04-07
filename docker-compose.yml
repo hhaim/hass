@@ -242,6 +242,19 @@ services:
       retries: 3
       start_period: 20s
 
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node_exporter
+    restart: unless-stopped
+    network_mode: host
+    pid: host
+    volumes:
+      - /:/host:ro,rslave
+    command:
+      - --path.rootfs=/host
+      - --collector.hwmon
+      - --collector.cpu
+      - --collector.thermal_zone
 
 volumes:
   hass_nas_10:
