@@ -1,0 +1,104 @@
+# =============================================================
+#  Neolink v0.6.2 – RLC-410W-5MP sample config
+# =============================================================
+
+bind        = "0.0.0.0"   # listen on all interfaces
+bind_addr   = "0.0.0.0"   # explicit bind for the RTSP server
+
+# Optional RTSP users (leave commented out = no auth)
+# [[users]]
+# name = "frigate"
+# pass = "s3cr3t"
+
+# ------------------------------------------------------------------
+# MQTT  – remove this block if you only need plain RTSP
+# ------------------------------------------------------------------
+#[mqtt]
+#broker_addr = "192.168.1.X"        # your Mosquitto / EMQX broker
+#port        = 1883
+#credentials = ["mqtt_user", "mqtt_pass"]
+
+# ------------------------------------------------------------------
+# Camera: RLC-410W-5MP / cam3
+# ------------------------------------------------------------------
+[[cameras]]
+name     = "solar"             # used in RTSP path: rtsp://host:8554/frontyard
+username = "rivi"
+password = "MyTRex1"
+
+# --- Connection: prefer static IP over broadcast ---
+address   = "10.0.0.15"        # camera LAN IP (set static DHCP lease)
+#uid       = "ABCDEF0123456789"     # 16-char UID printed on camera label
+#discovery = "remote"                # local | remote | map | relay | cellular
+
+# --- Stream selection ---
+# "Main" = 5 MP/H.264, "Sub" = lower-res substream, "Extern" = third stream (if available)
+stream    = "Main"
+
+# --- Optional: expose substream on a second path ---
+[[cameras]]
+name     = "solar_sub"             # used in RTSP path: rtsp://host:8554/frontyard
+username = "rivi"
+password = "MyTRex1"
+
+address  = "10.0.0.15"
+#discovery = "remote"                # local | remote | map | relay | cellular
+
+# uid      = "ABCDEF0123456789"
+stream   = "Sub"
+
+# ------------------------------------------------------------------
+# Camera: RLC-410W-5MP / cam4-w
+# ------------------------------------------------------------------
+
+[[cameras]]
+name     = "garage"             # used in RTSP path: rtsp://host:8554/frontyard
+username = "rivi"
+password = "MyTRex1"
+
+address  = "10.0.0.23"
+#discovery = "remote"                # local | remote | map | relay | cellular
+
+# uid      = "ABCDEF0123456789"
+stream   = "Main"
+
+
+[[cameras]]
+name     = "garage_sub"             # used in RTSP path: rtsp://host:8554/frontyard
+username = "rivi"
+password = "MyTRex1"
+
+address  = "10.0.0.23"
+#discovery = "remote"                # local | remote | map | relay | cellular
+
+# uid      = "ABCDEF0123456789"
+stream   = "Sub"
+
+
+# --- Permitted RTSP users (matches [[users]] names above) ---
+# permitted_users = ["frigate"]
+
+# --- Pause: save bandwidth when nobody is watching ---
+#[cameras.pause]
+#on_client = true     # pause stream when no RTSP client is connected
+#on_motion = false    # also pause when no motion (battery cams only)
+#timeout   = 2.0      # seconds to wait after last client disconnects
+
+# --- MQTT per-camera features ---
+#[cameras.mqtt]
+#enable_motion    = true    # publish motion events → neolink/frontyard/status/motion
+#enable_preview   = false   # periodic JPEG snapshot (not needed if Frigate handles it)
+#enable_battery   = false   # N/A for wired camera
+#enable_light     = false   # no floodlight on 410W
+#preview_update   = 5000    # ms between snapshots if enable_preview = true
+
+# --- Optional: Home Assistant MQTT discovery ---
+# [cameras.mqtt.discovery]
+# topic    = "homeassistant"
+# features = ["motion", "led", "ir", "reboot"]
+
+# --- Misc ---
+#debug        = false        # dump raw XML – only enable when troubleshooting
+#enabled      = true
+#update_time  = false        # force-sync camera clock on connect
+#print_format = "None"       # None | Human | Xml

@@ -1,5 +1,6 @@
 readme.txt filter=git-crypt diff=git-crypt
 .env       filter=git-crypt diff=git-crypt
+neolink.toml filter=git-crypt diff=git-crypt
 
 .gitattributes !filter !diff
 

@@ -1,0 +1,25 @@
+transforms:
+  normalize_openwrt:
+    type: remap
+    inputs:
+      - openwrt_syslog
+    source: |
+      .body = {
+        "timestamp": .timestamp,
+        "level":     .severity,
+        "facility":  .facility,
+        "host":      .hostname,
+        "program":   .appname,
+        "message":   .message
+      }
+
+      .service_name = "openwrt"
+      .stream       = "syslog"
+
+      del(.timestamp)
+      del(.severity)
+      del(.facility)
+      del(.hostname)
+      del(.appname)
+      del(.message)
+      del(.source_type)

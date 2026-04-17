@@ -40,6 +40,18 @@ services:
               count: 1
               capabilities: [gpu, compute, utility, video]
 
+  #neolink:
+  #  image: quantumentangledandy/neolink:v0.6.2
+  #  container_name: neolink
+  #  restart: unless-stopped
+  #  network_mode: host          # required for local UDP broadcast camera discovery
+  #  volumes:
+  #    - ./neolink.toml:/etc/neolink.toml:ro
+  #  environment:
+  #    - NEO_LINK_MODE=rtsp # rtsp | mqtt | mqtt-rtsp
+  #    - NEO_LINK_PORT=8554
+  #    - RUST_LOG=info           # change to debug when troubleshooting
+
   node_exporter:
     image: quay.io/prometheus/node-exporter:latest
     container_name: node_exporter
@@ -58,6 +70,12 @@ services:
     image: utkuozdemir/nvidia_gpu_exporter:1.2.0
     container_name: nvidia_gpu_exporter
     restart: unless-stopped
+    healthcheck:
+        test: ["CMD", "wget", "-qO-", "http://localhost:9835/metrics"]
+        interval: 30s
+        retries: 3
+        start_period: 10s
+
     ports:
       - "9835:9835"
     deploy:
