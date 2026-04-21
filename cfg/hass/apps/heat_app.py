@@ -1835,5 +1835,25 @@ class BaseButtonListener(hass.Hass):
 
 
   
+class NetaButtonListener(hass.Hass):
+
+    def initialize(self):
+        self.listen_state(self.on_click, "sensor.neta_button_action")
+
+    def on_click(self, entity, attribute, old, new, kwargs):
+        self.log(f"neta_button: {entity}, {attribute} {old} {new} {kwargs}")
+        if new == 'double':
+            self.toggle('input_boolean.ac3_input') 
+        elif new == 'single':
+            self.toggle('switch.neta_light')
+        elif new == 'hold':
+            pass
+        elif new == 'triple':
+            pass
+
+
+  
+
+
 
 

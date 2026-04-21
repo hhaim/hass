@@ -30,7 +30,7 @@ heater_ac1:
        
   heater:
      default: a  # this is the default mode for input switch 
-     mode: heat #cool  heat
+     mode: cool # heat
      switch: switch.ac1
      input: input_boolean.ac1_input
      sensor_inside :  variable.heat_index0
@@ -503,7 +503,9 @@ base_button_listener:
   module: heat_app
   class: BaseButtonListener
 
-
+neta_button_listener:
+  module: heat_app
+  class: NetaButtonListener
 
 #
 # Hysteresis explanation:
@@ -554,3 +556,5 @@ bath_kids_switch_auto_off:
   class: SimpleTimerOffv2
   input_time:  input_number.heat_timer_time
   switch : switch.bath_kid_switch
+
+

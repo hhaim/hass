@@ -85,3 +85,41 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
+
+  wyoming-whisper:
+    image: lscr.io/linuxserver/faster-whisper:gpu
+    container_name: wyoming-whisper
+    restart: unless-stopped
+    ports:
+      - "10300:10300"
+    volumes:
+      - ./whisper-data:/data
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Jerusalem
+      - WHISPER_MODEL=small-int8
+      - WHISPER_LANG=en
+      - WHISPER_BEAM=1
+      - WHISPER_COMPUTE_TYPE=float16    
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu, utility, compute]
+
+  wyoming-piper:
+    image: rhasspy/wyoming-piper
+    container_name: wyoming-piper
+    restart: unless-stopped
+    ports:
+      - "10200:10200"
+    volumes:
+      - ./piper-data:/data
+    command: >
+      --data-dir /data
+      --download-dir /data
+       --voice en_US-ryan-low
