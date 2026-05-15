@@ -1327,15 +1327,9 @@ class CWBIrrigation(HassBase):
 
     def register_call_backs(self,tap):
         start_time = self.parse_time(tap["stime"])
-        start_days = tap["days"]
-        days = []
-        for day in start_days: 
-            days.append(ada.schedule.day_of_week(day))
-        days=str(days)[1:-1].replace("'", "").replace(" ","")    
-        self.log("irrigation init {} {} {} ".format(tap["name"],days,start_time))
+        self.log("irrigation init {} {} ".format(tap["name"],start_time))
         self.run_daily(self.time_cb_event, 
             start_time, 
-            constrain_days = days,
             tap=tap)
 
     def time_cb_event_stop_verify(self,kwargs):
@@ -1413,7 +1407,18 @@ class CWBIrrigation(HassBase):
            
         tap = kwargs['tap']
         self.log(" irrigation event for {}".format(tap["name"]))
-        
+        # Check if today is an allowed day
+
+        today = self.date().weekday()  # Mon=0 ... Sun=6
+        # Convert to your 1=Sun..7=Sat format
+        # Python weekday: Mon=0,Sun=6  →  your format: Sun=1,Mon=2...
+        python_to_yours = {6:1, 0:2, 1:3, 2:4, 3:5, 4:6, 5:7}
+        today_num = python_to_yours[today]
+    
+        if today_num not in tap["days"]:
+            self.log("Skipping {}, not scheduled today".format(tap["name"]))
+            return
+
         # calculate the irrigation time 
         queue = float(self.get_state(tap["queue_sensor"]))
         if queue > 0.0:

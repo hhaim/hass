@@ -118,9 +118,9 @@ ringtone_enable:
   class: GatewayRingtone
 
 
-wakeup:
-  module: heat_app
-  class: GatewayWakeup
+#wakeup:
+#  module: heat_app
+#  class: GatewayWakeup
 
 avr_wakeuup:
   module: heat_app

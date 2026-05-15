@@ -26,5 +26,5 @@ mqtt:
       expire_after: 1
  
     - name: "neta_button_action"
-      state_topic: "zigbee2mqtt/neta_button/action"
+      state_topic: "zigbee2mqtt/neta-button/action"
       expire_after: 1
