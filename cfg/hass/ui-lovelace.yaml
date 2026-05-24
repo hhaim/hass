@@ -199,6 +199,7 @@ views:
            - sensor.kids_bath_water_sensor
            - switch.bath_switch
            - switch.bath_kid_switch
+           - switch.gasignition
 
   - title: Energy
     id: energy

@@ -634,12 +634,14 @@ class SabbathHandler(HassBase):
         if data['state'] == 'pre':
             self.call_alarm(20)
             self.turn_on('switch.alarm_s0')
+            self.turn_off('switch.gasignition')
         elif data['state'] == 'on':
             self.call_alarm(26)
             self.turn_off('switch.tv')
         elif data['state'] == 'off':
             self.call_alarm(21)
             self.turn_off('switch.alarm_s0')
+            self.turn_on('switch.gasignition')
 
 
 class GatewayRingtone(HassBase):

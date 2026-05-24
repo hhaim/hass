@@ -9,6 +9,11 @@ switch:
 
 
   - platform: mytasmota
+    name: gasignition
+    stopic: basic15
+
+
+  - platform: mytasmota
     name: inputlamp0
     stopic: basic10
 
