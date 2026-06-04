@@ -17,10 +17,15 @@ services:
   homeassistant:
     container_name: homeassistant
     image: "ghcr.io/home-assistant/home-assistant:2025.12"
+
     depends_on:
-      - psdb
-      - victoriametrics
-      - mosquitto
+      psdb:
+        condition: service_healthy
+      victoriametrics:
+        condition: service_started
+      mosquitto:
+        condition: service_started
+
     volumes:
       - ./cfg/hass:/config
       - ./cfg/hass/loader.py:/usr/src/homeassistant/homeassistant/loader.py
@@ -64,7 +69,13 @@ services:
           -c checkpoint_completion_target=0.9
           -c wal_buffers=16MB
           -c default_statistics_target=100
-
+     
+     healthcheck:
+        test: ["CMD-SHELL", "pg_isready -U $MYSQL_USER"]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+        start_period: 30s
 
   mosquitto:
     container_name: mosquitto
