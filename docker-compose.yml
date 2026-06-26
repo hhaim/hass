@@ -267,6 +267,22 @@ services:
       - --collector.cpu
       - --collector.thermal_zone
 
+
+  dns-monitor-collector:
+    image: "${DNS_MONITOR_COLLECTOR_IMAGE}"
+    container_name: dns-monitor-collector
+    restart: unless-stopped
+    network_mode: host
+    privileged: true
+    command:
+      - -config
+      - /etc/dns-monitor/collector.yaml
+    volumes:
+      - "${DNS_MONITOR_COLLECTOR_CONFIG}:/etc/dns-monitor/collector.yaml:ro"
+      - "${DNS_MONITOR_COLLECTOR_SPOOL}:/var/lib/dns-monitor-collector/spool"
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - "${NETDC_ROOT}:${NETDC_ROOT}:ro"
+
 volumes:
   hass_nas_20:
     driver: local

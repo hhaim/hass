@@ -33,3 +33,85 @@ services:
     depends_on:
       - hyperdx
     restart: unless-stopped
+
+  registry:
+    image: registry:3
+    container_name: local-registry
+    restart: unless-stopped
+    ports:
+      - "5001:5000"
+    environment:
+      OTEL_TRACES_EXPORTER: "none"
+      REGISTRY_STORAGE_DELETE_ENABLED: "true"
+    volumes:
+      - ./registry:/var/lib/registry
+
+
+  inventory-service:
+    image: "${DNS_MONITOR_INVENTORY_IMAGE}"
+    container_name: dns-monitor-inventory
+    restart: unless-stopped
+    depends_on:
+      - hyperdx
+    environment:
+      CLICKHOUSE_HTTP_URL: "${CLICKHOUSE_HTTP_URL}"
+      CLICKHOUSE_DATABASE: "${CLICKHOUSE_DATABASE}"
+      CLICKHOUSE_USER: "${CLICKHOUSE_USER}"
+      CLICKHOUSE_PASSWORD: "${CLICKHOUSE_PASSWORD}"
+      CLICKHOUSE_COUNTER_TABLE: "${CLICKHOUSE_COUNTER_TABLE}"
+      CLICKHOUSE_DNS_TABLE: "${CLICKHOUSE_DNS_TABLE}"
+    command:
+      - -http
+      - 0.0.0.0:8080
+      - -collector-listen
+      - 0.0.0.0:19140
+      - -data-dir
+      - /data
+      - -sqlite
+      - /work/state.sqlite
+      - -parsed-dns-out
+      - /work/parsed-dns-live.jsonl
+      - -snapshot
+      - /work/inventory-snapshot.json
+      - -debug-save-pcap-dir
+      - ${INV_DEBUG_PCAP_DIR}
+      - -skip-startup-load=${INV_SKIP_STARTUP_LOAD}
+      - -disable-persistence=${INV_DISABLE_PERSISTENCE}
+    ports:
+      - "${INV_HTTP_BIND}:${INV_HTTP_PORT}:8080"
+      - "${INV_TCP_BIND}:${INV_TCP_PORT}:19140"
+    volumes:
+      - "${DNS_MONITOR_WORK_DIR}:/work"
+      - "${DNS_MONITOR_DATA_DIR}:/data:ro"
+
+
+  ch-ui:
+    depends_on:
+      - hyperdx
+    image: ghcr.io/caioricciuti/ch-ui:latest
+    container_name: dns-monitor-ch-ui
+    restart: unless-stopped
+    environment:
+      CLICKHOUSE_URL: "http://hyperdx:8123"
+      CONNECTION_NAME: "DNS Monitor ClickHouse"
+    ports:
+      - "3488:3488"
+    volumes:
+      - ./dns-monitor/ch-ui:/app/data
+
+
+  clickhouse-migrate:
+    image: migrate/migrate:v4.19.1
+    container_name: dns-monitor-clickhouse-migrate
+    depends_on:
+      - hyperdx
+    profiles:
+      - migrate
+    command:
+      - -path=/migrations 
+      - -database=clickhouse://${CLICKHOUSE_NATIVE_HOST}:${CLICKHOUSE_NATIVE_PORT}?username=${CLICKHOUSE_USER}&password=${CLICKHOUSE_PASSWORD}&database=${CLICKHOUSE_MIGRATIONS_DATABASE}&x-migrations-table=${CLICKHOUSE_MIGRATIONS_TABLE}&x-migrations-table-engine=MergeTree
+      - up
+    volumes:
+      - "${CLICKHOUSE_MIGRATIONS_DIR}:/migrations:ro"
+
+
