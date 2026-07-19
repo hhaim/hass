@@ -60,6 +60,10 @@ services:
       CLICKHOUSE_PASSWORD: "${CLICKHOUSE_PASSWORD}"
       CLICKHOUSE_COUNTER_TABLE: "${CLICKHOUSE_COUNTER_TABLE}"
       CLICKHOUSE_DNS_TABLE: "${CLICKHOUSE_DNS_TABLE}"
+      CLICKHOUSE_NATIVE_HOST: "${CLICKHOUSE_NATIVE_HOST}"
+      CLICKHOUSE_NATIVE_PORT: "${CLICKHOUSE_NATIVE_PORT}"
+      CLICKHOUSE_MIGRATIONS_DATABASE: "${CLICKHOUSE_MIGRATIONS_DATABASE}"
+      CLICKHOUSE_MIGRATIONS_TABLE: "${CLICKHOUSE_MIGRATIONS_TABLE}"
     command:
       - -http
       - 0.0.0.0:8080
@@ -100,18 +104,5 @@ services:
       - ./dns-monitor/ch-ui:/app/data
 
 
-  clickhouse-migrate:
-    image: migrate/migrate:v4.19.1
-    container_name: dns-monitor-clickhouse-migrate
-    depends_on:
-      - hyperdx
-    profiles:
-      - migrate
-    command:
-      - -path=/migrations 
-      - -database=clickhouse://${CLICKHOUSE_NATIVE_HOST}:${CLICKHOUSE_NATIVE_PORT}?username=${CLICKHOUSE_USER}&password=${CLICKHOUSE_PASSWORD}&database=${CLICKHOUSE_MIGRATIONS_DATABASE}&x-migrations-table=${CLICKHOUSE_MIGRATIONS_TABLE}&x-migrations-table-engine=MergeTree
-      - up
-    volumes:
-      - "${CLICKHOUSE_MIGRATIONS_DIR}:/migrations:ro"
 
 
