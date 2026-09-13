@@ -38,6 +38,7 @@ from . import (
     get_friendly_name,
     get_frigate_device_identifier,
     get_frigate_entity_unique_id,
+    get_frigate_via_device,
     verify_frigate_version,
 )
 from .const import (
@@ -220,11 +221,9 @@ class FrigateCamera(
         # The device_class is used to filter out regular camera entities
         # from motion camera entities on selectors
         self._attr_device_class = DEVICE_CLASS_CAMERA
-        self._stream_source = None
-        self._attr_is_streaming = (
-            self._cam_name
-            in self._frigate_config.get("go2rtc", {}).get("streams", {}).keys()
-        )
+        self._stream_source: str | None = None
+        self._stream_name = self._get_stream_name()
+        self._attr_is_streaming = self._stream_name is not None
         self._attr_is_recording = self._camera_config.get("record", {}).get("enabled")
         self._attr_motion_detection_enabled = self._camera_config.get("motion", {}).get(
             "enabled"
@@ -254,8 +253,40 @@ class FrigateCamera(
                 )
             else:
                 self._stream_source = (
-                    f"rtsp://{URL(self._url).host}:8554/{self._cam_name}"
+                    f"rtsp://{URL(self._url).host}:8554/{self._stream_name}"
                 )
+
+    def _get_stream_name(self) -> str | None:
+        """Get the go2rtc stream name for this camera.
+
+        Checks live.streams from camera config first (prefer matching name,
+        fallback to first entry), then checks go2rtc.streams for camera name.
+        live.streams maps {friendly_name: go2rtc_stream_name}, so the stream
+        name is the dict value.
+        """
+        go2rtc_streams: dict[str, list[str]] = self._frigate_config.get(
+            "go2rtc", {}
+        ).get("streams", {})
+        live_streams: dict[str, str] = self._camera_config.get("live", {}).get(
+            "streams", {}
+        )
+
+        if live_streams:
+            stream_names = list(live_streams.values())
+            # Prefer a stream matching the camera name
+            for stream in stream_names:
+                if stream in go2rtc_streams and stream == self._cam_name:
+                    return stream
+            # Otherwise use the first stream in the dict
+            first_stream = stream_names[0]
+            if first_stream in go2rtc_streams:
+                return first_stream
+
+        # Fallback: check if camera name exists in go2rtc streams
+        if self._cam_name in go2rtc_streams:
+            return self._cam_name
+
+        return None
 
     @callback
     def _state_message_received(self, msg: ReceiveMessage) -> None:
@@ -275,10 +306,8 @@ class FrigateCamera(
         self._attr_is_on = decode_if_necessary(msg.payload) == "ON"
 
         if self._attr_is_on:
-            self._attr_is_streaming = (
-                self._cam_name
-                in self._frigate_config.get("go2rtc", {}).get("streams", {}).keys()
-            )
+            self._stream_name = self._get_stream_name()
+            self._attr_is_streaming = self._stream_name is not None
             self._attr_is_recording = self._camera_config.get("record", {}).get(
                 "enabled"
             )
@@ -322,7 +351,7 @@ class FrigateCamera(
             "identifiers": {
                 get_frigate_device_identifier(self._config_entry, self._cam_name)
             },
-            "via_device": get_frigate_device_identifier(self._config_entry),
+            **get_frigate_via_device(self.hass, self._config_entry),
             "name": get_friendly_name(self._cam_name),
             "model": self._get_model(),
             "configuration_url": f"{self._url}/#{self._cam_name}",
@@ -496,6 +525,7 @@ class BirdseyeCamera(FrigateEntity, Camera):
             CONF_RTSP_URL_TEMPLATE, ""
         ).strip()
 
+        self._stream_source: str | None = None
         if streaming_template:
             # Can't use homeassistant.helpers.template as it requires hass which
             # is not available in the constructor, so use direct jinja2
@@ -523,7 +553,7 @@ class BirdseyeCamera(FrigateEntity, Camera):
             "identifiers": {
                 get_frigate_device_identifier(self._config_entry, "birdseye")
             },
-            "via_device": get_frigate_device_identifier(self._config_entry),
+            **get_frigate_via_device(self.hass, self._config_entry),
             "name": "Birdseye",
             "model": self._get_model(),
             "configuration_url": f"{self._url}/cameras/birdseye",

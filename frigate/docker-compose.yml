@@ -1,7 +1,7 @@
 services:
   frigate:
     container_name: frigate
-    image: ghcr.io/blakeblackshear/frigate:0.17.1-tensorrt
+    image: ghcr.io/blakeblackshear/frigate:0.18.0-tensorrt
     restart: unless-stopped
     privileged: true
 

@@ -12,7 +12,7 @@ import datetime
 from datetime import timedelta
 import logging
 import re
-from typing import Any, Final
+from typing import Any, Final, cast
 
 from awesomeversion import AwesomeVersion
 from titlecase import titlecase
@@ -43,9 +43,9 @@ from homeassistant.core import (
     valid_entity_id,
 )
 from homeassistant.exceptions import ConfigEntryNotReady, ServiceValidationError
-from homeassistant.helpers import device_registry as dr, entity_registry as er
+from homeassistant.helpers import device_registry as dr, entity_registry as er, llm
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.entity import Entity
+from homeassistant.helpers.entity import DeviceInfo, Entity
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.loader import async_get_integration
@@ -55,13 +55,16 @@ from .api import FrigateApiClient, FrigateApiClientError
 from .const import (
     ATTR_CLIENT,
     ATTR_CONFIG,
+    ATTR_CONFIG_ENTRY_ID,
     ATTR_COORDINATOR,
     ATTR_END_TIME,
+    ATTR_LLM_UNREGISTER,
     ATTR_START_TIME,
     ATTR_WS_EVENT_PROXY,
     ATTR_WS_REVIEW_PROXY,
     CONF_CAMERA_STATIC_IMAGE_HEIGHT,
     CONF_RTMP_URL_TEMPLATE,
+    CONF_VALIDATE_SSL,
     DOMAIN,
     FRIGATE_RELEASES_URL,
     FRIGATE_VERSION_ERROR_CUTOFF,
@@ -73,6 +76,7 @@ from .const import (
     STATUS_RUNNING,
     STATUS_STARTING,
 )
+from .llm_functions import FrigateServiceAPI
 from .views import async_setup as views_async_setup
 from .ws_api import async_setup as ws_api_async_setup
 from .ws_proxy import WSEventProxy, WSReviewProxy
@@ -104,6 +108,25 @@ def get_frigate_device_identifier(
     return (DOMAIN, entry.entry_id)
 
 
+def get_frigate_via_device(hass: HomeAssistant, entry: ConfigEntry) -> DeviceInfo:
+    """Get the parent Frigate device link for this Home Assistant version."""
+    identifier = get_frigate_device_identifier(entry)
+    if "via_device_id" in DeviceInfo.__annotations__:
+        device_registry = dr.async_get(hass)
+        if hasattr(device_registry, "async_get_device_by_identifier"):
+            device = device_registry.async_get_device_by_identifier(
+                identifier, entry.entry_id
+            )
+        else:
+            device = device_registry.async_get_device({identifier})
+        if not device:
+            return {}
+        device_info: DeviceInfo = {}
+        device_info["via_device_id"] = device.id  # type: ignore[typeddict-unknown-key]
+        return device_info
+    return {"via_device": identifier}
+
+
 def get_frigate_entity_unique_id(
     config_entry_id: str, type_name: str, name: str
 ) -> str:
@@ -127,22 +150,52 @@ def get_cameras(config: dict[str, Any]) -> set[str]:
     return cameras
 
 
+def get_camera_model_config(
+    config: dict[str, Any], cam_config: dict[str, Any]
+) -> dict[str, Any]:
+    """Get the detector model config that applies to a camera.
+
+    Frigate 0.19+ supports multiple models, each identified by a scene, with the
+    camera selecting one via `detect.scene`. Earlier versions have a single
+    global `model` config.
+    """
+    models = config.get("models")
+
+    if isinstance(models, list) and models:
+        scene = (cam_config.get("detect") or {}).get("scene") or "all"
+
+        for model in models:
+            if model.get("scene") == scene:
+                return cast(dict[str, Any], model)
+
+        # fall back to the default scene, else the first configured model
+        for model in models:
+            if model.get("scene") == "all":
+                return cast(dict[str, Any], model)
+
+        return cast(dict[str, Any], models[0])
+
+    return cast(dict[str, Any], config.get("model") or {})
+
+
 def get_cameras_and_objects(
     config: dict[str, Any], include_all: bool = True
 ) -> set[tuple[str, str]]:
     """Get cameras and tracking object tuples."""
     camera_objects = set()
     for cam_name, cam_config in config["cameras"].items():
+        model_config = get_camera_model_config(config, cam_config)
+
         for obj in cam_config["objects"]["track"]:
-            if obj in config["model"].get(
+            if obj in model_config.get(
                 "non_logo_attributes", ["face", "license_plate"]
             ):
                 # don't create sensors for attributes that are not logos
                 continue
 
-            if not verify_frigate_version(config, "0.16") and obj in config[
-                "model"
-            ].get("all_attributes", ["amazon", "fedex", "ups"]):
+            if not verify_frigate_version(config, "0.16") and obj in model_config.get(
+                "all_attributes", ["amazon", "fedex", "ups"]
+            ):
                 # Logo attributes are only supported in Frigate 0.16+
                 continue
 
@@ -262,9 +315,9 @@ def get_zones(config: dict[str, Any]) -> set[str]:
     return cameras_zones
 
 
-def decode_if_necessary(data: str | bytes) -> str:
+def decode_if_necessary(data: str | bytes | bytearray) -> str:
     """Decode a string if necessary."""
-    return data.decode("utf-8") if isinstance(data, bytes) else data
+    return data.decode("utf-8") if isinstance(data, (bytes, bytearray)) else data
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
@@ -290,7 +343,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         async_get_clientsession(hass),
         entry.data.get(CONF_USERNAME),
         entry.data.get(CONF_PASSWORD),
-        bool(entry.data.get("validate_ssl")),
+        entry.data.get(CONF_VALIDATE_SSL, True),
     )
     coordinator = FrigateDataUpdateCoordinator(hass, client=client)
     await coordinator.async_config_entry_first_refresh()
@@ -414,7 +467,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             and valid_entity_id(new_id)
             and not entity_registry.async_get(new_id)
         ):
-            new_name = f"{get_friendly_name(cam_name)} {obj_name} Count".title()
+            new_name = titlecase(f"{get_friendly_name(cam_name)} {obj_name} Count")
             entity_registry.async_update_entity(
                 entity_id=entity_id,
                 new_entity_id=new_id,
@@ -423,6 +476,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(_async_entry_updated))
+
+    # Register LLM API if Frigate 0.18+ and not already registered
+    if (
+        verify_frigate_version(config, "0.18")
+        and ATTR_LLM_UNREGISTER not in hass.data[DOMAIN]
+    ):
+        hass.data[DOMAIN][ATTR_LLM_UNREGISTER] = llm.async_register_api(
+            hass, FrigateServiceAPI(hass=hass)
+        )
 
     # Register review summarize service if Frigate version is 0.17+
     if verify_frigate_version(config, "0.17"):
@@ -434,6 +496,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 {
                     vol.Required(ATTR_START_TIME): str,
                     vol.Required(ATTR_END_TIME): str,
+                    vol.Optional(ATTR_CONFIG_ENTRY_ID): str,
                 }
             ),
             supports_response=SupportsResponse.OPTIONAL,
@@ -442,13 +505,59 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return True
 
 
+def get_loaded_client_for_service_call(
+    hass: HomeAssistant, call: ServiceCall
+) -> FrigateApiClient:
+    """Get the client for the Frigate instance a service call is targeting.
+
+    The instance may be specified explicitly with a config entry id. If it is
+    not, and there's only a single Frigate instance loaded, that instance is
+    used, otherwise the caller must say which instance they mean.
+    """
+    entry_ids = [
+        entry.entry_id
+        for entry in hass.config_entries.async_entries(DOMAIN)
+        if ATTR_CLIENT in hass.data.get(DOMAIN, {}).get(entry.entry_id, {})
+    ]
+
+    config_entry_id: str | None = call.data.get(ATTR_CONFIG_ENTRY_ID)
+
+    if config_entry_id is not None:
+        if config_entry_id not in entry_ids:
+            raise ServiceValidationError(
+                f"Frigate instance '{config_entry_id}' is not loaded. "
+                f"{get_frigate_instances_description(hass, entry_ids)}"
+            )
+    elif len(entry_ids) == 1:
+        config_entry_id = entry_ids[0]
+    elif not entry_ids:
+        raise ServiceValidationError("No Frigate instance is loaded.")
+    else:
+        raise ServiceValidationError(
+            f"There is more than one Frigate instance loaded, so "
+            f"'{ATTR_CONFIG_ENTRY_ID}' must be specified. "
+            f"{get_frigate_instances_description(hass, entry_ids)}"
+        )
+
+    return cast(FrigateApiClient, hass.data[DOMAIN][config_entry_id][ATTR_CLIENT])
+
+
+def get_frigate_instances_description(hass: HomeAssistant, entry_ids: list[str]) -> str:
+    """Describe the loaded Frigate instances for use in an error message."""
+    entries = hass.config_entries.async_entries(DOMAIN)
+    instances = ", ".join(
+        f"{entry.title} ({entry.entry_id})"
+        for entry in entries
+        if entry.entry_id in entry_ids
+    )
+    return f"Loaded instances: {instances}" if instances else "No instances are loaded."
+
+
 async def async_review_summarize_service(call: ServiceCall) -> Any:
     """Handle review summarize service call."""
     hass = call.hass
 
-    # Use the first available config entry
-    config_entry_id = next(iter(hass.data[DOMAIN].keys()))
-    client = hass.data[DOMAIN][config_entry_id][ATTR_CLIENT]
+    client = get_loaded_client_for_service_call(hass, call)
 
     # Get the service data from the call
     start_time = call.data[ATTR_START_TIME]
@@ -507,6 +616,15 @@ async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> 
             .async_shutdown()
         )
         hass.data[DOMAIN].pop(config_entry.entry_id)
+
+        # Unregister LLM API if no more Frigate entries remain
+        remaining = {
+            k
+            for k, v in hass.data[DOMAIN].items()
+            if isinstance(v, dict) and ATTR_CLIENT in v
+        }
+        if not remaining and ATTR_LLM_UNREGISTER in hass.data[DOMAIN]:
+            hass.data[DOMAIN].pop(ATTR_LLM_UNREGISTER)()
 
     return unload_ok
 

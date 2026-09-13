@@ -8,6 +8,8 @@ import json
 import logging
 from typing import Any
 
+from titlecase import titlecase
+
 from homeassistant.components.sensor import (
     RestoreSensor,
     SensorDeviceClass,
@@ -39,6 +41,7 @@ from . import (
     get_friendly_name,
     get_frigate_device_identifier,
     get_frigate_entity_unique_id,
+    get_frigate_via_device,
     get_known_plates,
     get_object_classification_models_and_cameras,
     get_zones,
@@ -600,7 +603,7 @@ class CameraFpsSensor(
             "identifiers": {
                 get_frigate_device_identifier(self._config_entry, self._cam_name)
             },
-            "via_device": get_frigate_device_identifier(self._config_entry),
+            **get_frigate_via_device(self.hass, self._config_entry),
             "name": get_friendly_name(self._cam_name),
             "model": self._get_model(),
             "configuration_url": f"{self._config_entry.data.get(CONF_URL)}/cameras/{self._cam_name}",
@@ -675,7 +678,7 @@ class CameraSoundSensor(
             "identifiers": {
                 get_frigate_device_identifier(self._config_entry, self._cam_name)
             },
-            "via_device": get_frigate_device_identifier(self._config_entry),
+            **get_frigate_via_device(self.hass, self._config_entry),
             "name": get_friendly_name(self._cam_name),
             "model": self._get_model(),
             "configuration_url": f"{self._config_entry.data.get(CONF_URL)}/cameras/{self._cam_name}",
@@ -774,7 +777,7 @@ class FrigateObjectCountSensor(FrigateMQTTEntity, SensorEntity):
             "identifiers": {
                 get_frigate_device_identifier(self._config_entry, self._cam_name)
             },
-            "via_device": get_frigate_device_identifier(self._config_entry),
+            **get_frigate_via_device(self.hass, self._config_entry),
             "name": get_friendly_name(self._cam_name),
             "model": self._get_model(),
             "configuration_url": f"{self._config_entry.data.get(CONF_URL)}/cameras/{self._cam_name if self._cam_name not in get_zones(self._frigate_config) else ''}",
@@ -863,7 +866,7 @@ class FrigateActiveObjectCountSensor(FrigateMQTTEntity, SensorEntity):
             "identifiers": {
                 get_frigate_device_identifier(self._config_entry, self._cam_name)
             },
-            "via_device": get_frigate_device_identifier(self._config_entry),
+            **get_frigate_via_device(self.hass, self._config_entry),
             "name": get_friendly_name(self._cam_name),
             "model": self._get_model(),
             "configuration_url": f"{self._config_entry.data.get(CONF_URL)}/cameras/{self._cam_name if self._cam_name not in get_zones(self._frigate_config) else ''}",
@@ -873,7 +876,8 @@ class FrigateActiveObjectCountSensor(FrigateMQTTEntity, SensorEntity):
     @property
     def name(self) -> str:
         """Return the name of the sensor."""
-        return f"{get_friendly_name(self._obj_name)} active count".title()
+        result: str = titlecase(f"{get_friendly_name(self._obj_name)} active count")
+        return result
 
     @property
     def native_value(self) -> int:
@@ -1000,7 +1004,7 @@ class CameraProcessCpuSensor(
             "identifiers": {
                 get_frigate_device_identifier(self._config_entry, self._cam_name)
             },
-            "via_device": get_frigate_device_identifier(self._config_entry),
+            **get_frigate_via_device(self.hass, self._config_entry),
             "name": get_friendly_name(self._cam_name),
             "model": self._get_model(),
             "configuration_url": f"{self._config_entry.data.get(CONF_URL)}/cameras/{self._cam_name}",
@@ -1124,7 +1128,7 @@ class FrigateRecognizedFaceSensor(FrigateMQTTEntity, SensorEntity):
             "identifiers": {
                 get_frigate_device_identifier(self._config_entry, self._cam_name)
             },
-            "via_device": get_frigate_device_identifier(self._config_entry),
+            **get_frigate_via_device(self.hass, self._config_entry),
             "name": get_friendly_name(self._cam_name),
             "model": self._get_model(),
             "configuration_url": f"{self._config_entry.data.get(CONF_URL)}/cameras/{self._cam_name if self._cam_name not in get_zones(self._frigate_config) else ''}",
@@ -1139,7 +1143,8 @@ class FrigateRecognizedFaceSensor(FrigateMQTTEntity, SensorEntity):
     @property
     def native_value(self) -> str:
         """Return the value of the sensor."""
-        return str(self._state).title()
+        result: str = titlecase(str(self._state))
+        return result
 
     @property
     def icon(self) -> str:
@@ -1191,7 +1196,7 @@ class FrigateRecognizedPlateSensor(FrigateMQTTEntity, SensorEntity):
                 return
 
             if data.get("name"):
-                self._state = str(data["name"]).title()
+                self._state = titlecase(str(data["name"]))
             else:
                 self._state = str(data["plate"])
 
@@ -1230,7 +1235,7 @@ class FrigateRecognizedPlateSensor(FrigateMQTTEntity, SensorEntity):
             "identifiers": {
                 get_frigate_device_identifier(self._config_entry, self._cam_name)
             },
-            "via_device": get_frigate_device_identifier(self._config_entry),
+            **get_frigate_via_device(self.hass, self._config_entry),
             "name": get_friendly_name(self._cam_name),
             "model": self._get_model(),
             "configuration_url": f"{self._config_entry.data.get(CONF_URL)}/cameras/{self._cam_name if self._cam_name not in get_zones(self._frigate_config) else ''}",
@@ -1326,7 +1331,7 @@ class FrigateClassificationSensor(FrigateMQTTEntity, RestoreSensor):
             "identifiers": {
                 get_frigate_device_identifier(self._config_entry, self._cam_name)
             },
-            "via_device": get_frigate_device_identifier(self._config_entry),
+            **get_frigate_via_device(self.hass, self._config_entry),
             "name": get_friendly_name(self._cam_name),
             "model": self._get_model(),
             "configuration_url": f"{self._config_entry.data.get(CONF_URL)}/cameras/{self._cam_name}",
@@ -1399,9 +1404,9 @@ class FrigateObjectClassificationSensor(FrigateMQTTEntity, SensorEntity):
 
             # Extract sub_label or attribute from the payload
             if "sub_label" in data:
-                self._state = str(data["sub_label"]).replace("_", " ").title()
+                self._state = titlecase(str(data["sub_label"]).replace("_", " "))
             elif "attribute" in data:
-                self._state = str(data["attribute"]).replace("_", " ").title()
+                self._state = titlecase(str(data["attribute"]).replace("_", " "))
             else:
                 return
 
@@ -1443,7 +1448,7 @@ class FrigateObjectClassificationSensor(FrigateMQTTEntity, SensorEntity):
             "identifiers": {
                 get_frigate_device_identifier(self._config_entry, self._cam_name)
             },
-            "via_device": get_frigate_device_identifier(self._config_entry),
+            **get_frigate_via_device(self.hass, self._config_entry),
             "name": get_friendly_name(self._cam_name),
             "model": self._get_model(),
             "configuration_url": f"{self._config_entry.data.get(CONF_URL)}/cameras/{self._cam_name}",
@@ -1524,7 +1529,7 @@ class FrigateReviewStatusSensor(FrigateMQTTEntity, SensorEntity):
             "identifiers": {
                 get_frigate_device_identifier(self._config_entry, self._cam_name)
             },
-            "via_device": get_frigate_device_identifier(self._config_entry),
+            **get_frigate_via_device(self.hass, self._config_entry),
             "name": get_friendly_name(self._cam_name),
             "model": self._get_model(),
             "configuration_url": f"{self._config_entry.data.get(CONF_URL)}/cameras/{self._cam_name}",

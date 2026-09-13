@@ -5,6 +5,8 @@ from __future__ import annotations
 import logging
 from typing import Any
 
+from titlecase import titlecase
+
 from homeassistant.components.mqtt import async_publish
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
@@ -20,6 +22,7 @@ from . import (
     get_friendly_name,
     get_frigate_device_identifier,
     get_frigate_entity_unique_id,
+    get_frigate_via_device,
     verify_frigate_version,
 )
 from .const import ATTR_CONFIG, DOMAIN, NAME
@@ -178,7 +181,7 @@ class FrigateSwitch(FrigateMQTTEntity, SwitchEntity):
             "identifiers": {
                 get_frigate_device_identifier(self._config_entry, self._cam_name)
             },
-            "via_device": get_frigate_device_identifier(self._config_entry),
+            **get_frigate_via_device(self.hass, self._config_entry),
             "name": get_friendly_name(self._cam_name),
             "model": self._get_model(),
             "configuration_url": f"{self._config_entry.data.get(CONF_URL)}/cameras/{self._cam_name}",
@@ -188,7 +191,8 @@ class FrigateSwitch(FrigateMQTTEntity, SwitchEntity):
     @property
     def name(self) -> str:
         """Return the name of the sensor."""
-        return f"{get_friendly_name(self._descriptive_name)}".title()
+        result: str = titlecase(get_friendly_name(self._descriptive_name))
+        return result
 
     @property
     def is_on(self) -> bool:

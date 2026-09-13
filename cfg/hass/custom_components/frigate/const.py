@@ -14,8 +14,9 @@ SENSOR = "sensor"
 SWITCH = "switch"
 CAMERA = "camera"
 IMAGE = "image"
+SELECT = "select"
 UPDATE = "update"
-PLATFORMS = [SENSOR, CAMERA, IMAGE, NUMBER, SWITCH, BINARY_SENSOR, UPDATE]
+PLATFORMS = [SENSOR, CAMERA, IMAGE, NUMBER, SELECT, SWITCH, BINARY_SENSOR, UPDATE]
 
 # Device Classes
 # This device class does not exist in HA, but we use it to be able
@@ -31,6 +32,7 @@ S = "s"
 ATTR_CLIENT = "client"
 ATTR_CLIENT_ID = "client_id"
 ATTR_CONFIG = "config"
+ATTR_CONFIG_ENTRY_ID = "config_entry_id"
 ATTR_COORDINATOR = "coordinator"
 ATTR_END_TIME = "end_time"
 ATTR_EVENT_ID = "event_id"
@@ -42,6 +44,7 @@ ATTR_PTZ_ARGUMENT = "argument"
 ATTR_START_TIME = "start_time"
 ATTR_WS_EVENT_PROXY = "ws_event_proxy"
 ATTR_WS_REVIEW_PROXY = "ws_review_proxy"
+ATTR_LLM_UNREGISTER = "llm_unregister"
 ATTR_LABEL = "label"
 ATTR_SUB_LABEL = "sub_label"
 ATTR_DURATION = "duration"
@@ -49,6 +52,7 @@ ATTR_INCLUDE_RECORDING = "include_recording"
 ATTR_NAME = "name"
 
 # Configuration and options
+CONF_VALIDATE_SSL = "validate_ssl"
 CONF_MEDIA_BROWSER_ENABLE = "media_browser_enable"
 CONF_NOTIFICATION_PROXY_ENABLE = "notification_proxy_enable"
 CONF_NOTIFICATION_PROXY_EXPIRE_AFTER_SECONDS = "notification_proxy_expire_after_seconds"
@@ -78,17 +82,20 @@ https://github.com/blakeblackshear/frigate-hass-integration/issues
 -------------------------------------------------------------------
 """
 
-# Min Values
-MAX_CONTOUR_AREA = 50
-MAX_THRESHOLD = 255
+# Max Values
+MAX_CONTOUR_AREA = 100
+MAX_THRESHOLD = 80
 
 # Min Values
-MIN_CONTOUR_AREA = 1
-MIN_THRESHOLD = 1
+MIN_CONTOUR_AREA = 5
+MIN_THRESHOLD = 5
 
 # States
 STATE_DETECTED = "active"
 STATE_IDLE = "idle"
+
+# Profiles
+PROFILE_NONE = "none"
 
 # Statuses
 STATUS_ERROR = "error"

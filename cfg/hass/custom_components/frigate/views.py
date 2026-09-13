@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+import dataclasses
 import datetime
 import logging
 import os
@@ -28,6 +29,7 @@ from custom_components.frigate.const import (
     ATTR_MQTT,
     CONF_NOTIFICATION_PROXY_ENABLE,
     CONF_NOTIFICATION_PROXY_EXPIRE_AFTER_SECONDS,
+    CONF_VALIDATE_SSL,
     DOMAIN,
 )
 from homeassistant.components.http import KEY_AUTHENTICATED
@@ -37,6 +39,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_URL
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.util.ssl import get_default_no_verify_context
 
 _LOGGER: logging.Logger = logging.getLogger(__name__)
 
@@ -134,6 +137,25 @@ def async_setup(hass: HomeAssistant) -> None:
 class FrigateProxyViewMixin:
     """A mixin for proxying Frigate."""
 
+    def _get_proxied_url(self, request: web.Request, **kwargs: Any) -> ProxiedURL:
+        """Get proxied URL with SSL context applied."""
+        result: ProxiedURL = self._get_proxied_url_impl(request, **kwargs)
+        if result.ssl_context is not None:
+            return result
+        config_entry = self._get_config_entry_for_request(
+            request, kwargs.get("frigate_instance_id")
+        )
+        if config_entry and not config_entry.data.get(CONF_VALIDATE_SSL, True):
+            return dataclasses.replace(
+                result, ssl_context=get_default_no_verify_context()
+            )
+        return result
+
+    def _get_proxied_url_impl(
+        self, request: web.Request, **kwargs: Any
+    ) -> ProxiedURL:  # pragma: no cover
+        raise NotImplementedError
+
     def _get_query_params(self, request: web.Request) -> Mapping[str, str]:
         """Get the query params to send upstream."""
         return {k: v for k, v in request.query.items() if k != "authSig"}
@@ -207,7 +229,7 @@ class SnapshotsProxyView(FrigateProxyView):
 
     name = "api:frigate:snapshots"
 
-    def _get_proxied_url(self, request: web.Request, **kwargs: Any) -> ProxiedURL:
+    def _get_proxied_url_impl(self, request: web.Request, **kwargs: Any) -> ProxiedURL:
         """Create proxied URL."""
         return ProxiedURL(
             url=self._get_fqdn_path(
@@ -230,7 +252,7 @@ class RecordingProxyView(FrigateProxyView):
 
     name = "api:frigate:recording"
 
-    def _get_proxied_url(self, request: web.Request, **kwargs: Any) -> ProxiedURL:
+    def _get_proxied_url_impl(self, request: web.Request, **kwargs: Any) -> ProxiedURL:
         """Create proxied URL."""
         return ProxiedURL(
             url=self._get_fqdn_path(
@@ -251,7 +273,7 @@ class ThumbnailsProxyView(FrigateProxyView):
 
     name = "api:frigate:thumbnails"
 
-    def _get_proxied_url(self, request: web.Request, **kwargs: Any) -> ProxiedURL:
+    def _get_proxied_url_impl(self, request: web.Request, **kwargs: Any) -> ProxiedURL:
         """Create proxied URL."""
         return ProxiedURL(
             url=self._get_fqdn_path(
@@ -275,7 +297,7 @@ class ReviewClipsProxyView(FrigateProxyView):
 
     name = "api:frigate:clips"
 
-    def _get_proxied_url(self, request: web.Request, **kwargs: Any) -> ProxiedURL:
+    def _get_proxied_url_impl(self, request: web.Request, **kwargs: Any) -> ProxiedURL:
         """Create proxied URL."""
         return ProxiedURL(
             url=self._get_fqdn_path(
@@ -296,7 +318,7 @@ class NotificationsProxyView(FrigateProxyView):
 
     name = "api:frigate:notification"
 
-    def _get_proxied_url(
+    def _get_proxied_url_impl(
         self,
         request: web.Request,
         **kwargs: Any,
@@ -329,15 +351,20 @@ class NotificationsProxyView(FrigateProxyView):
             if len(path_parts) == 2 and path_parts[1] == "review_thumbnail.webp":
                 camera_name = path_parts[0]
                 url_path = f"clips/review/thumb-{camera_name}-{event_id}.webp"
-        elif (
-            path.endswith(".m3u8")
-            or path.endswith(".ts")
-            or path.endswith(".m4s")
-            or path.endswith("init-v1-a1.mp4")
-        ):
-            # Proxy event HLS requests to the vod module
+        else:
             file_name = os.path.basename(path)
-            url_path = f"vod/event/{event_id}/{file_name}"
+            is_hls_init_segment = file_name.startswith(
+                "init-v1"
+            ) and file_name.endswith(".mp4")
+
+            if (
+                path.endswith(".m3u8")
+                or path.endswith(".ts")
+                or path.endswith(".m4s")
+                or is_hls_init_segment
+            ):
+                # Proxy event HLS requests to the vod module
+                url_path = f"vod/event/{event_id}/{file_name}"
 
         if not url_path:
             raise HASSWebProxyLibNotFoundRequestError
@@ -408,7 +435,7 @@ class VodProxyView(FrigateProxyView):
         """Get the query params to send upstream."""
         return request.query
 
-    def _get_proxied_url(self, request: web.Request, **kwargs: Any) -> ProxiedURL:
+    def _get_proxied_url_impl(self, request: web.Request, **kwargs: Any) -> ProxiedURL:
         """Create proxied URL."""
         return ProxiedURL(
             url=self._get_fqdn_path(
@@ -429,9 +456,22 @@ class VodSegmentProxyView(FrigateProxyView):
 
     name = "api:frigate:vod:segment"
 
-    def _get_proxied_url(self, request: web.Request, **kwargs: Any) -> ProxiedURL:
+    def _get_proxied_url_impl(self, request: web.Request, **kwargs: Any) -> ProxiedURL:
         """Create proxied URL."""
-        if not self._async_validate_signed_manifest(request):
+        # A normally-authenticated request (e.g. a Bearer token sent as a header, the
+        # same way every other Frigate proxy view here already accepts it) is allowed
+        # through without also needing a signed authSig. The signature exists for a
+        # different problem: Home Assistant's own frontend media browser plays this
+        # through a plain <video> tag, which can't attach an Authorization header, so
+        # it embeds a scoped, time-limited signature in the URL instead (see
+        # async_sign_path). That's not a reason to *require* a signature from a client
+        # that's already authenticated the normal way — every other proxy view here
+        # (RecordingProxyView included, which also serves a full clip) accepts plain
+        # authentication with no extra signature step; VOD segments were the one
+        # exception, with no fallback for a client that can't/doesn't sign its URLs.
+        if not request[KEY_AUTHENTICATED] and not self._async_validate_signed_manifest(
+            request
+        ):
             raise HASSWebProxyLibUnauthorizedRequestError()
 
         return ProxiedURL(
@@ -480,7 +520,7 @@ class JSMPEGProxyView(FrigateWebsocketProxyView):
 
     name = "api:frigate:jsmpeg"
 
-    def _get_proxied_url(self, request: web.Request, **kwargs: Any) -> ProxiedURL:
+    def _get_proxied_url_impl(self, request: web.Request, **kwargs: Any) -> ProxiedURL:
         """Create proxied URL."""
         return ProxiedURL(
             url=self._get_fqdn_path(
@@ -505,7 +545,7 @@ class MSEProxyView(FrigateWebsocketProxyView):
 
     name = "api:frigate:mse"
 
-    def _get_proxied_url(self, request: web.Request, **kwargs: Any) -> ProxiedURL:
+    def _get_proxied_url_impl(self, request: web.Request, **kwargs: Any) -> ProxiedURL:
         """Create proxied URL."""
         return ProxiedURL(
             url=self._get_fqdn_path(
@@ -526,7 +566,7 @@ class WebRTCProxyView(FrigateWebsocketProxyView):
 
     name = "api:frigate:webrtc"
 
-    def _get_proxied_url(self, request: web.Request, **kwargs: Any) -> ProxiedURL:
+    def _get_proxied_url_impl(self, request: web.Request, **kwargs: Any) -> ProxiedURL:
         """Create proxied URL."""
         return ProxiedURL(
             url=self._get_fqdn_path(
@@ -542,17 +582,21 @@ class WebRTCProxyView(FrigateWebsocketProxyView):
 class Go2RTCAPIBaseProxyView(FrigateProxyViewMixin):
     """A base class for go2rtc proxy views."""
 
-    def _get_proxied_url(self, request: web.Request, **kwargs: Any) -> ProxiedURL:
-        """Create proxied URL."""
-        return ProxiedURL(
-            url=self._get_fqdn_path(
-                request,
-                f"api/go2rtc/{kwargs['path']}",
-                frigate_instance_id=kwargs.get("frigate_instance_id"),
-            ),
-            headers=kwargs["headers"],
-            query_params=self._get_query_params(request),
+    def _is_frigate_018_or_later(
+        self, request: web.Request, frigate_instance_id: str | None = None
+    ) -> bool:
+        """Check if the Frigate instance is version 0.18+."""
+        # Import here to avoid circular import (views is imported by __init__)
+        from custom_components.frigate import verify_frigate_version
+
+        hass = request.app[KEY_HASS]
+        config_entry = self._get_config_entry_for_request(
+            request, frigate_instance_id=frigate_instance_id
         )
+        if not config_entry:
+            return False
+        config = hass.data[DOMAIN].get(config_entry.entry_id, {}).get(ATTR_CONFIG, {})
+        return verify_frigate_version(config, "0.18") if config else False
 
 
 class Go2RTCAPIWebsocketProxyView(Go2RTCAPIBaseProxyView, FrigateWebsocketProxyView):
@@ -563,6 +607,27 @@ class Go2RTCAPIWebsocketProxyView(Go2RTCAPIBaseProxyView, FrigateWebsocketProxyV
 
     name = "api:frigate:go2rtc:ws"
 
+    def _get_proxied_url_impl(self, request: web.Request, **kwargs: Any) -> ProxiedURL:
+        """Create proxied URL."""
+        frigate_instance_id = kwargs.get("frigate_instance_id")
+
+        # Frigate 0.18+ removed the /api/go2rtc/api nginx block;
+        # route through the existing /live/mse nginx path instead.
+        if self._is_frigate_018_or_later(request, frigate_instance_id):
+            upstream_path = f"live/mse/{kwargs['path']}"
+        else:
+            upstream_path = f"api/go2rtc/{kwargs['path']}"
+
+        return ProxiedURL(
+            url=self._get_fqdn_path(
+                request,
+                upstream_path,
+                frigate_instance_id=frigate_instance_id,
+            ),
+            headers=kwargs["headers"],
+            query_params=self._get_query_params(request),
+        )
+
 
 class Go2RTCAPIProxyView(Go2RTCAPIBaseProxyView, FrigateProxyView):
     """A proxy for go2rtc API (http)."""
@@ -571,3 +636,32 @@ class Go2RTCAPIProxyView(Go2RTCAPIBaseProxyView, FrigateProxyView):
     extra_urls = ["/api/frigate/go2rtc/{path:.*}"]
 
     name = "api:frigate:go2rtc"
+
+    def _get_proxied_url_impl(self, request: web.Request, **kwargs: Any) -> ProxiedURL:
+        """Create proxied URL."""
+        path = kwargs["path"]
+        frigate_instance_id = kwargs.get("frigate_instance_id")
+
+        # Frigate 0.18+ removed the /api/go2rtc/api nginx block;
+        # route streams through Frigate's Python API which masks credentials.
+        if (
+            self._is_frigate_018_or_later(request, frigate_instance_id)
+            and path.rstrip("/") == "api/streams"
+        ):
+            src = request.query.get("src", "")
+            if src:
+                upstream_path = f"api/go2rtc/streams/{src}"
+            else:
+                upstream_path = "api/go2rtc/streams"
+        else:
+            upstream_path = f"api/go2rtc/{path}"
+
+        return ProxiedURL(
+            url=self._get_fqdn_path(
+                request,
+                upstream_path,
+                frigate_instance_id=frigate_instance_id,
+            ),
+            headers=kwargs["headers"],
+            query_params=self._get_query_params(request),
+        )
