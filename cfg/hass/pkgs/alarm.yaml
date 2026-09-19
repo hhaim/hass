@@ -127,18 +127,6 @@ group:
     icon: mdi:shield-half-full
     entities:
       - binary_sensor.alarm_test0
-      - binary_sensor.alarm0
-      - binary_sensor.alarm1
-      - binary_sensor.alarm2
-      - binary_sensor.alarm3
-      - binary_sensor.alarm4
-      - binary_sensor.alarm5
-      - binary_sensor.alarm6
-      - binary_sensor.alarm7
-      - binary_sensor.alarm8
-      - binary_sensor.alarm14
-      - binary_sensor.alarm15
-      - binary_sensor.alarm16
       - binary_sensor.smoke_sensor_158d00024e008a
       - binary_sensor.smoke_sensor_158d000287ae79
       - binary_sensor.water_leak_sensor_158d000256cd9d
@@ -171,14 +159,12 @@ group:
   garden_entrance0:
     name: garden entrance sensors 
     entities:
-        - binary_sensor.motion_sensor_158d0002b7f8b4
         - binary_sensor.motion_sensor_158d0002b85a33
         - binary_sensor.backyard_person_occupancy
         - binary_sensor.solar_person_occupancy
         - binary_sensor.driveway_person_occupancy
         - binary_sensor.front_door_person_occupancy
         - binary_sensor.garage_person_occupancy
-        - binary_sensor.alarm15
 
 
 

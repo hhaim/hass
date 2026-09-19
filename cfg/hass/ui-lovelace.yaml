@@ -290,18 +290,6 @@ views:
     cards:
       - type: entity-filter
         entities:
-            - binary_sensor.alarm0
-            - binary_sensor.alarm1
-            - binary_sensor.alarm2
-            - binary_sensor.alarm3
-            - binary_sensor.alarm4
-            - binary_sensor.alarm5
-            - binary_sensor.alarm6
-            - binary_sensor.alarm7
-            - binary_sensor.alarm8
-            - binary_sensor.alarm14
-            - binary_sensor.alarm15
-            - binary_sensor.alarm16
             - binary_sensor.smoke_sensor_158d00024e008a
             - binary_sensor.smoke_sensor_158d000287ae79
             - binary_sensor.water_leak_sensor_158d000256cd9d
@@ -331,18 +319,6 @@ views:
         title: graph 
         hours_to_show : 1
         entities:
-            - binary_sensor.alarm0
-            - binary_sensor.alarm1
-            - binary_sensor.alarm2
-            - binary_sensor.alarm3
-            - binary_sensor.alarm4
-            - binary_sensor.alarm5
-            - binary_sensor.alarm6
-            - binary_sensor.alarm7
-            - binary_sensor.alarm8
-            - binary_sensor.alarm14
-            - binary_sensor.alarm15
-            - binary_sensor.alarm16
             - binary_sensor.smoke_sensor_158d00024e008a
             - binary_sensor.smoke_sensor_158d000287ae79
             - binary_sensor.water_leak_sensor_158d000256cd9d
@@ -378,18 +354,6 @@ views:
         title: all 
         show_header_toggle: true
         entities:
-            - binary_sensor.alarm0
-            - binary_sensor.alarm1
-            - binary_sensor.alarm2
-            - binary_sensor.alarm3
-            - binary_sensor.alarm4
-            - binary_sensor.alarm5
-            - binary_sensor.alarm6
-            - binary_sensor.alarm7
-            - binary_sensor.alarm8
-            - binary_sensor.alarm14
-            - binary_sensor.alarm15
-            - binary_sensor.alarm16
             - binary_sensor.smoke_sensor_158d00024e008a
             - binary_sensor.smoke_sensor_158d000287ae79
             - binary_sensor.water_leak_sensor_158d00023385f2
