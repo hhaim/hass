@@ -103,6 +103,17 @@ services:
     volumes:
       - ./dns-monitor/ch-ui:/app/data
 
-
+  openwrt-apk:
+    image: nginx:stable-alpine
+    restart: unless-stopped
+    ports:
+      - "8088:80"
+    volumes:
+      - ./openwrt-apk:/usr/share/nginx/html:ro
+    logging:
+      driver: local
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 

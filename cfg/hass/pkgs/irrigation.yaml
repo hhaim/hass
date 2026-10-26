@@ -20,7 +20,7 @@ homeassistant:
 # rain_min to filter small amount of noise per day 
 wb_irrigation:
   api_key: !secret openweathermap_key
-  rain_factor: 90
+  rain_factor: 40
   rain_min_value: 7 
   max_ev: 3000 
   min_ev: -1500.0

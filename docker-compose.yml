@@ -283,6 +283,19 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - "${NETDC_ROOT}:${NETDC_ROOT}:ro"
 
+  pagefire:
+    image: frigate:5001/pagefire/pagefire:v1.0
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./pagefire-data:/data
+    environment:
+      PAGEFIRE_PORT: "3000"
+      PAGEFIRE_DATA_DIR: "/data"
+      PAGEFIRE_LOG_LEVEL: "info"
+    restart: unless-stopped
+
+
 volumes:
   hass_nas_20:
     driver: local
